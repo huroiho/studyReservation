@@ -6,11 +6,11 @@ spring:
   application:
     name: Project3-StudyRoomReservation
 
-  # ---  Servlet ---
-  servlet:
-    multipart:
-      max-file-size:
-      max-request-size:
+#  # ---  Servlet ---
+#  servlet:
+#    multipart:
+#      max-file-size:
+#      max-request-size:
 
   # ---  JPA/DB  ---
   jpa:
