@@ -1,0 +1,57 @@
+spring:
+  profiles:
+    # [??] 'local'
+    active: local
+
+  application:
+    name: Project3-StudyRoomReservation
+
+  # ---  Servlet ---
+  servlet:
+    multipart:
+      max-file-size:
+      max-request-size:
+
+  # ---  JPA/DB  ---
+  jpa:
+    open-in-view: false # [] OSIV
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100 # [] N+1
+
+
+  # --- View  ---
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+# --- Server  ---
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr([%X{traceId:-NO_ID}]){yellow} [%thread] %logger{36} - %msg%n"
+
+
+#  # --- AWS  ---
+#  cloud:
+#    aws:
+#      credentials:
+#        access-key: ${AWS_ACCESS_KEY:default_key}
+#        secret-key: ${AWS_SECRET_KEY:default_secret}
+#      region:
+#        static: ap-northeast-2
+#      s3:
+#        endpoint: https://s3.ap-northeast-2.amazonaws.com
