@@ -2,7 +2,7 @@
 # 학습용으로 실제로는 다른 방식으로 할 것!
 ######################################
 variables:
-  TARGET_BRANCH: "dev"
+  TARGET_BRANCH: "develop"
 stages:
   - build
   - test
