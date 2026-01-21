@@ -51,7 +51,7 @@ deploy_job:
     - echo "운영 서버 배포를 시작합니다..."
     - sudo pkill -f 'java' || true
     - sleep 5
-    - nohup java -Dspring.profiles.active=dev -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
+    - nohup java -Dspring.profiles.active=dev -DDB_PASSWORD="$DB_PASSWORD" -DDB_USERNAME="$DB_USERNAME" -DDB_URL="$DB_URL"  -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
     - echo "배포가 완료되었습니다!"
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
