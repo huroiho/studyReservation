@@ -20,7 +20,7 @@ public class RefundRule extends BaseCreatedEntity {
     private String name;
 
     // 추후 개발 요소를 위한 필드
-//    @Column(nullable = false)
+//    @Column(nullable = false
 //    private Integer priority;
 
     @Column(nullable = false)
