@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.refund.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
+import com.example.studyroomreservation.global.common.BasePolicyEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,16 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "refund_policies")
-public class RefundPolicy extends BaseCreatedEntity {
-
-    @Column(nullable = false, length = 50)
-    private String name;
-
-    @Column(nullable = false)
-    private Boolean isActive;
-
-    @Column(nullable = false)
-    private LocalDateTime activeUpdatedAt;
+public class RefundPolicy extends BasePolicyEntity {
 
     // 정책 삭제 시 규칙도 자동 삭제
     @OneToMany(mappedBy = "refundPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -33,7 +25,6 @@ public class RefundPolicy extends BaseCreatedEntity {
         this.name = name;
         this.isActive = true;
         this.activeUpdatedAt = LocalDateTime.now();
-
         if (rules != null) {
             for (RefundRule rule : rules) {
                 this.addRule(rule);
@@ -55,15 +46,5 @@ public class RefundPolicy extends BaseCreatedEntity {
     public void addRule(RefundRule rule) {
         this.rules.add(rule);
         rule.setRefundPolicy(this);
-    }
-
-    public void deactivate() {
-        this.isActive = false;
-        this.activeUpdatedAt = LocalDateTime.now();
-    }
-
-    public void activate() {
-        this.isActive = true;
-        this.activeUpdatedAt = LocalDateTime.now();
     }
 }
