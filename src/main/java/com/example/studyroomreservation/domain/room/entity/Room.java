@@ -25,12 +25,11 @@ public class Room extends BaseSoftDeletableEntity {
     private OperationPolicy operationPolicy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "refund_policy_id", nullable = false)
-    private RefundPolicy refundPolicy;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_rule_id", nullable = false)
     private RoomRule roomRule;
+
+    @Column(name="refund_policy_id", nullable = false)
+    private Long refundPolicyId;
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -67,15 +66,15 @@ public class Room extends BaseSoftDeletableEntity {
 
 
     private Room(OperationPolicy operationPolicy,
-                 RefundPolicy refundPolicy,
                  RoomRule roomRule,
+                 Long refundPolicyId,
                  String name,
                  Integer maxCapacity,
                  Integer price,
                  Set<AmenityType> amenities){
         this.operationPolicy = operationPolicy;
-        this.refundPolicy = refundPolicy;
         this.roomRule = roomRule;
+        this.refundPolicyId = refundPolicyId;
         this.name = name;
         this.maxCapacity = maxCapacity;
         this.price = price;
@@ -86,28 +85,28 @@ public class Room extends BaseSoftDeletableEntity {
 
     // --- 정적 팩토리 메서드 ----
     public static Room create(OperationPolicy operationPolicy,
-                              RefundPolicy refundPolicy,
                               RoomRule roomRule,
+                              Long refundPolicyId,
                               String name,
                               Integer maxCapacity,
                               Integer price,
                               Set<AmenityType> amenities) {
 
-        validate(operationPolicy, refundPolicy, roomRule, name, maxCapacity, price);
+        validate(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price);
 
-        return new Room(operationPolicy, refundPolicy, roomRule, name, maxCapacity, price, amenities);
+        return new Room(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price, amenities);
     }
 
     // --- 유효성 검증 ----
     private static void validate(
             OperationPolicy operationPolicy,
-            RefundPolicy refundPolicy,
             RoomRule roomRule,
+            Long refundPolicyId,
             String name,
             Integer maxCapacity,
             Integer price
     ) {
-        if (operationPolicy == null || refundPolicy == null || roomRule == null) {
+        if (operationPolicy == null || refundPolicyId == null || roomRule == null) {
             throw new IllegalArgumentException("운영정책은 필수입니다.");
         }
         if (name == null || name.isBlank()) {
@@ -130,6 +129,10 @@ public class Room extends BaseSoftDeletableEntity {
 
     public void inactivate() {
         this.status = RoomStatus.INACTIVE;
+    }
+
+    public void activate() {
+        this.status = RoomStatus.ACTIVE;
     }
 
     public void updateRoom(String name, Integer price, Integer maxCapacity) {
