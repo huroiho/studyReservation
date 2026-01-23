@@ -3,11 +3,14 @@ package com.example.studyroomreservation.domain.room.entity;
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoomImage extends BaseCreatedEntity {
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id", nullable = false)
     private Room room;
@@ -27,19 +30,22 @@ public class RoomImage extends BaseCreatedEntity {
         MAIN, THUMBNAIL, GENERAL
     }
 
+    private RoomImage(Room room, String imageUrl, ImageType type, Integer sortOrder){
+        this.room = room;
+        this.imageUrl = imageUrl;
+        this.type = type;
+        this.sortOrder = sortOrder;
+    }
+
     // --- 정적 팩토리 메서드 ----
     public static RoomImage create(Room room, String imageUrl, ImageType type, Integer sortOrder){
 
         validate(room, imageUrl);
-
-        RoomImage roomImage = new RoomImage();
-        roomImage.room = room;
-        roomImage.imageUrl = imageUrl;
-        roomImage.type = type;
-        roomImage.sortOrder = sortOrder;
-
+        RoomImage roomImage = new RoomImage(room, imageUrl, type, sortOrder);
+        room.addImage(roomImage);
         return roomImage;
     }
+
     // --- 유효성 검증 ----
     private static void validate(Room room, String imageUrl
     ) {
@@ -50,4 +56,10 @@ public class RoomImage extends BaseCreatedEntity {
             throw new IllegalArgumentException("이미지는 필수입니다.");
         }
     }
+
+    //==========================================
+    public void initRoom(Room room) {
+        this.room = room;
+    }
+
 }

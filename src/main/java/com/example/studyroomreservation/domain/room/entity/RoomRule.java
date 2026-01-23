@@ -4,30 +4,31 @@ import com.example.studyroomreservation.global.common.BasePolicyEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoomRule extends BasePolicyEntity {
+
     @Column(name="min_duration_minutes", nullable = false)
-    @ColumnDefault("60")
     private Integer minDurationMinutes;
 
     @Column(name="booking_open_days", nullable = false)
-    @ColumnDefault("30")
     private Integer bookingOpenDays;
+
+    // --- Private 생성자  ---
+    private RoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays){
+        this.name = name;
+        this.minDurationMinutes = minDurationMinutes != null ? minDurationMinutes : 60;
+        this.bookingOpenDays = bookingOpenDays != null ? bookingOpenDays : 30;
+    };
 
     // --- 정적 팩토리 메서드 ----
     public static RoomRule create(String name, Integer minDurationMinutes, Integer bookingOpenDays){
 
         validate(name, minDurationMinutes, bookingOpenDays);
-        RoomRule roomRule = new RoomRule();
-        roomRule.name = name;
-        roomRule.minDurationMinutes = minDurationMinutes != null ? minDurationMinutes : 60;
-        roomRule.bookingOpenDays = bookingOpenDays != null ? bookingOpenDays : 30;
-
-        return roomRule;
+        return new RoomRule(name, minDurationMinutes, bookingOpenDays);
     }
+
     // --- 유효성 검증 ----
     private static void validate(
             String name,
