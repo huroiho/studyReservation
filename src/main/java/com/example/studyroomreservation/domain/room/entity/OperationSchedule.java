@@ -11,6 +11,7 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
+@Table(name = "operation_schedules")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationSchedule extends BaseCreatedEntity {
 
