@@ -32,10 +32,19 @@ public class RefundPolicy extends BaseCreatedEntity {
     private RefundPolicy(String name) {
         this.name = name;
         this.isActive = true;
-        this.activeUpdatedAt = LocalDateTime.now();
     }
 
+    public static RefundPolicy create(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("정책 이름은 필수입니다.");
+        }
+        return new RefundPolicy(name);
+    }
 
+    // 연관 관계 편의 매서드(규칙 생성되면 정책에도 반영되도록)
+    public void addRule(RefundRule rule) {
+        this.rules.add(rule);
+    }
 
     public void deactivate() {
         this.isActive = false;
