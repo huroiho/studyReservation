@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name="room_rules")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoomRule extends BasePolicyEntity {
 
