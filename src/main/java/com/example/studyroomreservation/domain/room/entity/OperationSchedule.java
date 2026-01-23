@@ -31,7 +31,8 @@ public class OperationSchedule extends BaseCreatedEntity {
     @Column(name = "is_closed", nullable = false)
     private boolean isClosed = false;
 
-    OperationSchedule(OperationPolicy policy,
+
+    private OperationSchedule(OperationPolicy policy,
                               DayOfWeek dayOfWeek,
                               LocalTime openTime,
                               LocalTime closeTime,
@@ -43,6 +44,14 @@ public class OperationSchedule extends BaseCreatedEntity {
         this.operationPolicy = policy;
         this.dayOfWeek = dayOfWeek;
         assignBusinessHours(openTime, closeTime, closed);
+    }
+
+    public static OperationSchedule create(OperationPolicy policy,
+                                           DayOfWeek dayOfWeek,
+                                           LocalTime openTime,
+                                           LocalTime closeTime,
+                                           boolean closed){
+        return new OperationSchedule(policy,dayOfWeek,openTime,closeTime,closed);
     }
 
     private void assignBusinessHours(LocalTime openTime, LocalTime closeTime, boolean closed) {
