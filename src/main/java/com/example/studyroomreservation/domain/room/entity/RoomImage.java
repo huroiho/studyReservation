@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name="room_images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoomImage extends BaseCreatedEntity {
 
