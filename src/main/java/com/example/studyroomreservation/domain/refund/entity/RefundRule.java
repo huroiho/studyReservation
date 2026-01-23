@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "refund_rule")
+@Table(name = "refund_rules")
 public class RefundRule extends BaseCreatedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,24 +29,26 @@ public class RefundRule extends BaseCreatedEntity {
     @Column(nullable = false)
     private Integer refundRate;
 
-    private RefundRule(RefundPolicy refundPolicy ,String name, Integer refundBaseMinutes, Integer refundRate ){
-        this.refundPolicy = refundPolicy;
+    private RefundRule(String name, Integer refundBaseMinutes, Integer refundRate) {
         this.name = name;
         this.refundBaseMinutes = refundBaseMinutes;
         this.refundRate = refundRate;
     }
 
-    public static RefundRule create(RefundPolicy refundPolicy, String name, Integer refundBaseMinutes, Integer refundRate) {
-        if (refundPolicy == null) {
-            throw new IllegalArgumentException("환불 정책(부모) 정보가 없습니다.");
-        }
+    public static RefundRule create(String name, Integer refundBaseMinutes, Integer refundRate) {
         if (refundRate < 0 || refundRate > 100) {
             throw new IllegalArgumentException("환불 비율은 0~100 사이여야 합니다.");
         }
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("규칙 이름은 필수입니다.");
         }
+        return new RefundRule(name, refundBaseMinutes, refundRate);
+    }
 
-        return new RefundRule(refundPolicy, name, refundBaseMinutes, refundRate);
+    void setRefundPolicy(RefundPolicy refundPolicy) {
+        if (this.refundPolicy != null) {
+            throw new IllegalStateException("이미 환불 정책이 할당되어 있습니다.");
+        }
+        this.refundPolicy = refundPolicy;
     }
 }

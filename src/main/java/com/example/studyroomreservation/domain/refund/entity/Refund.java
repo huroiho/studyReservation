@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "refunds")
 public class Refund extends BaseAuditableEntity {
 
-    //TODO: 결제에 대해 환불이 1회만 가능하도록 할건지, 다회 환불이 가능하도록 할 건지 -> 수정 완료
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
@@ -58,7 +57,7 @@ public class Refund extends BaseAuditableEntity {
 
     //TODO: 환불시 pg사에서 뭘 주는지 몰라서 추후 인자 값 넣기 -> 없으면 서버시간으로
     public void complete(LocalDateTime pgRefundedAt){
-        this.status = RefundStatus.COMPLETED;
+        this.status = RefundStatus.SUCCESS;
         this.refundedAt = (pgRefundedAt != null) ? pgRefundedAt : LocalDateTime.now();
     }
 
