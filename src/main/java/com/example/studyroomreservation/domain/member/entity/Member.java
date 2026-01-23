@@ -12,25 +12,19 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-        name = "members",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "email"),
-                @UniqueConstraint(columnNames = "phone_number")
-        }
-)
+@Table(name = "members")
 public class Member extends BaseSoftDeletableEntity {
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
 
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(name = "phone_number", nullable = false, length = 20)
+    @Column(name = "phone_number", nullable = false, length = 20, unique = true)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
