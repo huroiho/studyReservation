@@ -56,9 +56,9 @@ public class Refund extends BaseAuditableEntity {
     }
 
     //TODO: 환불시 pg사에서 뭘 주는지 몰라서 추후 인자 값 넣기 -> 없으면 서버시간으로
-    public void complete(LocalDateTime pgRefundedAt){
+    public void complete(LocalDateTime pgRefundedTime){
         this.status = RefundStatus.SUCCESS;
-        this.refundedAt = (pgRefundedAt != null) ? pgRefundedAt : LocalDateTime.now();
+        this.refundedAt = (pgRefundedTime != null) ? pgRefundedTime : LocalDateTime.now();
     }
 
     public void failed(LocalDateTime pgFailedAt){
