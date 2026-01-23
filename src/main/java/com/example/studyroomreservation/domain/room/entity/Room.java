@@ -16,6 +16,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Table(name="rooms")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room extends BaseSoftDeletableEntity {
 
