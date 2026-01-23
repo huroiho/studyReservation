@@ -10,6 +10,8 @@ public enum ErrorCode {
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "알 수 없는 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "C002", "잘못된 요청입니다.");
 
+    // REFUND_DUPLICATE_REQUEST
+
     private final HttpStatus status;
     private final String code;
     private final String message;

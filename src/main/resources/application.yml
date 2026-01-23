@@ -14,4 +14,4 @@ spring:
         format_sql: true
 
   profiles:
-    active: test
+    active:
