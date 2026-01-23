@@ -17,6 +17,8 @@ public class OperationPolicy extends BasePolicyEntity {
     @Column(name = "slot_unit", nullable = false, updatable = false)
     private SlotUnit slotUnit;
 
+    //정책 하나에 여러 시간표, 스케줄을 List로 담기
+    //orphanRemoval = 고아객체 제거
     @OneToMany(mappedBy = "operationPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<OperationSchedule> schedules = new ArrayList<>();
 
@@ -25,13 +27,14 @@ public class OperationPolicy extends BasePolicyEntity {
         this.slotUnit = slotUnit;
     }
 
-    public static OperationPolicy create(String name, SlotUnit slotUnit,
+    public static OperationPolicy createWith7Days(String name, SlotUnit slotUnit,
                                          List<ScheduleDraft> drafts) {
         OperationPolicy policy = new OperationPolicy(name, slotUnit);
         policy.initializeSchedules(drafts);
         return policy;
     }
 
+    //검증 후 DB객체 생성
     private void initializeSchedules(List<ScheduleDraft> drafts) {
         if (drafts == null || drafts.size() != 7) {
             throw new IllegalArgumentException("월~일 7개의 OperationSchedule이 필요");
@@ -40,6 +43,7 @@ public class OperationPolicy extends BasePolicyEntity {
         // 요일 중복, 누락 방지
         EnumSet<DayOfWeek> seen =  EnumSet.noneOf(DayOfWeek.class);
 
+        //기존에 담긴 스케줄 비우기
         this.schedules.clear();
 
         for (ScheduleDraft d : drafts) {
@@ -47,13 +51,14 @@ public class OperationPolicy extends BasePolicyEntity {
             if (!seen.add(d.dayOfWeek())) {
                 throw new IllegalStateException("요일 스케줄이 중복되었습니다: " + d.dayOfWeek());
             }
-            this.schedules.add(new OperationSchedule(
+            OperationSchedule schedule = OperationSchedule.create(
                     this,
                     d.dayOfWeek(),
                     d.openTime(),
                     d.closeTime(),
                     d.isClosed()
-            ));
+            );
+            this.schedules.add(schedule);
         }
         if (seen.size() != 7) {
             throw new IllegalStateException("OperationPolicy는 월~일 모든 요일 스케줄이 필요합니다.");
