@@ -39,7 +39,7 @@ public class Member extends BaseSoftDeletableEntity {
         this.role = role;
     }
 
-    public static Member create(String name, String email, String encodedPassword, String phoneNumber) {
+    public static Member createUser(String name, String email, String encodedPassword, String phoneNumber) {
         return new Member(name, email, encodedPassword, phoneNumber, Role.USER);
     }
 
