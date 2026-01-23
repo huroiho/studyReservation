@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Entity
+@Table(name = "operation_policies")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 
