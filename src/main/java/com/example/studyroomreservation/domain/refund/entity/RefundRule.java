@@ -36,8 +36,17 @@ public class RefundRule extends BaseCreatedEntity {
         this.refundRate = refundRate;
     }
 
+    public static RefundRule create(RefundPolicy refundPolicy, String name, Integer refundBaseMinutes, Integer refundRate) {
+        if (refundPolicy == null) {
+            throw new IllegalArgumentException("환불 정책(부모) 정보가 없습니다.");
+        }
+        if (refundRate < 0 || refundRate > 100) {
+            throw new IllegalArgumentException("환불 비율은 0~100 사이여야 합니다.");
+        }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("규칙 이름은 필수입니다.");
+        }
 
-
-
-
+        return new RefundRule(refundPolicy, name, refundBaseMinutes, refundRate);
+    }
 }
