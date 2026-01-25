@@ -36,10 +36,10 @@ public class RefundPolicy extends BasePolicyEntity {
 
     public static RefundPolicy createPolicy(String name, List<RefundRule> rules) {
         if (name == null || name.isBlank()) {
-            throw new BusinessException(ErrorCode.REFUND_POLICY_NAME_REQUIRED);
+            throw new BusinessException(ErrorCode.REF_POLICY_NAME_REQUIRED);
         }
         if (rules == null || rules.isEmpty()) {
-            throw new BusinessException(ErrorCode.REFUND_RULE_REQUIRED);
+            throw new BusinessException(ErrorCode.REF_RULE_REQUIRED);
         }
         return new RefundPolicy(name, rules);
     }

@@ -39,17 +39,17 @@ public class RefundRule extends BaseCreatedEntity {
 
     public static RefundRule createRule(String name, Integer refundBaseMinutes, Integer refundRate) {
         if (refundRate < 0 || refundRate > 100) {
-            throw new BusinessException(ErrorCode.REFUND_RATE_INVALID);
+            throw new BusinessException(ErrorCode.REF_RATE_INVALID);
         }
         if (name == null || name.isBlank()) {
-            throw new BusinessException(ErrorCode.REFUND_RULE_NAME_REQUIRED);
+            throw new BusinessException(ErrorCode.REF_RULE_NAME_REQUIRED);
         }
         return new RefundRule(name, refundBaseMinutes, refundRate);
     }
 
     void setRefundPolicy(RefundPolicy refundPolicy) {
         if (this.refundPolicy != null) {
-            throw new BusinessException(ErrorCode.REFUND_POLICY_ALREADY_ASSIGNED);
+            throw new BusinessException(ErrorCode.REF_POLICY_ALREADY_ASSIGNED);
         }
         this.refundPolicy = refundPolicy;
     }
