@@ -2,6 +2,8 @@ package com.example.studyroomreservation.domain.refund.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
 import com.example.studyroomreservation.global.common.BasePolicyEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,10 +36,10 @@ public class RefundPolicy extends BasePolicyEntity {
 
     public static RefundPolicy createPolicy(String name, List<RefundRule> rules) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("정책 이름은 필수입니다.");
+            throw new BusinessException(ErrorCode.REFUND_POLICY_NAME_REQUIRED);
         }
         if (rules == null || rules.isEmpty()) {
-            throw new IllegalArgumentException("최소 하나의 환불 규칙이 필요합니다.");
+            throw new BusinessException(ErrorCode.REFUND_RULE_REQUIRED);
         }
         return new RefundPolicy(name, rules);
     }
