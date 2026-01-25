@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
         // 뷰에서 쓸 값들
         model.addAttribute("code", errorCode.getCode());
-        model.addAttribute("message", e.getMessage());
+        model.addAttribute("message", errorCode.getMessage());
         model.addAttribute("path", request.getRequestURI());
 
         // 공통 에러 페이지로
