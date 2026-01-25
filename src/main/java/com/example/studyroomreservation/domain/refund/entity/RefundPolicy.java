@@ -32,7 +32,7 @@ public class RefundPolicy extends BasePolicyEntity {
         }
     }
 
-    public static RefundPolicy create(String name, List<RefundRule> rules) {
+    public static RefundPolicy createPolicy(String name, List<RefundRule> rules) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("정책 이름은 필수입니다.");
         }

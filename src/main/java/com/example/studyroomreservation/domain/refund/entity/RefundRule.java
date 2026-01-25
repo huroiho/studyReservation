@@ -35,7 +35,7 @@ public class RefundRule extends BaseCreatedEntity {
         this.refundRate = refundRate;
     }
 
-    public static RefundRule create(String name, Integer refundBaseMinutes, Integer refundRate) {
+    public static RefundRule createRule(String name, Integer refundBaseMinutes, Integer refundRate) {
         if (refundRate < 0 || refundRate > 100) {
             throw new IllegalArgumentException("환불 비율은 0~100 사이여야 합니다.");
         }
