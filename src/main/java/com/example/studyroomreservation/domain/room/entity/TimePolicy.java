@@ -4,5 +4,5 @@ import com.example.studyroomreservation.global.common.BaseSoftDeletableEntity;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Room extends BaseSoftDeletableEntity {
+public class TimePolicy extends BaseSoftDeletableEntity {
 }
