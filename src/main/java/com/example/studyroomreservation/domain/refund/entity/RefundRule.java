@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.refund.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,19 +37,19 @@ public class RefundRule extends BaseCreatedEntity {
         this.refundRate = refundRate;
     }
 
-    public static RefundRule create(String name, Integer refundBaseMinutes, Integer refundRate) {
+    public static RefundRule createRule(String name, Integer refundBaseMinutes, Integer refundRate) {
         if (refundRate < 0 || refundRate > 100) {
-            throw new IllegalArgumentException("환불 비율은 0~100 사이여야 합니다.");
+            throw new BusinessException(ErrorCode.REF_RATE_INVALID);
         }
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("규칙 이름은 필수입니다.");
+            throw new BusinessException(ErrorCode.REF_RULE_NAME_REQUIRED);
         }
         return new RefundRule(name, refundBaseMinutes, refundRate);
     }
 
     void setRefundPolicy(RefundPolicy refundPolicy) {
         if (this.refundPolicy != null) {
-            throw new IllegalStateException("이미 환불 정책이 할당되어 있습니다.");
+            throw new BusinessException(ErrorCode.REF_POLICY_ALREADY_ASSIGNED);
         }
         this.refundPolicy = refundPolicy;
     }
