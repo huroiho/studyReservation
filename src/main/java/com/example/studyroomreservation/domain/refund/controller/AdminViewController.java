@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.refund.controller;
 
 import com.example.studyroomreservation.domain.refund.service.AdminRefundPolicyService;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/refund/admin")
 public class AdminViewController {
 
-    private final AdminRefundPolicyService adminRefundPolicyService;
+    private final RefundPolicyService refundPolicyService;
 
     @GetMapping("/list")
     public String refundPolicyList(
@@ -24,13 +25,13 @@ public class AdminViewController {
             Pageable pageable,
             Model model
     ) {
-        model.addAttribute("page", adminRefundPolicyService.getRefundPolicyPage(pageable));
+        model.addAttribute("page", refundPolicyService.getRefundPolicyPage(pageable));
         return "refund/admin/list";
     }
 
     @GetMapping("/{policyId}")
     public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
-        model.addAttribute("policy", adminRefundPolicyService.getRefundPolicyDetail(policyId));
+        model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
         return "refund/admin/detail";
     }
 }
