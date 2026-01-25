@@ -3,6 +3,8 @@ package com.example.studyroomreservation.domain.refund.entity;
 
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.global.common.BaseAuditableEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -44,12 +46,12 @@ public class Refund extends BaseAuditableEntity {
 
         // 결제 정보 검증
         if (payment == null) {
-            throw new IllegalArgumentException("환불 대상 결제 정보는 필수입니다.");
+            throw new BusinessException(ErrorCode.REF_PAYMENT_REQUIRED);
         }
 
         // 환불 금액 검증 (0원 이하 환불 불가 정책 가정)
         if (refundAmount == null || refundAmount <= 0) {
-            throw new IllegalArgumentException("환불 금액은 0원보다 커야 합니다.");
+            throw new BusinessException(ErrorCode.REF_RATE_INVALID);
         }
 
         return new Refund(payment, appliedRefundPolicyId, refundAmount);
