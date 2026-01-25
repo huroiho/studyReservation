@@ -1,6 +1,5 @@
 package com.example.studyroomreservation.domain.refund.controller;
 
-import com.example.studyroomreservation.domain.refund.service.AdminRefundPolicyService;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
