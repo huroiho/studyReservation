@@ -3,11 +3,14 @@ package com.example.studyroomreservation.domain.room.entity;
 import com.example.studyroomreservation.global.common.BasePolicyEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter @Setter
 @Table(name="room_rules")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class RoomRule extends BasePolicyEntity {
 
     @Column(name="min_duration_minutes", nullable = false)
@@ -25,25 +28,6 @@ public class RoomRule extends BasePolicyEntity {
 
     // --- 정적 팩토리 메서드 ----
     public static RoomRule create(String name, Integer minDurationMinutes, Integer bookingOpenDays){
-
-        validate(name, minDurationMinutes, bookingOpenDays);
         return new RoomRule(name, minDurationMinutes, bookingOpenDays);
-    }
-
-    // --- 유효성 검증 ----
-    private static void validate(
-            String name,
-            Integer minDurationMinutes,
-            Integer bookingOpenDays
-    ) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("정책 이름은 필수입니다.");
-        }
-        if (minDurationMinutes != null && minDurationMinutes <= 0) {
-            throw new IllegalArgumentException("최소 이용시간은 1분 이상이어야 합니다.");
-        }
-        if (bookingOpenDays != null && bookingOpenDays < 0) {
-            throw new IllegalArgumentException("예약 오픈일 수는 0 이상이어야 합니다.");
-        }
     }
 }
