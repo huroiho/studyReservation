@@ -1,6 +1,6 @@
 package com.example.studyroomreservation.domain.room.mapper;
 
-import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+//import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.RoomResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
@@ -23,10 +23,10 @@ public interface RoomMapper {
 
     // Request DTO -> Entity (등록)
     // Room + RoomImage
-    @Mapping(target = "roomRule", ignore = true) //mapping 다시보기
-    Room toRoomEntity(RoomCreateRequest request); // Room 엔티티 내부의 RoomRule 연관관계는 서비스에서 주입하거나 ID로 매핑
-    List<RoomImage> toImageEntities(List<RoomCreateRequest.RoomImageRequest> requests); // List<RoomImageRequest> -> List<RoomImage> 변환
-    RoomImage toImageEntity(RoomCreateRequest.RoomImageRequest request);
+//    @Mapping(target = "roomRule", ignore = true) //mapping 다시보기
+//    Room toRoomEntity(RoomCreateRequest request); // Room 엔티티 내부의 RoomRule 연관관계는 서비스에서 주입하거나 ID로 매핑
+//    List<RoomImage> toImageEntities(List<RoomCreateRequest.RoomImageRequest> requests); // List<RoomImageRequest> -> List<RoomImage> 변환
+//    RoomImage toImageEntity(RoomCreateRequest.RoomImageRequest request);
 
     // RoomRule
     @Mapping(target = "active", ignore = true) // 명세서 Def: T 반영
