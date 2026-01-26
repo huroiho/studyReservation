@@ -18,25 +18,18 @@ import java.util.stream.Collectors;
 )
 public interface RefundMapper {
 
-    @Mapping(target = "rules", ignore = true)
-    RefundPolicy toEntity(RefundPolicyRequest request);
-
-    RefundRule toRuleEntity(RefundRuleRequest request);
-
-    @ObjectFactory
     default RefundPolicy createPolicy(RefundPolicyRequest request) {
         if (request == null) {
             return null;
         }
 
         List<RefundRule> rules = request.rules().stream()
-                .map(this::toRuleEntity)
+                .map(this::createRule)
                 .collect(Collectors.toList());
 
         return RefundPolicy.createPolicy(request.name(), rules);
     }
 
-    @ObjectFactory
     default RefundRule createRule(RefundRuleRequest request) {
         if (request == null) {
             return null;

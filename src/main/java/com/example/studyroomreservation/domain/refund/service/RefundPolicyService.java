@@ -7,7 +7,6 @@ import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRep
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,10 +29,8 @@ public class RefundPolicyService {
                     "policy name: " + request.name()
             );
         }
-
-        RefundPolicy newPolicy = refundMapper.toEntity(request);
-        RefundPolicy savedPolicy = refundPolicyRepository.saveAndFlush(newPolicy);
-
+        RefundPolicy newPolicy = refundMapper.createPolicy(request);
+        RefundPolicy savedPolicy = refundPolicyRepository.save(newPolicy);
         return savedPolicy.getId();
     }
 }
