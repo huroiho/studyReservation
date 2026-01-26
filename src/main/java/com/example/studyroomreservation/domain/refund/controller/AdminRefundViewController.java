@@ -52,7 +52,7 @@ public class AdminRefundViewController {
         return "redirect:refund/admin/policy-form";
     }
 
-    @GetMapping("/list")
+    @GetMapping("/policy/list")
     public String refundPolicyList(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
             Pageable pageable,
@@ -62,7 +62,7 @@ public class AdminRefundViewController {
         return "refund/admin/list";
     }
 
-    @GetMapping("/{policyId}")
+    @GetMapping("/policy/{policyId}")
     public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
         model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
         return "refund/admin/detail";

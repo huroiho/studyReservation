@@ -18,6 +18,7 @@ public enum ErrorCode {
     REF_POLICY_ALREADY_ASSIGNED(HttpStatus.BAD_REQUEST, "RE005", "이미 환불 정책이 할당되어 있습니다."),
     REF_PAYMENT_REQUIRED(HttpStatus.BAD_REQUEST, "RE006", "환불 대상 결제 정보는 필수입니다."),
     REF_AMOUNT_INVALID(HttpStatus.BAD_REQUEST, "RE007", "환불 금액은 0원보다 커야 합니다."),
+    REF_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "RF008", "환불 정책이 존재하지 않습니다."),
 
     // RESERVATION
     RES_REQUIRED_VALUE_MISSING(HttpStatus.BAD_REQUEST, "R001", "필수 값이 누락되었습니다."),

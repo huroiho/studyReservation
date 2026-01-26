@@ -5,7 +5,7 @@ import java.util.List;
 
 public record RefundPolicyDetailResponse(
 
-        Long policyId,
+        Long id,
         String name,
         boolean isActive,
         LocalDateTime createdAt,

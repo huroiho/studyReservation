@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record RefundRuleResponse(
 
-        Long ruleId,
+        Long id,
         String name,
         Integer refundBaseMinutes,
         Integer refundRate,

@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record RefundPolicyListResponse(
 
-        Long policyId,
+        Long id,
         String name,
         boolean isActive,
         long ruleCount,

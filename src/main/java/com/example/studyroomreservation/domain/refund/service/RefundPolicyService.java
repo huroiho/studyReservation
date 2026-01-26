@@ -8,6 +8,8 @@ import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.mapper.RefundMapper;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
 import com.example.studyroomreservation.domain.refund.repository.RefundRuleRepository;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,45 +39,18 @@ public class RefundPolicyService {
     @Transactional(readOnly = true)
     public Page<RefundPolicyListResponse> getRefundPolicyPage(Pageable pageable) {
         return refundPolicyRepository.findAll(pageable)
-                .map(this::toListRes);
+                .map(refundPolicy -> {
+                    long ruleCount = refundRuleRepository.countByRefundPolicyId(refundPolicy.getId());
+                    return refundMapper.toListResponse(refundPolicy, ruleCount);
+                });
     }
 
     @Transactional(readOnly = true)
     public RefundPolicyDetailResponse getRefundPolicyDetail(Long policyId) {
-        RefundPolicy policy = refundPolicyRepository.findById(policyId)
-                .orElseThrow(() -> new IllegalArgumentException("환불 정책이 존재하지 않습니다. id=" + policyId));
+        RefundPolicy refundPolicy = refundPolicyRepository.findById(policyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
 
-        List<RefundRuleResponse> rules = policy.getRules().stream()
-                .map(r -> new RefundRuleResponse(
-                        r.getId(),
-                        r.getName(),
-                        r.getRefundBaseMinutes(),
-                        r.getRefundRate(),
-                        r.getCreatedAt()
-                ))
-                .toList();
-
-        return new RefundPolicyDetailResponse(
-                policy.getId(),
-                policy.getName(),
-                policy.isActive(),
-                policy.getCreatedAt(),
-                policy.getActiveUpdatedAt(),
-                rules
-        );
-    }
-
-    private RefundPolicyListResponse toListRes(RefundPolicy policy) {
-        long ruleCount = refundRuleRepository.countByRefundPolicyId(policy.getId());
-
-        return new RefundPolicyListResponse(
-                policy.getId(),
-                policy.getName(),
-                policy.isActive(),
-                ruleCount,
-                policy.getCreatedAt(),
-                policy.getActiveUpdatedAt()
-        );
+        return refundMapper.toDetailResponse(refundPolicy);
     }
 }
 
