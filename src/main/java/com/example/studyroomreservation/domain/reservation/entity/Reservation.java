@@ -103,6 +103,7 @@ public class Reservation extends BaseAuditableEntity {
 
         if (appliedOperationPolicyId == null || appliedRefundPolicyId == null)
             throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING, "policyId");
+
         if (startTime == null || endTime == null)
             throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING, "startTime/endTime");
 
@@ -144,6 +145,7 @@ public class Reservation extends BaseAuditableEntity {
         expiresAt = null;
     }
 
+    // TODO : 환불 기능 들어가면 수정 필요
     public void cancel(LocalDateTime now){
         validateTransitionTime(now);
         validateTransitionTo(CANCELED);
@@ -153,6 +155,7 @@ public class Reservation extends BaseAuditableEntity {
         this.expiresAt = null;
     }
 
+    // TODO : USING 상태 추가 후 변경 필요(reservation 논의사항 참고)
     public void completeUsage(LocalDateTime now){
         validateTransitionTime(now);
         validateTransitionTo(USED);
