@@ -33,24 +33,4 @@ public class RefundPolicyService {
         RefundPolicy savedPolicy = refundPolicyRepository.save(newPolicy);
         return savedPolicy.getId();
     }
-
-
-    /*
-    @Transactional
-    public Long createPolicy(RefundPolicyRequest request) {
-
-        // 1. DTO List -> Entity List 변환
-        List<RefundRule> rules = request.rules().stream()
-                .map(RefundRuleRequest::toEntity)
-                .toList();
-
-        // 2. 도메인 로직 호출 (정적 팩토리 메서드)
-        RefundPolicy policy = RefundPolicy.createPolicy(request.name(), rules);
-
-        // 3. 저장
-        RefundPolicy savedPolicy = refundPolicyRepository.save(policy);
-        return savedPolicy.getId();
-    }
-    */
-
 }
