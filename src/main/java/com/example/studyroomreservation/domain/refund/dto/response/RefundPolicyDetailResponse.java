@@ -7,7 +7,7 @@ public record RefundPolicyDetailResponse(
 
         Long id,
         String name,
-        boolean isActive,
+        boolean active,
         LocalDateTime createdAt,
         LocalDateTime activeUpdatedAt,
         List<RefundRuleResponse> rules

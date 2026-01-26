@@ -55,7 +55,7 @@
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-label">정책 ID</div>
-                <div class="info-value" th:text="${policy.policyId}">1</div>
+                <div class="info-value" th:text="${policy.id}">1</div>
             </div>
 
             <div class="info-item">
@@ -66,8 +66,8 @@
             <div class="info-item">
                 <div class="info-label">사용 여부</div>
                 <div class="info-value">
-                    <span class="badge" th:classappend="${policy.isActive} ? 'badge--on' : 'badge--off'"
-                          th:text="${policy.isActive} ? '활성' : '비활성'">활성</span>
+                    <span class="badge" th:classappend="${policy.active} ? 'badge--on' : 'badge--off'"
+                          th:text="${policy.active} ? '활성' : '비활성'">활성</span>
                 </div>
             </div>
 

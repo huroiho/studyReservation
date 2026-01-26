@@ -37,9 +37,12 @@ public class RefundPolicyService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RefundPolicyListResponse> getRefundPolicyPage(Pageable pageable) {
-        return refundPolicyRepository.findAll(pageable)
-                .map(refundPolicy -> {
+    public Page<RefundPolicyListResponse> getRefundPolicyPage(Boolean isActive,Pageable pageable) {
+
+        Page<RefundPolicy> page = (isActive == null)
+                ? refundPolicyRepository.findAll(pageable)
+                : refundPolicyRepository.findByIsActive(isActive, pageable);
+        return page.map(refundPolicy -> {
                     long ruleCount = refundRuleRepository.countByRefundPolicyId(refundPolicy.getId());
                     return refundMapper.toListResponse(refundPolicy, ruleCount);
                 });
@@ -51,6 +54,14 @@ public class RefundPolicyService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
 
         return refundMapper.toDetailResponse(refundPolicy);
+    }
+
+    @Transactional
+    public void changePolicyActive(Long policyId, boolean active) {
+        RefundPolicy policy = refundPolicyRepository.findById(policyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
+
+        policy.changeActive(active);
     }
 }
 

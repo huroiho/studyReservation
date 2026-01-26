@@ -54,11 +54,13 @@ public class AdminRefundViewController {
 
     @GetMapping("/policy/list")
     public String refundPolicyList(
+            @RequestParam(required = false) Boolean active,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
             Pageable pageable,
             Model model
     ) {
-        model.addAttribute("page", refundPolicyService.getRefundPolicyPage(pageable));
+        model.addAttribute("active", active);
+        model.addAttribute("page", refundPolicyService.getRefundPolicyPage(active,pageable));
         return "refund/admin/list";
     }
 
@@ -66,5 +68,11 @@ public class AdminRefundViewController {
     public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
         model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
         return "refund/admin/detail";
+    }
+
+    @PostMapping("/policy/{policyId}/active")
+    public String changePolicyActive(@PathVariable Long policyId, @RequestParam boolean active) {
+        refundPolicyService.changePolicyActive(policyId, active);
+        return "redirect:/admin/refund/policy/list";
     }
 }
