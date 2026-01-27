@@ -1,4 +1,4 @@
-package com.example.studyroomreservation.domain.room.cotroller;
+package com.example.studyroomreservation.domain.room.controller;
 
 import org.springframework.stereotype.Controller;
 

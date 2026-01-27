@@ -1,4 +1,4 @@
-package com.example.studyroomreservation.domain.payment.cotroller;
+package com.example.studyroomreservation.domain.payment.controller;
 
 import org.springframework.stereotype.Controller;
 
