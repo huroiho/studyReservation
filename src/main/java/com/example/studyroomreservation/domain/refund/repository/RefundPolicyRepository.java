@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RefundPolicyRepository extends JpaRepository<RefundPolicy, Long> {
 
     Page<RefundPolicy> findByIsActive(boolean active, Pageable pageable);
+    boolean existsByName(String name);
+
 }
