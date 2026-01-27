@@ -1,0 +1,248 @@
+:root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --primary: #2563eb;
+    --primary-weak: #e8f0ff;
+    --shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+    --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+/* ✅ Sticky footer 필수 1 */
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+
+    /* ✅ Sticky footer 필수 2 */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Topbar */
+.topbar { background: #fff; border-bottom: 1px solid var(--line); }
+.topbar__inner {
+    max-width: 1100px; margin: 0 auto; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand__icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center; background: var(--primary-weak); color: var(--primary);
+    font-weight: 700;
+}
+.brand__name { font-weight: 800; }
+
+.gnb { display: flex; gap: 18px; }
+.gnb__item { text-decoration: none; color: var(--muted); font-weight: 600; }
+.gnb__item--active { color: var(--primary); }
+
+.subnav { border-top: 1px solid var(--line); }
+.subnav__inner {
+    max-width: 1100px; margin: 0 auto; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.subnav__title { color: #9ca3af; font-weight: 600; }
+.subnav__menu { display: flex; gap: 18px; }
+.subnav__item { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px; }
+.subnav__item--active { color: var(--text); font-weight: 800; }
+
+/* Layout */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+
+    /* ✅ Sticky footer 핵심: main이 남는 공간 채우기 */
+    flex: 1;
+}
+
+.page-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    margin-bottom: 14px;
+}
+.page-title { margin: 0; font-size: 22px; letter-spacing: -0.2px; }
+.page-desc { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+/* Buttons */
+.btn {
+    border: 1px solid transparent;
+    background: #fff;
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: none;
+    cursor: pointer;
+}
+.btn--primary {
+    background: var(--primary);
+    color: #fff;
+}
+.btn--sm { padding: 8px 12px; border-radius: 10px; font-size: 13px; }
+
+/* Panel */
+.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+}
+.panel__tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+/* Pills */
+.filters { display: flex; gap: 8px; }
+.pill {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--muted);
+    padding: 9px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+.pill--active {
+    border-color: transparent;
+    background: var(--primary);
+    color: #fff;
+}
+
+/* Empty state */
+.empty {
+    padding: 28px;
+    border-radius: 12px;
+    border: 1px dashed #d1d5db;
+    background: #fafafa;
+}
+.empty__title { font-weight: 800; }
+.empty__desc { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+.table thead th {
+    background: #f9fafb;
+    color: #6b7280;
+    font-size: 12px;
+    text-align: left;
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+}
+.table tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+}
+.table tbody tr:last-child td { border-bottom: 0; }
+
+/* Link */
+.link { color: var(--muted); text-decoration: none; font-weight: 700; }
+.link:hover { color: var(--primary); }
+
+/* Toggle UI only */
+.toggle {
+    width: 44px; height: 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    background: #e5e7eb;
+    position: relative;
+}
+.toggle__dot {
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transform: translateX(0);
+    transition: transform 0.15s ease;
+}
+.toggle--on { background: var(--primary); }
+.toggle--on .toggle__dot { transform: translateX(20px); }
+.toggle--off { background: #e5e7eb; }
+
+/* Pagination */
+.pagination {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-top: 16px;
+}
+.page-btn {
+    text-decoration: none;
+    color: var(--muted);
+    font-weight: 800;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+}
+.page-info { color: var(--muted); font-size: 13px; }
+
+/* Footer */
+.footer {
+    background: #111827;
+    color: #e5e7eb;
+    padding: 34px 0 14px;
+
+    /* (선택) 혹시 flex 영향이 있을까 걱정되면 아래도 OK
+       margin-top: auto; 를 footer에 줘도 sticky 가능 */
+    /* margin-top: auto; */
+}
+.footer__inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 16px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 22px;
+}
+.footer__brand { display: flex; gap: 10px; align-items: flex-start; }
+.footer__logo {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center; background: rgba(37,99,235,0.2); color: #93c5fd;
+}
+.footer__title { font-weight: 900; }
+.footer__desc { margin-top: 8px; color: #9ca3af; font-size: 13px; line-height: 1.45; }
+
+.footer__cols { display: flex; gap: 40px; }
+.footer__col { display: flex; flex-direction: column; gap: 10px; }
+.footer__col-title { font-weight: 900; margin-bottom: 4px; color: #e5e7eb; }
+.footer__col a { color: #9ca3af; text-decoration: none; font-size: 13px; }
+.footer__item { color: #9ca3af; font-size: 13px; }
+
+.footer__bottom {
+    max-width: 1100px; margin: 20px auto 0; padding: 14px 16px 0;
+    border-top: 1px solid rgba(229,231,235,0.12);
+    color: #9ca3af;
+    font-size: 12px;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+}
