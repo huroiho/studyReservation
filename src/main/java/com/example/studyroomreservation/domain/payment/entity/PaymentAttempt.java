@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.payment.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -63,7 +65,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     public void markAsSuccess(String pgTid) {
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 SUCCESS로 변경할 수 있습니다.");
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
         this.pgTid = pgTid;
         this.errorCode = null;
@@ -73,7 +75,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     public void markFailed(String errorCode, String errorMessage) {
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 FAILED로 변경할 수 있습니다.");
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
         this.pgTid = null;
         this.errorCode = errorCode;

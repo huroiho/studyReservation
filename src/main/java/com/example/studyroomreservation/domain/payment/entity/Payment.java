@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.payment.entity;
 
 import com.example.studyroomreservation.global.common.BaseAuditableEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,7 +61,7 @@ public class Payment extends BaseAuditableEntity {
 
     public void markAsSuccess(String pgTid, LocalDateTime pgApprovalTime) {
         if (this.paymentStatus != PaymentStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 SUCCESS로 변경할 수 있습니다.");
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
         this.pgTid = pgTid;
         this.paymentStatus = PaymentStatus.SUCCESS;
@@ -68,7 +70,7 @@ public class Payment extends BaseAuditableEntity {
 
     public void markAsFailed() {
         if (this.paymentStatus != PaymentStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 FAILED로 변경할 수 있습니다.");
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
         this.paymentStatus = PaymentStatus.FAILED;
     }
