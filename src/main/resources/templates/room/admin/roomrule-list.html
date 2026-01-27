@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방 예약 규칙 관리</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/room-rule-style.css}">
+</head>
+<body>
+
+<div class="container">
+    <h2>방 예약 규칙</h2>
+
+    <div class="info-box">
+        <span class="material-icons icon">error</span>
+        <div>
+            <div>방 예약 규칙은 생성 후 수정할 수 없습니다.</div>
+            <div class="text-muted">필요 시 새로운 규칙을 등록하거나 상태를 변경하세요.</div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/admin/roomRules/new}" class="btn-register">
+            <span class="material-icons" style="font-size: 18px;">add</span> 방 예약 규칙 등록
+        </a>
+    </div>
+
+    <div class="search-card">
+        <input type="text" class="form-control" placeholder="규칙명으로 검색">
+        <div class="filter-group">
+            <span class="text-muted" style="margin-right: 10px;">상태:</span>
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn">활성</button>
+            <button class="filter-btn">비활성</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th style="padding-left: 25px;">규칙명</th>
+                <th>상태</th>
+                <th>최소 이용 시간</th>
+                <th>예약 가능 기간</th>
+                <th>생성일</th>
+                <th class="text-center">액션</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${paging.isEmpty()}">
+                <td colspan="6" style="text-align: center; padding: 50px 0; color: #999;">
+                    조회된 규칙이 없습니다.
+                </td>
+            </tr>
+            <tr th:each="rule : ${paging.content}">
+                <td style="padding-left: 25px; font-weight: bold;" th:text="${rule.name}">일반 예약 규칙</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label class="switch">
+                            <input type="checkbox" th:checked="${rule.isActive}" disabled>
+                            <span class="slider"></span>
+                        </label>
+                        <span th:class="${rule.isActive ? 'badge badge-active' : 'badge badge-inactive'}"
+                              th:text="${rule.isActive ? 'ACTIVE' : 'INACTIVE'}">
+                            ACTIVE
+                        </span>
+                    </div>
+                </td>
+                <td th:text="${rule.minDurationMinutes + '분'}">60분</td>
+                <td th:text="${rule.bookingOpenDays + '일'}">30일</td>
+                <td th:text="${#temporals.format(rule.createdAt, 'yyyy. MM. dd.')}">2025. 01. 15.</td>
+                <td style="text-align: center;">
+                    <a th:href="@{/admin/roomRules/{id}(id=${rule.id})}" class="action-link">
+                        <span class="material-icons" style="font-size: 18px;">visibility</span>
+                    </a>
+                    <a href="#" class="action-link delete">
+                        <span class="material-icons" style="font-size: 18px;">delete</span>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <nav th:if="${!paging.isEmpty()}" style="margin-top: 30px;">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item" th:classappend="${paging.first} ? 'disabled'">
+                <a class="page-link" th:href="@{|${currentUrl}?page=0|}">
+                    <span class="material-icons" style="font-size: 14px;">first_page</span>
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" th:href="@{|${currentUrl}?page=${paging.number - 1}|}">이전</a>
+            </li>
+
+            <li th:each="page: ${#numbers.sequence(0, (paging.totalPages > 0 ? paging.totalPages - 1 : 0))}"
+                th:if="${paging.totalPages > 0 and page >= paging.number - 2 and page <= paging.number + 2}"
+                th:classappend="${page == paging.number} ? 'active'" class="page-item">
+                <a th:text="${page + 1}" class="page-link" th:href="@{|${currentUrl}?page=${page}|}"></a>
+            </li>
+
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" th:href="@{|${currentUrl}?page=${paging.number + 1}|}">다음</a>
+            </li>
+
+            <li class="page-item" th:classappend="${paging.last} ? 'disabled'">
+                <a class="page-link" th:href="@{|${currentUrl}?page=${paging.totalPages - 1}|}">
+                    <span class="material-icons" style="font-size: 14px;">last_page</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>
