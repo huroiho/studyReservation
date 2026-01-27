@@ -2,6 +2,9 @@ package com.example.studyroomreservation.domain.refund.mapper;
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundRuleRequest;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleResponse;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.entity.RefundRule;
 import org.mapstruct.Mapper;
@@ -18,25 +21,22 @@ import java.util.stream.Collectors;
 )
 public interface RefundMapper {
 
-    @Mapping(target = "rules", ignore = true)
-    RefundPolicy toEntity(RefundPolicyRequest request);
+    RefundRuleResponse toResponse(RefundRule rule);
+    RefundPolicyListResponse toListResponse(RefundPolicy policy, long ruleCount);
+    RefundPolicyDetailResponse toDetailResponse(RefundPolicy policy);
 
-    RefundRule toRuleEntity(RefundRuleRequest request);
-
-    @ObjectFactory
     default RefundPolicy createPolicy(RefundPolicyRequest request) {
         if (request == null) {
             return null;
         }
-
         List<RefundRule> rules = request.rules().stream()
-                .map(this::toRuleEntity)
-                .collect(Collectors.toList());
+                .map(this::createRule)
 
+                //TODO: 확인하기 - 자바 버전 상 collection.toList() 사용이 다르게 될 수 있음
+                .collect(Collectors.toList());
         return RefundPolicy.createPolicy(request.name(), rules);
     }
 
-    @ObjectFactory
     default RefundRule createRule(RefundRuleRequest request) {
         if (request == null) {
             return null;

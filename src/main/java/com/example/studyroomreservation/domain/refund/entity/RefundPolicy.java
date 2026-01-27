@@ -49,4 +49,12 @@ public class RefundPolicy extends BasePolicyEntity {
         this.rules.add(rule);
         rule.setRefundPolicy(this);
     }
+
+    public void changeActive(boolean active) {
+        if(active) {
+            activate();
+        } else {
+            deactivate();
+        }
+    }
 }
