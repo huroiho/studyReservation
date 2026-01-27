@@ -19,9 +19,10 @@ public record OperationPolicyCreateRequest(
         @NotNull(message = "슬롯 단위를 선택해주세요.")
         SlotUnit slotUnit,
 
+        @Valid
         @NotNull(message = "요일별 스케줄이 필요합니다.")
         @Size(min = 7, max = 7, message = "요일별 스케줄은 월~일 7개가 필요합니다.")
-        List<@Valid ScheduleRequest> schedules
+        List<ScheduleRequest> schedules
 ) {
     public record ScheduleRequest(
 
@@ -34,20 +35,20 @@ public record OperationPolicyCreateRequest(
             boolean closed
     ) {
         @AssertTrue(message = "운영일에는 오픈/마감 시간을 모두 선택해야 합니다.")
-        public boolean requireTimesWhenOpen() {
+        public boolean isTimesPresnetWhenOpen() {
             if (closed) return true;
             return openTime != null && closeTime != null;
         }
 
         @AssertTrue(message = "오픈/마감 시간은 정각(:00)만 선택 가능합니다.")
-        public boolean hourOnlyWhenOpen() {
+        public boolean isHourOnlyWhenOpen() {
             if (closed) return true;
             if (openTime == null || closeTime == null) return true; // 위 검증에서 잡힘
             return isHourOnly(openTime) && isHourOnly(closeTime);
         }
 
         @AssertTrue(message = "오픈 시간은 마감 시간보다 빨라야 합니다.")
-        public boolean openBeforeCloseWhenOpen() {
+        public boolean isOpenBeforeCloseWhenOpen() {
             if (closed) return true;
             if (openTime == null || closeTime == null) return true;
             return openTime.isBefore(closeTime);

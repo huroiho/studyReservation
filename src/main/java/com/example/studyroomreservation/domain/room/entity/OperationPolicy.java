@@ -21,10 +21,10 @@ public class OperationPolicy extends BasePolicyEntity {
     @Column(name = "slot_unit", nullable = false, updatable = false)
     private SlotUnit slotUnit;
 
-    //정책 하나에 여러 시간표, 스케줄을 List로 담기
+    //정책 하나에 여러 시간표(스케줄)를 List로 담기
     //orphanRemoval = 고아객체 제거
     @OneToMany(mappedBy = "operationPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<OperationSchedule> schedules = new ArrayList<>();
+    private List<OperationSchedule> schedules = new ArrayList<>();
 
     private OperationPolicy(String name, SlotUnit slotUnit) {
         this.name = name;
@@ -108,7 +108,7 @@ public class OperationPolicy extends BasePolicyEntity {
         }
 
         long minutes = Duration.between(d.openTime(), d.closeTime()).toMinutes();
-        int unit = this.slotUnit.toMinutes();
+        int unit = this.slotUnit.getMinutes();
         if (minutes % unit != 0) {
             throw new BusinessException(
                     ErrorCode.OS_NOT_ALIGNED_TO_SLOT,
@@ -119,10 +119,6 @@ public class OperationPolicy extends BasePolicyEntity {
 
     private boolean isHourOnly(LocalTime t) {
         return t.getMinute() == 0 && t.getSecond() == 0 && t.getNano() == 0;
-    }
-
-    public List<OperationSchedule> getSchedules() {
-        return schedules;
     }
 
     // draft로 묶어서 요일별 세트로 가져가기 위해.
