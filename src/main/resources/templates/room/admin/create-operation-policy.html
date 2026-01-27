@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title>운영정책 생성</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .container { max-width: 980px; }
+        .row { display: flex; gap: 16px; margin: 12px 0; align-items: center; }
+        label { min-width: 90px; font-weight: 600; }
+        input[type="text"], select { padding: 8px; min-width: 240px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+        th, td { border: 1px solid #e6e6e6; padding: 10px; text-align: left; }
+        th { background: #fafafa; }
+        .error { color: #d00; font-size: 13px; margin-top: 6px; }
+        .global-error { border: 1px solid #ffd2d2; background: #fff5f5; padding: 10px; margin: 12px 0; }
+        .actions { margin-top: 18px; display: flex; gap: 10px; }
+        button { padding: 10px 14px; cursor: pointer; }
+        .muted { color: #666; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>운영정책 생성</h1>
+    <p class="muted">요일별 운영시간은 정각 단위로만 설정 가능합니다.</p>
+
+    <form th:action="@{/admin/operation-policies}" th:object="${form}" method="post">
+
+        <!-- 글로벌 에러(비즈니스 에러 br.reject("business", ...) 등) -->
+        <div th:if="${#fields.hasGlobalErrors()}" class="global-error">
+            <div class="error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+        </div>
+
+        <div class="row">
+            <label for="name">정책명</label>
+            <div>
+                <input id="name" type="text" th:field="*{name}" placeholder="예: 표준 30분 정책"/>
+                <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <label for="slotUnit">슬롯 단위</label>
+            <div>
+                <select id="slotUnit" th:field="*{slotUnit}">
+                    <option value="">선택</option>
+                    <option th:each="u : ${slotUnits}" th:value="${u}" th:text="${u}"></option>
+                </select>
+                <div class="error" th:if="${#fields.hasErrors('slotUnit')}" th:errors="*{slotUnit}"></div>
+            </div>
+        </div>
+
+        <h3>요일별 운영시간</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th style="width: 120px;">요일</th>
+                <th style="width: 100px;">휴무</th>
+                <th style="width: 220px;">오픈</th>
+                <th style="width: 220px;">마감</th>
+                <th>오류</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sch, stat : *{schedules}" th:attr="data-idx=${stat.index}">
+                <td>
+                    <!-- 요일은 수정 불가: hidden으로 유지 -->
+                    <input type="hidden" th:field="*{schedules[__${stat.index}__].dayOfWeek}"/>
+                    <span th:text="${sch.dayOfWeek}"></span>
+                </td>
+
+                <td>
+                    <!-- boolean 필드: closed로 바인딩 -->
+                    <input type="checkbox"
+                           th:field="*{schedules[__${stat.index}__].closed}"
+                           class="js-closed"/>
+                </td>
+
+                <td>
+                    <select th:field="*{schedules[__${stat.index}__].openTime}" class="js-open">
+                        <option value="">선택</option>
+                        <option th:each="t : ${hours}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </td>
+
+                <td>
+                    <select th:field="*{schedules[__${stat.index}__].closeTime}" class="js-close">
+                        <option value="">선택</option>
+                        <option th:each="t : ${hours}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </td>
+
+                <td class="error">
+                    <!-- record 내부 @AssertTrue 등 "요소 전체" 에러가 여기로 잡히는 경우가 많음 -->
+                    <div th:if="${#fields.hasErrors('schedules[' + stat.index + ']')}"
+                         th:errors="*{schedules[__${stat.index}__]}"></div>
+
+                    <!-- 필드별 에러가 따로 잡히면 이것도 표시 -->
+                    <div th:if="${#fields.hasErrors('schedules[' + stat.index + '].openTime')}"
+                         th:errors="*{schedules[__${stat.index}__].openTime}"></div>
+                    <div th:if="${#fields.hasErrors('schedules[' + stat.index + '].closeTime')}"
+                         th:errors="*{schedules[__${stat.index}__].closeTime}"></div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button type="submit">생성</button>
+            <a th:href="@{/admin/operation-policies/new}">
+                <button type="button">초기화</button>
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 휴무 체크 시 open/close 비활성 + 값 비우기
+    function applyRowState(row) {
+        const closed = row.querySelector('.js-closed');
+        const open = row.querySelector('.js-open');
+        const close = row.querySelector('.js-close');
+
+        if (!closed || !open || !close) return;
+
+        if (closed.checked) {
+            open.value = "";
+            close.value = "";
+            open.disabled = true;
+            close.disabled = true;
+        } else {
+            open.disabled = false;
+            close.disabled = false;
+        }
+    }
+
+    document.querySelectorAll('tr[data-idx]').forEach(row => {
+        applyRowState(row);
+
+        const closed = row.querySelector('.js-closed');
+        if (closed) {
+            closed.addEventListener('change', () => applyRowState(row));
+        }
+    });
+</script>
+</body>
+</html>
