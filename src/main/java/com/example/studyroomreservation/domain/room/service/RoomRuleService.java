@@ -1,8 +1,8 @@
 package com.example.studyroomreservation.domain.room.service;
 
+import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
-import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.mapper.RoomRuleMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRuleRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -13,14 +13,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RoomRuleService {
     private final RoomRuleRepository roomRuleRepository;
-    private final RoomMapper roomMapper;
     private final RoomRuleMapper roomRuleMapper;
     private final int PAGE_SIZE = 10;
 
@@ -43,5 +41,12 @@ public class RoomRuleService {
         return roomRuleRepository.findById(id)
                 .map(roomRuleMapper::toRuleResponse)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST, "해당 화면을 찾을 수 없습니다. ID: " + id));
+    }
+
+    //등록
+    @Transactional
+    public void createRoomRule(RoomRuleCreateRequest request) {
+        RoomRule roomRule = roomRuleMapper.createRoomRule(request);
+        roomRuleRepository.save(roomRule);
     }
 }

@@ -20,7 +20,7 @@
     </div>
 
     <div style="margin-bottom: 20px;">
-        <a th:href="@{/admin/roomRules/new}" class="btn-register">
+        <a th:href="@{/admin/roomrules/new}" class="btn-register">
             <span class="material-icons" style="font-size: 18px;">add</span> 방 예약 규칙 등록
         </a>
     </div>
@@ -71,7 +71,7 @@
                 <td th:text="${rule.bookingOpenDays + '일'}">30일</td>
                 <td th:text="${#temporals.format(rule.createdAt, 'yyyy. MM. dd.')}">2025. 01. 15.</td>
                 <td style="text-align: center;">
-                    <a th:href="@{/admin/roomRules/{id}(id=${rule.id})}" class="action-link">
+                    <a th:href="@{/admin/roomrules/{id}(id=${rule.id})}" class="action-link">
                         <span class="material-icons" style="font-size: 18px;">visibility</span>
                     </a>
                     <a href="#" class="action-link delete">
