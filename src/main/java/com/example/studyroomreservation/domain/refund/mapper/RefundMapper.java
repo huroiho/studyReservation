@@ -35,15 +35,14 @@ public interface RefundMapper {
         if (request == null) {
             return null;
         }
-
         List<RefundRule> rules = request.rules().stream()
-                .map(this::toRuleEntity)
-                .collect(Collectors.toList());
+                .map(this::createRule)
 
+                //TODO: 확인하기 - 자바 버전 상 collection.toList() 사용이 다르게 될 수 있음
+                .collect(Collectors.toList());
         return RefundPolicy.createPolicy(request.name(), rules);
     }
 
-    @ObjectFactory
     default RefundRule createRule(RefundRuleRequest request) {
         if (request == null) {
             return null;
