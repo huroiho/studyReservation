@@ -1,4 +1,8 @@
 package com.example.studyroomreservation.domain.room.repository;
 
-public interface RoomRepository {
+import com.example.studyroomreservation.domain.room.entity.Room;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface RoomRepository extends JpaRepository<Room, Long> {
+
 }
