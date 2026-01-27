@@ -4,8 +4,13 @@ import com.example.studyroomreservation.domain.room.dto.response.RoomRuleRespons
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRuleRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,23 +20,26 @@ import java.util.List;
 public class RoomRuleService {
     private final RoomRuleRepository roomRuleRepository;
     private final RoomMapper roomMapper;
+    private final int PAGE_SIZE = 10;
 
     // 목록 조회
-    public List<RoomRuleResponse> getAllRules() {
-        List<RoomRule> rules = roomRuleRepository.findAllByOrderByIsActiveDescCreatedAtDesc();
-        return roomMapper.toResponseList(rules);
+    public Page<RoomRuleResponse> getAllRoomRules(int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        return roomRuleRepository.findAll(pageable)
+                .map(roomMapper::toRuleResponse);
     }
 
-    // 활성화 목록 조회
-    public List<RoomRuleResponse> getActiveRules() {
-        List<RoomRule> rules = roomRuleRepository.findAllByIsActiveTrue();
-        return roomMapper.toResponseList(rules);
+    // 활성화 목록 조회 (룸 등록시)
+    public Page<RoomRuleResponse> getActiveRoomRules(int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        return roomRuleRepository.findAllByIsActiveTrue(pageable)
+                .map(roomMapper::toRuleResponse);
     }
 
     // 상세 조회
     public RoomRuleResponse getRuleDetail(Long id) {
-        RoomRule rule = roomRuleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 이용 규칙을 찾을 수 없습니다. ID: " + id));
-        return roomMapper.toRuleResponse(rule);
+        return roomRuleRepository.findById(id)
+                .map(roomMapper::toRuleResponse)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REQUEST, "해당 화면을 찾을 수 없습니다. ID: " + id));
     }
 }

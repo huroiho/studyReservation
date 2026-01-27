@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Table(name="room_images")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoomImage extends BaseCreatedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

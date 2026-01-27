@@ -2,10 +2,7 @@ package com.example.studyroomreservation.domain.room.entity;
 
 import com.example.studyroomreservation.global.common.BaseSoftDeletableEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -18,7 +15,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Table(name="rooms")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room extends BaseSoftDeletableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -19,7 +19,6 @@ public interface RoomMapper {
     //--질문 : RoomMapper/RoomRuleMapper 분리??
     RoomResponse toResponse(Room room);
     RoomRuleResponse toRuleResponse(RoomRule rule);
-    List<RoomRuleResponse> toResponseList(List<RoomRule> entities);
 
     // Request DTO -> Entity (등록)
     // Room + RoomImage
@@ -29,6 +28,14 @@ public interface RoomMapper {
 //    RoomImage toImageEntity(RoomCreateRequest.RoomImageRequest request);
 
     // RoomRule
-    @Mapping(target = "active", ignore = true) // 명세서 Def: T 반영
-    RoomRule toRuleEntity(RoomRuleCreateRequest request);
+    default RoomRule createRoomRule(RoomRuleCreateRequest request) {
+        if(request == null){
+            return null;
+        }
+        return RoomRule.createRoomRule(
+                request.name(),
+                request.minDurationMinutes(),
+                request.bookingOpenDays()
+        );
+    }
 }
