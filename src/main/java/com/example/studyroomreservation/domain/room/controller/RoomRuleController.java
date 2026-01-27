@@ -1,14 +1,14 @@
 package com.example.studyroomreservation.domain.room.controller;
 
+import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.service.RoomRuleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -31,22 +31,26 @@ public class RoomRuleController {
     // 상세 조회
     @GetMapping("/{id}")
     public String getRuleDetail(@PathVariable Long id, Model model) {
-
-        // [테스트 단계] 화면 확인용 더미 데이터 직접 생성
-//        RoomRuleResponse dummy = new RoomRuleResponse(
-//                id,                         // id
-//                "테스트용 일반 예약 규칙",      // name
-//                60,                         // minDurationMinutes
-//                30,                         // bookingOpenDays
-//                true,                       // isActive
-//                LocalDateTime.now(),        // createdAt
-//                LocalDateTime.now()         // activeUpdatedAt
-//        );
-//
-//        // 실제 화면에서 사용할 변수명 'roomRules'에 더미 데이터를 담음
-//        model.addAttribute("roomRules", dummy);
-
         RoomRuleResponse roomRules = roomRuleService.getRuleDetail(id);
+        model.addAttribute("roomRules", roomRules);
+
         return "room/admin/roomrule-detail";
+    }
+
+    // 등록 폼 (룸 규칙은 수정불가)
+    @GetMapping("/new")
+    public String showCreateForm(Model model){
+        model.addAttribute("RoomRuleRequest", new RoomRuleCreateRequest("", 0, 0, true));
+        return "room/admin/roomrule-form";
+    }
+
+    // 저장처리
+    @PostMapping
+    public String create(@ModelAttribute("RoomRuleRequest") @Valid RoomRuleCreateRequest request, BindingResult result) {
+        if (result.hasErrors()) {
+            return "room/admin/roomrule-form";
+        }
+        roomRuleService.createRoomRule(request);
+        return "redirect:/admin/roomrules";
     }
 }

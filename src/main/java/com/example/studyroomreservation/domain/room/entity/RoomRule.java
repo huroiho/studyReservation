@@ -25,7 +25,9 @@ public class RoomRule extends BasePolicyEntity {
     };
 
     // --- 정적 팩토리 메서드 ----
-    public static RoomRule createRoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays){
-        return new RoomRule(name, minDurationMinutes, bookingOpenDays);
+    public static RoomRule createRoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays, boolean active){
+        RoomRule rule = new RoomRule(name, minDurationMinutes, bookingOpenDays);
+        if (!active) rule.deactivate();
+        return rule;
     }
 }

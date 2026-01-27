@@ -4,10 +4,12 @@ import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRe
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RoomRuleMapper {
     // Entity -> Response DTO (조회)
+    @Mapping(source = "active", target = "isActive")
     RoomRuleResponse toRuleResponse(RoomRule rule);
 
     // Request DTO -> Entity (등록)
@@ -15,10 +17,13 @@ public interface RoomRuleMapper {
         if(request == null){
             return null;
         }
-        return RoomRule.createRoomRule(
+        RoomRule roomRule = RoomRule.createRoomRule(
                 request.name(),
                 request.minDurationMinutes(),
-                request.bookingOpenDays()
+                request.bookingOpenDays(),
+                request.active()
         );
+
+        return roomRule;
     }
 }
