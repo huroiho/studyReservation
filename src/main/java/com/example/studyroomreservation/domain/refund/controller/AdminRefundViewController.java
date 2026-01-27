@@ -8,13 +8,13 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
@@ -62,4 +62,27 @@ public class AdminRefundViewController {
         }
     }
 
+    @GetMapping("/policy/list")
+    public String refundPolicyList(
+            @RequestParam(required = false) Boolean active,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
+            Pageable pageable,
+            Model model
+    ) {
+        model.addAttribute("active", active);
+        model.addAttribute("page", refundPolicyService.getRefundPolicyPage(active,pageable));
+        return "refund/admin/list";
+    }
+
+    @GetMapping("/policy/{policyId}")
+    public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
+        model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
+        return "refund/admin/detail";
+    }
+
+    @PostMapping("/policy/{policyId}/active")
+    public String changePolicyActive(@PathVariable Long policyId, @RequestParam boolean active) {
+        refundPolicyService.changePolicyActive(policyId, active);
+        return "redirect:/admin/refund/policy/list";
+    }
 }

@@ -2,6 +2,9 @@ package com.example.studyroomreservation.domain.refund.mapper;
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundRuleRequest;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleResponse;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.entity.RefundRule;
 import org.mapstruct.Mapper;
@@ -18,6 +21,16 @@ import java.util.stream.Collectors;
 )
 public interface RefundMapper {
 
+    @Mapping(target = "rules", ignore = true)
+    RefundPolicy toEntity(RefundPolicyRequest request);
+
+    RefundRule toRuleEntity(RefundRuleRequest request);
+
+    RefundRuleResponse toResponse(RefundRule rule);
+    RefundPolicyListResponse toListResponse(RefundPolicy policy, long ruleCount);
+    RefundPolicyDetailResponse toDetailResponse(RefundPolicy policy);
+
+    @ObjectFactory
     default RefundPolicy createPolicy(RefundPolicyRequest request) {
         if (request == null) {
             return null;
