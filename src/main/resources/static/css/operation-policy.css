@@ -1,0 +1,310 @@
+:root{
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+
+    --primary: #111827;
+
+    --danger: #d00;
+    --danger-bg: #fff3f3;
+
+    --shadow: 0 8px 20px rgba(17,24,39,.06);
+
+    /* 🔽 사이즈 축소 */
+    --radius-card: 16px;
+    --radius: 12px;
+    --radius-sm: 10px;
+}
+
+*{ box-sizing: border-box; }
+body{
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, Roboto, Helvetica, Arial;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px; /* 🔽 기본 폰트 축소 */
+    line-height: 1.4;
+}
+
+.card{
+    max-width: 1040px;
+    margin: 28px auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow);
+    padding: 22px; /* 🔽 패딩 축소 */
+}
+
+.card > h2{
+    margin: 0 0 6px;
+    font-size: 24px; /* 🔽 */
+    letter-spacing: -0.2px;
+}
+.card > p{
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+hr{
+    border: 0;
+    height: 1px;
+    background: var(--line);
+    margin: 18px 0;
+}
+
+/* ===== 에러 ===== */
+.error{
+    color: var(--danger);
+    font-size: 12px; /* 🔽 */
+    margin: 6px 0 0;
+}
+.global-error{
+    border: 1px solid #ffd2d2;
+    background: var(--danger-bg);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    margin: 0 0 14px;
+}
+.global-error-list{
+    margin: 0;
+    padding-left: 18px;
+}
+
+/* ===== 폼 공통 ===== */
+.form-group{
+    display: grid;
+    grid-template-columns: 150px 1fr; /* 🔽 */
+    gap: 12px;
+    align-items: center;
+    margin: 12px 0; /* 🔽 */
+}
+.form-group label{
+    font-weight: 700;
+}
+.required{ color: var(--danger); }
+
+input[type="text"]{
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px 12px;     /* 🔽 */
+    font-size: 14px;        /* 🔽 */
+    outline: none;
+    background: #fff;
+}
+input[type="text"]:focus{
+    border-color: rgba(17,24,39,.35);
+    box-shadow: 0 0 0 3px rgba(17,24,39,.06);
+}
+
+/* ===== 슬롯 단위: segmented ===== */
+.segmented{
+    display: inline-flex;
+    gap: 8px; /* 🔽 */
+}
+.segmented > div{ position: relative; }
+.segmented-input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.segmented-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;   /* 🔽 */
+    height: 44px;      /* 🔽 */
+    padding: 0 14px;   /* 🔽 */
+    border: 1px solid #d1d5db;
+    border-radius: 14px; /* 🔽 */
+    background: #fff;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 800;
+    font-size: 16px;   /* 🔽 */
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.segmented-input:checked + .segmented-btn{
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+}
+
+/* ===== 요일별 운영 시간 ===== */
+h3{
+    margin: 0 0 12px;
+    font-size: 18px; /* 🔽 */
+    letter-spacing: -0.1px;
+}
+
+.schedule-table{
+    margin-top: 10px;
+    display: grid;
+    gap: 10px; /* 🔽 */
+}
+
+/* 헤더 줄 */
+.schedule-row.header{
+    display: grid;
+    grid-template-columns: 80px 120px 1fr 1fr; /* 🔽 */
+    gap: 10px;
+    align-items: center;
+    color: var(--muted);
+    font-weight: 700;
+    padding: 0 6px;
+}
+
+/* 각 요일 row */
+.schedule-row{
+    display: grid;
+    grid-template-columns: 80px 120px 1fr 1fr; /* 🔽 */
+    gap: 10px;
+    align-items: center;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: #fff;
+    padding: 12px 14px; /* 🔽 */
+}
+
+.schedule-row > span:first-child{
+    font-size: 15px; /* 🔽 */
+    font-weight: 800;
+}
+
+/* 시간 select */
+.time-select{
+    width: 100%;
+    height: 40px;      /* 🔽 */
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    padding: 0 10px;   /* 🔽 */
+    font-size: 14px;   /* 🔽 */
+    outline: none;
+    background: #fff;
+}
+.time-select:focus{
+    border-color: rgba(17,24,39,.35);
+    box-shadow: 0 0 0 3px rgba(17,24,39,.06);
+}
+.time-select:disabled{
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+/* ===== 휴무 토글(작게) ===== */
+.closed-label{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    user-select: none;
+}
+
+.closed-label input[type="checkbox"]{
+    appearance: none;
+    -webkit-appearance: none;
+    width: 46px;    /* 🔽 */
+    height: 26px;   /* 🔽 */
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: #e5e7eb;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background .15s ease, border-color .15s ease;
+}
+.closed-label input[type="checkbox"]::after{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 20px;   /* 🔽 */
+    height: 20px;  /* 🔽 */
+    border-radius: 999px;
+    background: #fff;
+    transform: translateY(-50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    transition: left .15s ease;
+}
+
+/* 체크 해제 = 운영(초록), 체크 = 휴무(회색) */
+.closed-label input[type="checkbox"]:not(:checked){
+    background: #22c55e;
+    border-color: #22c55e;
+}
+.closed-label input[type="checkbox"]:not(:checked)::after{
+    left: 23px; /* 🔽 */
+}
+
+.row-errors{
+    grid-column: 1 / -1;
+    margin-top: 4px;
+}
+
+/* ===== 하단 버튼 ===== */
+.actions{
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.actions a{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;       /* 🔽 */
+    padding: 0 14px;    /* 🔽 */
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+.actions button{
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.required {
+    color: #d00;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+/* 에러 텍스트 줄바꿈/간격 정리 */
+.error {
+    color: #d00;
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.35;
+    white-space: pre-line; /* 줄바꿈 자연스럽게 */
+}
+
+/* th:errors가 <br>로 찍힐 때 간격 정리 (브라우저마다 차이 방지) */
+.error br {
+    content: "";
+    display: block;
+    margin: 2px 0;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 900px){
+    .card{ margin: 16px; padding: 16px; }
+    .form-group{ grid-template-columns: 1fr; }
+    .schedule-row.header{ display:none; }
+    .schedule-row{ grid-template-columns: 1fr; }
+}
