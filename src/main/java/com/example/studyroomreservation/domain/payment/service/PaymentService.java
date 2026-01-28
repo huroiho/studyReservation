@@ -2,7 +2,6 @@ package com.example.studyroomreservation.domain.payment.service;
 
 import com.example.studyroomreservation.domain.member.entity.Member;
 import com.example.studyroomreservation.domain.member.repository.MemberRepository;
-import com.example.studyroomreservation.domain.payment.dto.request.PaymentPrepareRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
 import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
@@ -20,9 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -35,24 +31,26 @@ public class PaymentService {
     private final MemberRepository memberRepository;
     private final TossPaymentConfig tossPaymentConfig;
 
+    private static final int RESERVATION_EXPIRE_EXTENSION_MINUTES = 3;
 
     @Transactional
     public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
 
-        Reservation reservation = reservationRepository.findById(reservationId)
+
+        Reservation reservation = reservationRepository.findByIdWithLock(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if (reservation.getStatus() != ReservationStatus.TEMP){
+        if (reservation.getStatus() != ReservationStatus.TEMP) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
-        int realAmount = reservation.getTotalAmount();
-
         boolean isFirstPaymentAttempt = !paymentAttemptRepository.existsByReservationId(reservationId);
-        if(isFirstPaymentAttempt){
-            reservation.extendExpiresAt(3);
+
+        if (isFirstPaymentAttempt) {
+            reservation.extendExpiresAt(RESERVATION_EXPIRE_EXTENSION_MINUTES);
         }
 
+        int realAmount = reservation.getTotalAmount();
         PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, null);
 
         paymentAttemptRepository.save(paymentAttempt);
