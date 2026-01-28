@@ -2,9 +2,7 @@ package com.example.studyroomreservation.domain.room.entity;
 
 import com.example.studyroomreservation.global.common.BaseSoftDeletableEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -92,32 +90,7 @@ public class Room extends BaseSoftDeletableEntity {
                               Integer price,
                               Set<AmenityType> amenities) {
 
-        validate(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price);
-
         return new Room(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price, amenities);
-    }
-
-    // --- 유효성 검증 ----
-    private static void validate(
-            OperationPolicy operationPolicy,
-            RoomRule roomRule,
-            Long refundPolicyId,
-            String name,
-            Integer maxCapacity,
-            Integer price
-    ) {
-        if (operationPolicy == null || refundPolicyId == null || roomRule == null) {
-            throw new IllegalArgumentException("운영정책은 필수입니다.");
-        }
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("방 이름은 필수입니다.");
-        }
-        if (maxCapacity == null || maxCapacity <= 0) {
-            throw new IllegalArgumentException("수용 인원은 1명 이상이어야 합니다.");
-        }
-        if (price == null || price < 0) {
-            throw new IllegalArgumentException("가격은 0원 이상이어야 합니다.");
-        }
     }
 
     public void addImage(RoomImage image) {
