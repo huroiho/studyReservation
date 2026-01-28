@@ -58,10 +58,10 @@ public class OperationSchedule extends BaseCreatedEntity {
     }
 
     static OperationSchedule create(OperationPolicy policy,
-                                           DayOfWeek dayOfWeek,
-                                           LocalTime openTime,
-                                           LocalTime closeTime,
-                                           boolean closed){
+                                    DayOfWeek dayOfWeek,
+                                    LocalTime openTime,
+                                    LocalTime closeTime,
+                                    boolean closed){
         return new OperationSchedule(policy,dayOfWeek,openTime,closeTime,closed);
     }
 }
