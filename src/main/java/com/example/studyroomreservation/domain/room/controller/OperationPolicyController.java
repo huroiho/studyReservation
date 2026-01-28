@@ -7,6 +7,7 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -56,5 +57,13 @@ public class OperationPolicyController {
         model.addAttribute("slotUnits", formFactory.slotUnits());
         model.addAttribute("hours", formFactory.hourOptions());
         model.addAttribute("days", formFactory.orderedDays());
+    }
+
+    @GetMapping
+    public String list(Pageable pageable, Model model){
+
+
+
+        return "room/operation-policy/list";
     }
 }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방 예약 규칙 관리</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/room-rule-style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>방 예약 규칙</h2>
+
+    <div class="info-box">
+        <span class="material-icons icon">error</span>
+        <div>
+            <div>방 예약 규칙은 생성 후 수정할 수 없습니다.</div>
+            <div class="text-muted">필요 시 새로운 규칙을 등록하거나 상태를 변경하세요.</div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <a href="/admin/roomrules/new" class="btn-register">
+            <span class="material-icons" style="font-size: 18px;">add</span>
+            방 예약 규칙 등록
+        </a>
+    </div>
+
+    <!-- 검색 / 필터 (아직 동작 X, UI만 유지) -->
+    <div class="search-card">
+        <input type="text" class="form-control" placeholder="규칙명으로 검색">
+        <div class="filter-group">
+            <span class="text-muted" style="margin-right: 10px;">상태:</span>
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn">활성</button>
+            <button class="filter-btn">비활성</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th style="padding-left: 25px;">규칙명</th>
+                <th>상태</th>
+                <th>슬롯 단위</th>
+                <th>예약 가능 기간</th>
+                <th>생성일</th>
+                <th class="text-center">액션</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <!-- 조회 결과 없음 -->
+            <tr th:if="${page.empty}">
+                <td colspan="6"
+                    style="text-align: center; padding: 50px 0; color: #999;">
+                    조회된 규칙이 없습니다.
+                </td>
+            </tr>
+
+            <!-- 목록 출력 -->
+            <tr th:each="policy : ${page.content}">
+                <td style="padding-left: 25px;"
+                    th:text="${policy.name}">
+                    규칙명
+                </td>
+
+                <td>
+                    <span th:text="${policy.active ? '활성' : '비활성'}"
+                          th:classappend="${policy.active ? 'status-active' : 'status-inactive'}">
+                        활성
+                    </span>
+                </td>
+
+                <td th:text="${policy.slotUnit}">
+                    30분
+                </td>
+
+                <!-- 아직 정책에 없는 값 → 임시 처리 -->
+                <td>-</td>
+
+                <td th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">
+                    2026-01-01
+                </td>
+
+                <td class="text-center">
+                    <a href="#" class="action-btn">상세</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
