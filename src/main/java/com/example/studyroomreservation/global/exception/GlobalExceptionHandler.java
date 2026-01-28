@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -56,18 +56,25 @@ public class GlobalExceptionHandler {
      * 404 Not Found 처리
      * - 존재하지 않는 URL 접근 시
      */
-    @ExceptionHandler({
-            NoHandlerFoundException.class,
-            NoResourceFoundException.class
-    })
+    @ExceptionHandler(NoResourceFoundException.class)
     public String handleNoResourceFound(
             NoResourceFoundException e,
             Model model,
             HttpServletResponse response,
             HttpServletRequest request
     ) {
-        log.warn("[404 Not Found - NoResource] path={}", request.getRequestURI());
+        log.warn("[404 Not Found] path={}", request.getRequestURI());
+        return render404(model, response, request);
+    }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public String handleNoHandlerFound(
+            NoHandlerFoundException e,
+            Model model,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        log.warn("[404 Not Found] path={}", request.getRequestURI());
         return render404(model, response, request);
     }
 
@@ -88,6 +95,34 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorCode", "E405");
         model.addAttribute("errorMessage", "허용되지 않는 요청 방식입니다.");
         model.addAttribute("statusCode", 405);
+        model.addAttribute("path", request.getRequestURI());
+
+        return "error/common";
+    }
+
+    /**
+     * DB 제약조건 위반 처리
+     * - Unique 제약 위반 (race condition으로 Validator 통과 후 발생)
+     * - FK 제약 위반 등
+     * - 시스템 이상으로 처리하되, 별도 로깅으로 디버깅 용이하게 함
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public String handleDataIntegrityViolation(
+            DataIntegrityViolationException e,
+            Model model,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        log.error("[DB Constraint Violation] path={} message={}",
+                request.getRequestURI(),
+                e.getMostSpecificCause().getMessage(),
+                e
+        );
+
+        response.setStatus(HttpStatus.CONFLICT.value());
+        model.addAttribute("errorCode", "E409");
+        model.addAttribute("errorMessage", "데이터 처리 중 충돌이 발생했습니다. 다시 시도해주세요.");
+        model.addAttribute("statusCode", 409);
         model.addAttribute("path", request.getRequestURI());
 
         return "error/common";
