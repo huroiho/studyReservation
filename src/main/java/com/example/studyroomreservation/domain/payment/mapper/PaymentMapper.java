@@ -5,6 +5,7 @@ import com.example.studyroomreservation.domain.payment.dto.request.PaymentPrepar
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
+import com.example.studyroomreservation.domain.payment.entity.PaymentMethod;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import org.mapstruct.Mapper;
@@ -18,34 +19,18 @@ import java.util.UUID;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )public interface PaymentMapper {
 
-    /*
-    default Payment creatPayment(){
-        if(request == null) {
-            return null;
-        }
-        return Payment.createPending(request.reservationId(), request.amount());
-    }*/
-
-
-    default PaymentAttempt createPaymentAttempt(PaymentPrepareRequest request) {
-        if (request == null) {
-            return null;
-        }
-        return PaymentAttempt.createPending(
-                request.reservationId(),
-                request.amount());
-    }
-
 
     default PaymentPrepareResponse toPrepareResponse(
             PaymentAttempt attempt,
             Room room,
-            Member member
+            Member member,
+            String clientKey
     ) {
         if (attempt == null) {
             return null;
         }
         return new PaymentPrepareResponse(
+                clientKey,
                 attempt.getOrderId(),
                 room.getName(),
                 attempt.getAmount(),

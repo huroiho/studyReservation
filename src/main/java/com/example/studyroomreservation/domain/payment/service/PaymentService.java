@@ -13,6 +13,7 @@ import com.example.studyroomreservation.domain.reservation.entity.ReservationSta
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
+import com.example.studyroomreservation.global.config.TossPaymentConfig;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +33,29 @@ public class PaymentService {
     private final ReservationRepository reservationRepository;
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
+    private final TossPaymentConfig tossPaymentConfig;
 
-    // 결제 시도 생성
+
     @Transactional
-    public PaymentPrepareResponse createPaymentAttempt(PaymentPrepareRequest request) {
-        Reservation reservation = reservationRepository.findById(request.reservationId())
+    public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
+
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (reservation.getStatus() != ReservationStatus.TEMP){
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
+
+        int realAmount = reservation.getTotalAmount();
+
+        boolean isFirstPaymentAttempt = !paymentAttemptRepository.existsByReservationId(reservationId);
+        if(isFirstPaymentAttempt){
+            reservation.extendExpiresAt(3);
+        }
+
+        PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, null);
+
+        paymentAttemptRepository.save(paymentAttempt);
 
         Room room = roomRepository.findById(reservation.getRoomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
@@ -45,29 +63,11 @@ public class PaymentService {
         Member member = memberRepository.findById(reservation.getMemberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if (reservation.getStatus() != ReservationStatus.TEMP){
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
-
-        if (reservation.getTotalAmount() != request.amount()){
-            throw new BusinessException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
-        }
-
-        // 만료 시간 추가는 1회만(동일한 결제 이력있는지로 판단)
-        boolean isFirstPaymentAttempt = !paymentAttemptRepository.existsByReservationId(request.reservationId());
-        if(isFirstPaymentAttempt){
-
-            // 만료 시간 3분 추가
-            reservation.extendExpiresAt(LocalDateTime.now(), 3);
-        }
-
-        PaymentAttempt paymentAttempt = paymentMapper.createPaymentAttempt(request);
-        paymentAttemptRepository.save(paymentAttempt);
-
         return paymentMapper.toPrepareResponse(
                 paymentAttempt,
                 room,
-                member
+                member,
+                tossPaymentConfig.getClientKey()
         );
     }
 }

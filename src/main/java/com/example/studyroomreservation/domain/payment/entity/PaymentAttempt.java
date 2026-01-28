@@ -43,7 +43,8 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     private PaymentAttempt(
             Long reservationId,
-            int amount
+            int amount,
+            PaymentMethod paymentMethod
     ){
         this.reservationId = reservationId;
         this.amount = amount;
@@ -54,11 +55,13 @@ public class PaymentAttempt extends BaseCreatedEntity {
     // 팩토리 메서드 수정
     public static PaymentAttempt createPending(
             Long reservationId,
-            int amount
+            int amount,
+            PaymentMethod paymentMethod
     ) {
         return new PaymentAttempt(
                 reservationId,
-                amount
+                amount,
+                paymentMethod
         );
     }
     public void markAsSuccess(String pgTid) {
