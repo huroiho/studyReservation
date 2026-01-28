@@ -3,11 +3,13 @@ package com.example.studyroomreservation.domain.room.controller;
 import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.service.RoomRuleService;
+import com.example.studyroomreservation.domain.room.validation.validator.RoomRuleValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +18,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @RequestMapping("/admin/roomrules")
 public class RoomRuleController {
+
     private final RoomRuleService roomRuleService;
+    private final RoomRuleValidator roomRuleValidator;
 
     // 전체 목록
     @GetMapping
@@ -35,6 +39,11 @@ public class RoomRuleController {
         model.addAttribute("roomRules", roomRules);
 
         return "room/admin/roomrule-detail";
+    }
+
+    @InitBinder("RoomRuleRequest")
+    protected void initBinder(WebDataBinder binder) {
+        binder.addValidators(roomRuleValidator);
     }
 
     // 등록 폼 (룸 규칙은 수정불가)

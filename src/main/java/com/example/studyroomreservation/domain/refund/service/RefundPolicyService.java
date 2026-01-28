@@ -28,16 +28,12 @@ public class RefundPolicyService {
     private final RefundRuleRepository refundRuleRepository;
     private final RefundMapper refundMapper;
 
+    /**
+     * 환불 정책 등록
+     * - 정책명 중복 검증은 RefundPolicyValidator에서 처리됨
+     */
     @Transactional
     public Long registerPolicy(RefundPolicyRequest request){
-
-        if (refundPolicyRepository.existsByName(request.name())) {
-            log.warn("정책 등록 실패 - 중복된 정책명: policyName={}", request.name());
-            throw new BusinessException(
-                    ErrorCode.REF_POLICY_NAME_DUPLICATE,
-                    "policy name: " + request.name()
-            );
-        }
         RefundPolicy newPolicy = refundMapper.createPolicy(request);
         RefundPolicy savedPolicy = refundPolicyRepository.save(newPolicy);
         return savedPolicy.getId();
