@@ -4,7 +4,6 @@ import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyC
 import com.example.studyroomreservation.domain.room.service.OperationPolicyService;
 import com.example.studyroomreservation.domain.room.validation.validator.OperationPolicyValidator;
 import com.example.studyroomreservation.domain.room.web.OperationPolicyFormFactory;
-import com.example.studyroomreservation.global.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
