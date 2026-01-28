@@ -11,7 +11,7 @@ public record RefundRuleRequest(
 
         @NotNull(message= "기준 시간은 필수입니다.")
         @Max(value = 10080, message = "최대 7일 전까지만 설정 가능합니다.")
-        @Max(value = 10080, message = "최대 7일(10080분) 전까지만 설정 가능합니다.")
+        @Min(value = 0, message = "기준 시간은 0분 이상이어야 합니다.")
         Integer refundBaseMinutes,
 
         @NotNull(message = "환불 비율은 필수입니다.")
