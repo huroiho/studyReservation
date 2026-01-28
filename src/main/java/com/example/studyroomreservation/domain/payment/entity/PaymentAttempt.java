@@ -22,12 +22,15 @@ public class PaymentAttempt extends BaseCreatedEntity {
     private int amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 20)
+    @Column(name = "payment_method", length = 20)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PaymentAttemptStatus paymentAttemptStatus;
+
+    @Column(name = "order_id", nullable = false, unique = true)
+    private String orderId;
 
     @Column(name = "pg_tid", length = 100)
     private String pgTid;
@@ -45,10 +48,11 @@ public class PaymentAttempt extends BaseCreatedEntity {
     ){
         this.reservationId = reservationId;
         this.amount = amount;
-        this.paymentMethod = paymentMethod;
         this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
+        this.orderId = "RES_" + reservationId + "_" + java.util.UUID.randomUUID().toString().substring(0, 5);
     }
 
+    // 팩토리 메서드 수정
     public static PaymentAttempt createPending(
             Long reservationId,
             int amount,
@@ -60,7 +64,6 @@ public class PaymentAttempt extends BaseCreatedEntity {
                 paymentMethod
         );
     }
-
     public void markAsSuccess(String pgTid) {
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
             throw new IllegalStateException("PENDING 상태에서만 SUCCESS로 변경할 수 있습니다.");
