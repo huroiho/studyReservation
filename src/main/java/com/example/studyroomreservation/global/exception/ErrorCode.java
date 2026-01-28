@@ -31,9 +31,25 @@ public enum ErrorCode {
     RES_STATE_TRANSITION_NOT_ALLOWED(HttpStatus.CONFLICT, "R005", "예약 상태를 변경할 수 없습니다."),
     RES_ALREADY_EXPIRED(HttpStatus.CONFLICT, "R006", "이미 만료된 예약입니다."),
     RES_NOT_EXPIRED_YET(HttpStatus.CONFLICT, "R007", "아직 만료되지 않은 예약입니다."),
-    RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "R008", "아직 이용 종료 시간이 지나지 않았습니다.");
+    RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "R008", "아직 이용 종료 시간이 지나지 않았습니다."),
 
+    // OPERATION POLICY
+    OP_POLICY_SCHEDULE_REQUIRED(HttpStatus.BAD_REQUEST, "OP001", "요일별 운영 스케줄이 필요합니다."),
+    OP_POLICY_SCHEDULE_NOT_7DAYS(HttpStatus.BAD_REQUEST, "OP002", "운영 스케줄은 월~일 7일 모두 필요합니다."),
+    OP_POLICY_DAY_REQUIRED(HttpStatus.BAD_REQUEST, "OP003", "요일 정보는 필수입니다."),
+    OP_POLICY_DAY_DUPLICATED(HttpStatus.BAD_REQUEST, "OP004", "요일별 운영 스케줄이 중복되었습니다."),
+    OP_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "OP005", "운영 정책 이름은 필수입니다."),
+    OP_SLOT_UNIT_REQUIRED(HttpStatus.BAD_REQUEST, "OP006", "슬롯 단위는 필수입니다."),
+    OP_POLICY_NAME_DUPLICATE(HttpStatus.BAD_REQUEST, "OP007", "이미 존재하는 정책 이름입니다."),
 
+    // OPERATION SCHEDULE
+    OS_POLICY_REQUIRED(HttpStatus.BAD_REQUEST, "OS001", "운영 스케줄은 운영 정책에 속해야 합니다."),
+    OS_DAY_REQUIRED(HttpStatus.BAD_REQUEST, "OS002", "운영 스케줄의 요일 정보는 필수입니다."),
+    OS_TIME_REQUIRED(HttpStatus.BAD_REQUEST, "OS003", "운영일에는 오픈 및 마감 시간이 필요합니다."),
+    OS_TIME_ORDER_INVALID(HttpStatus.BAD_REQUEST, "OS004", "오픈 시간은 마감 시간보다 빨라야 합니다."),
+    OS_HOUR_ONLY(HttpStatus.BAD_REQUEST, "OS005", "운영 시간은 정각 단위로만 설정할 수 있습니다."),
+    OS_NOT_ALIGNED_TO_SLOT(HttpStatus.BAD_REQUEST, "OS006", "운영 시간은 슬롯 단위로 나누어 떨어져야 합니다."),
+    OS_CLOSED_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "OS007", "휴무일에는 운영 시간을 설정할 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
