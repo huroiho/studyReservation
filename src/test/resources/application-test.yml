@@ -1,0 +1,3 @@
+toss:
+  client-key: ${TOSS_CLIENT_KEY}
+  secret-key: ${TOSS_SECRET_KEY}
