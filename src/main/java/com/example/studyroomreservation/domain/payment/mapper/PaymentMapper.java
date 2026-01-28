@@ -17,7 +17,8 @@ import java.util.UUID;
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE
-)public interface PaymentMapper {
+)
+public interface PaymentMapper {
 
 
     default PaymentPrepareResponse toPrepareResponse(
