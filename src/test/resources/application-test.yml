@@ -12,10 +12,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-        ]
-
-
 toss:
-  client-key: TOSS_CLIENT_KEY
-  secret-key: TOSS_SECRET_KEY
+  client-key: test_client_key
+  secret-key: test_secret_key
