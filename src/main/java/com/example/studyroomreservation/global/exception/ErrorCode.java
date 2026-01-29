@@ -36,7 +36,10 @@ public enum ErrorCode {
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P002", "결제 금액이 일치하지 않습니다."),
     PAYMENT_DUPLICATE_APPROVE(HttpStatus.CONFLICT,"P003","이미 결제가 성공 처리된 예약입니다."),
-    PAYMENT_ATTEMPT_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","처리할 결제 시도가 존재하지 않습니다.");
+    PAYMENT_ATTEMPT_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","처리할 결제 시도가 존재하지 않습니다."),
+    PAYMENT_CONFLICT(HttpStatus.CONFLICT, "P005", "결제 처리 중 충돌이 발생했습니다."),
+    PAYMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P008", "결제 처리에 실패했습니다."),
+    PAYMENT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "P009", "잘못된 결제 요청입니다.");
 
     private final HttpStatus status;
     private final String code;

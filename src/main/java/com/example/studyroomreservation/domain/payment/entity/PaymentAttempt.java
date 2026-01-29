@@ -9,8 +9,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,6 +17,9 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     @Column(name = "reservation_id", nullable = false)
     private Long reservationId;
+
+    @Column(name = "order_id", nullable = false, unique = true)
+    private String orderId;
 
     @Column(nullable = false)
     private int amount;
@@ -32,7 +33,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
     private PaymentAttemptStatus paymentAttemptStatus;
 
     @Column(name = "pg_tid", length = 100)
-    private String pgTid;
+    private String paymentKey;
 
     @Column(name = "error_code", length = 50)
     private String errorCode;
@@ -42,32 +43,42 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     private PaymentAttempt(
             Long reservationId,
+            String orderId,
             int amount,
             PaymentMethod paymentMethod
     ){
         this.reservationId = reservationId;
         this.amount = amount;
+        this.orderId = orderId;
         this.paymentMethod = paymentMethod;
         this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
     }
 
     public static PaymentAttempt createPending(
             Long reservationId,
+            String orderId,
             int amount,
             PaymentMethod paymentMethod
     ) {
         return new PaymentAttempt(
                 reservationId,
+                orderId,
                 amount,
                 paymentMethod
         );
     }
 
     public void markAsSuccess(String pgTid) {
+        if (this.paymentAttemptStatus == PaymentAttemptStatus.SUCCESS) {
+            if (this.paymentKey != null && this.paymentKey.equals(pgTid)) return;
+            throw new BusinessException(ErrorCode.PAYMENT_DUPLICATE_APPROVE);
+        }
+
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
             throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
-        this.pgTid = pgTid;
+
+        this.paymentKey = pgTid;
         this.errorCode = null;
         this.errorMessage = null;
         this.paymentAttemptStatus = PaymentAttemptStatus.SUCCESS;
@@ -77,7 +88,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
             throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
-        this.pgTid = null;
+        this.paymentKey = null;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.paymentAttemptStatus = PaymentAttemptStatus.FAILED;
