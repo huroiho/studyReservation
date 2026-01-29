@@ -23,17 +23,26 @@
         </div>
     </div>
 
-    <form th:action="@{/admin/roomrules}" th:object="${RoomRuleRequest}" method="post" class="form-section">
+    <form th:action="@{/admin/roomrules}" th:object="${roomRuleRequest}" method="post" class="form-section">
+        <div id="global-error-data"
+             th:if="${#fields.hasGlobalErrors()}"
+             th:data-message="${#fields.globalErrors()[0]}"
+             style="display:none;">
+        </div>
 
         <div class="form-group">
             <div class="label-group">
                 <label>규칙명</label><span class="required">*</span>
             </div>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="예: 일반 예약 규칙" maxlength="30">
+            <input type="text" th:field="*{name}" class="form-control" placeholder="예: 일반 예약 규칙" maxlength="30"
+                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''" />
             <div class="input-footer">
                 <span>1~30자 이내로 입력해주세요.</span>
                 <span>0/30</span>
             </div>
+            <p th:if="${#fields.hasErrors('name')}"
+               th:errors="*{name}"
+               style="color: red; font-size: 0.8em;">이름 중복 메시지가 출력됩니다.</p>
         </div>
 
         <div class="form-group">
@@ -46,6 +55,9 @@
                     <label th:for="${'min' + val}" th:text="${val + '분'}"></label>
                 </div>
             </div>
+            <p th:if="${#fields.hasErrors('minDurationMinutes')}"
+               th:errors="*{minDurationMinutes}"
+               style="color: red; font-size: 0.8em; margin-top: 5px;"></p>
         </div>
 
         <div class="form-group">
@@ -58,6 +70,9 @@
                     <label th:for="${'day' + val}" th:text="${val + '일'}"></label>
                 </div>
             </div>
+            <p th:if="${#fields.hasErrors('bookingOpenDays')}"
+               th:errors="*{bookingOpenDays}"
+               style="color: red; font-size: 0.8em; margin-top: 5px;"></p>
         </div>
 
         <div class="form-group">
@@ -67,7 +82,7 @@
                     <input type="checkbox"
                            name="active"
                            id="statusCheckbox"
-                           th:checked="${RoomRuleRequest.active}"
+                           th:checked="${roomRuleRequest.active}"
                            onchange="updateStatusText(this.checked)">
                     <span class="slider"></span>
                     <input type="hidden" name="active" value="false">
@@ -98,5 +113,14 @@
         const checkbox = document.getElementById('statusCheckbox');
         if (checkbox) updateStatusText(checkbox.checked);
     });
+</script>
+<script th:inline="javascript">
+    window.onload = function() {
+        const errorDiv = document.getElementById('global-error-data');
+        if (errorDiv) {
+            const msg = errorDiv.getAttribute('data-message');
+            if (msg) alert(msg);
+        }
+    };
 </script>
 </html>
