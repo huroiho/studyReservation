@@ -14,12 +14,29 @@ public record OperationPolicyDetailResponse(
         boolean active,
         LocalDateTime createdAt,
         LocalDateTime activeUpdatedAt,
-        List<ScheduleDetailResponse> schedules
+        List<ScheduleDetail> schedules,
+        List<RoomSummary> rooms,
+        DeleteBlockInfo deleteInfo
 ) {
-    public record ScheduleDetailResponse(
+    // 요일별 운영 스케줄 정보
+    public record ScheduleDetail(
             DayOfWeek dayOfWeek,
             boolean closed,
             LocalTime openTime,
             LocalTime closeTime
+    ) {}
+
+    // 연결된 룸 요약 정보
+    public record RoomSummary(
+            Long id,
+            String name,
+            String status
+    ) {}
+
+    // 삭제 메시지 조합을 위한 제약 조건 정보
+    public record DeleteBlockInfo(
+            int connectedRoomCount,
+            boolean hasReservationReference,
+            boolean deletable
     ) {}
 }

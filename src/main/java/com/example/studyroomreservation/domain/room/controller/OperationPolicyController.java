@@ -71,4 +71,22 @@ public class OperationPolicyController {
         model.addAttribute("policy", operationPolicyService.getDetail(id));
         return "room/operation-policy/detail";
     }
+
+    @PostMapping("/{id}/activate")
+    public String activate(@PathVariable Long id) {
+        operationPolicyService.activate(id);
+        return "redirect:/admin/operation-policies/" + id;
+    }
+
+    @PostMapping("/{id}/deactivate")
+    public String deactivate(@PathVariable Long id) {
+        operationPolicyService.deactivate(id);
+        return "redirect:/admin/operation-policies/" + id;
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Long id) {
+        operationPolicyService.delete(id);
+        return "redirect:/admin/operation-policies";
+    }
 }

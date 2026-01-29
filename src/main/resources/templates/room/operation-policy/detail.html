@@ -93,12 +93,174 @@
         </table>
     </div>
 
-    <div style="margin-top: 20px;">
+    <!-- 연결된 룸 -->
+    <div class="table-container">
+        <h3 style="margin-bottom: 15px;">
+            연결된 룸
+            <span class="room-count" th:text="'(' + ${policy.deleteInfo.connectedRoomCount} + '개)'"></span>
+        </h3>
+
+        <div th:if="${policy.deleteInfo.connectedRoomCount == 0}" class="empty-state">
+            <span class="material-icons">meeting_room</span>
+            <p>이 정책을 사용 중인 룸이 없습니다.</p>
+        </div>
+
+        <table th:if="${policy.deleteInfo.connectedRoomCount > 0}">
+            <thead>
+            <tr>
+                <th style="padding-left: 25px;">ID</th>
+                <th>룸 이름</th>
+                <th>상태</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="room : ${policy.rooms}">
+                <td style="padding-left: 25px;" th:text="${room.id}">1</td>
+                <td th:text="${room.name}">스터디룸 A</td>
+                <td>
+                    <span th:class="${room.status == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
+                          th:text="${room.status == 'ACTIVE' ? '활성' : '비활성'}">활성</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 삭제 조건 안내 (View에서 메시지 조합) -->
+    <div th:if="${!policy.deleteInfo.deletable}" class="warning-box">
+        <span class="material-icons icon">warning</span>
+        <div>
+            <div>이 정책은 삭제할 수 없습니다.</div>
+            <div class="text-muted">
+                <span th:if="${policy.deleteInfo.connectedRoomCount > 0}"
+                      th:text="'연결된 룸 ' + ${policy.deleteInfo.connectedRoomCount} + '개 존재'">연결된 룸 N개 존재</span>
+                <span th:if="${policy.deleteInfo.connectedRoomCount > 0 && policy.deleteInfo.hasReservationReference}">, </span>
+                <span th:if="${policy.deleteInfo.hasReservationReference}">예약 이력 존재</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 액션 버튼 영역 -->
+    <div class="action-buttons">
         <a th:href="@{/admin/operation-policies}" class="btn-back">
             <span class="material-icons" style="font-size: 18px;">arrow_back</span>
             목록으로
         </a>
+
+        <div class="right-buttons">
+            <!-- 비활성화 버튼 (활성 상태일 때만 표시) -->
+            <button th:if="${policy.active}" type="button" class="btn-deactivate"
+                    onclick="openDeactivateModal()">
+                <span class="material-icons" style="font-size: 18px;">pause_circle</span>
+                비활성화
+            </button>
+
+            <!-- 활성화 버튼 (비활성 상태일 때만 표시) -->
+            <form th:if="${!policy.active}" th:action="@{/admin/operation-policies/{id}/activate(id=${policy.id})}"
+                  method="post" style="display: inline;">
+                <button type="submit" class="btn-activate">
+                    <span class="material-icons" style="font-size: 18px;">play_circle</span>
+                    활성화
+                </button>
+            </form>
+
+            <!-- 삭제 버튼 -->
+            <form th:if="${policy.deleteInfo.deletable}" th:action="@{/admin/operation-policies/{id}/delete(id=${policy.id})}"
+                  method="post" style="display: inline;">
+                <button type="submit" class="btn-delete"
+                        onclick="return confirm('이 정책을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                    <span class="material-icons" style="font-size: 18px;">delete</span>
+                    삭제
+                </button>
+            </form>
+
+            <button th:if="${!policy.deleteInfo.deletable}" class="btn-delete" disabled
+                    th:title="${(policy.deleteInfo.connectedRoomCount > 0 ? '연결된 룸 ' + policy.deleteInfo.connectedRoomCount + '개 존재' : '') + (policy.deleteInfo.connectedRoomCount > 0 && policy.deleteInfo.hasReservationReference ? ', ' : '') + (policy.deleteInfo.hasReservationReference ? '예약 이력 존재' : '')}">
+                <span class="material-icons" style="font-size: 18px;">delete</span>
+                삭제
+            </button>
+        </div>
     </div>
 </div>
+
+<!-- 비활성화 모달: 연결된 룸이 있을 때 (정보 안내용) -->
+<div th:if="${policy.active && policy.deleteInfo.connectedRoomCount > 0}" id="deactivateBlockedModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="material-icons modal-icon warning">warning</span>
+            <h3>비활성화 불가</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                현재 <strong th:text="${policy.deleteInfo.connectedRoomCount}">0</strong>개의 룸이 이 정책을 사용 중입니다.
+            </p>
+            <p>
+                비활성화하려면 먼저 해당 룸들의 운영 정책을 다른 정책으로 변경해야 합니다.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeModal('deactivateBlockedModal')">취소</button>
+            <button type="button" class="btn-modal-confirm" onclick="closeModal('deactivateBlockedModal')">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 비활성화 모달: 연결된 룸이 없을 때 (확인 후 제출) -->
+<div th:if="${policy.active && policy.deleteInfo.connectedRoomCount == 0}" id="deactivateConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="material-icons modal-icon">pause_circle</span>
+            <h3>정책 비활성화</h3>
+        </div>
+        <div class="modal-body">
+            <p>이 운영 정책을 비활성화하시겠습니까?</p>
+            <p class="text-muted">
+                비활성화된 정책은 룸에 적용할 수 없습니다.
+            </p>
+            <p>기존 예약에는 영향을 주지 않습니다.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeModal('deactivateConfirmModal')">취소</button>
+            <form id="deactivateForm" th:action="@{/admin/operation-policies/{id}/deactivate(id=${policy.id})}"
+                  method="post" style="display: inline;">
+                <button type="submit" class="btn-modal-confirm">확인</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const connectedRoomCount = /*[[${policy.deleteInfo.connectedRoomCount}]]*/ 0;
+
+    function openDeactivateModal() {
+        if (connectedRoomCount > 0) {
+            document.getElementById('deactivateBlockedModal').style.display = 'flex';
+        } else {
+            document.getElementById('deactivateConfirmModal').style.display = 'flex';
+        }
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+                modal.style.display = 'none';
+            });
+        }
+    });
+
+    // 모달 외부 클릭 시 닫기
+    document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
 </body>
 </html>

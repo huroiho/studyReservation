@@ -55,6 +55,8 @@ public enum ErrorCode {
     OP_SLOT_UNIT_REQUIRED(HttpStatus.BAD_REQUEST, "OP006", "슬롯 단위는 필수입니다."),
     OP_POLICY_NAME_DUPLICATE(HttpStatus.BAD_REQUEST, "OP007", "이미 존재하는 정책 이름입니다."),
     OP_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "OP008", "운영 정책이 존재하지 않습니다."),
+    OP_POLICY_IN_USE_BY_ROOM(HttpStatus.CONFLICT, "OP009", "이 정책을 사용 중인 룸이 있어 삭제할 수 없습니다."),
+    OP_POLICY_IN_USE_BY_RESERVATION(HttpStatus.CONFLICT, "OP010", "이 정책이 적용된 예약이 있어 삭제할 수 없습니다."),
 
     // OPERATION SCHEDULE
     OS_POLICY_REQUIRED(HttpStatus.BAD_REQUEST, "OS001", "운영 스케줄은 운영 정책에 속해야 합니다."),
