@@ -2,7 +2,7 @@ package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.service.OperationPolicyService;
-import com.example.studyroomreservation.domain.room.validation.validator.OperationPolicyValidator;
+import com.example.studyroomreservation.domain.room.validation.OperationPolicyValidator;
 import com.example.studyroomreservation.domain.room.web.OperationPolicyFormFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +13,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.studyroomreservation.domain.room.controller.OperationPolicyControllerConstants.*;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin/operation-policies")
+@RequestMapping(BASE_PATH)
 public class OperationPolicyController {
 
     private final OperationPolicyService operationPolicyService;
@@ -28,21 +30,21 @@ public class OperationPolicyController {
      * - @Valid 검증 후 추가로 비즈니스 검증을 수행
      * - 모든 검증 에러가 BindingResult에 자동으로 추가됨
      */
-    @InitBinder("form")
+    @InitBinder(FORM)
     protected void initBinder(WebDataBinder binder) {
         binder.addValidators(operationPolicyValidator);
     }
 
-    @GetMapping("/new")
+    @GetMapping(NEW_FORM_PATH)
     public String createForm(Model model) {
-        model.addAttribute("form", formFactory.emptyCreateForm());
+        model.addAttribute(FORM, formFactory.emptyCreateForm());
         injectCommonModel(model);
-        return "room/operation-policy/create";
+        return CREATE_VIEW;
     }
 
     @PostMapping
     public String create(
-            @Valid @ModelAttribute("form") OperationPolicyCreateRequest form,
+            @Valid @ModelAttribute(FORM) OperationPolicyCreateRequest form,
             BindingResult br,
             Model model
     ) {
@@ -51,18 +53,18 @@ public class OperationPolicyController {
         if (br.hasErrors()) {
             log.debug("Validation errors: {}", br.getAllErrors());
             injectCommonModel(model);
-            return "room/operation-policy/create";
+            return CREATE_VIEW;
         }
 
         Long id = operationPolicyService.create(form);
         log.info("Operation policy created successfully: id={}, name={}", id, form.name());
 
-        return "redirect:/admin/operation-policies/" + id;
+        return REDIRECT_BASE + id;
     }
 
     private void injectCommonModel(Model model) {
-        model.addAttribute("slotUnits", formFactory.slotUnits());
-        model.addAttribute("hours", formFactory.hourOptions());
-        model.addAttribute("days", formFactory.orderedDays());
+        model.addAttribute(SLOT_UNITS, formFactory.slotUnits());
+        model.addAttribute(HOURS, formFactory.hourOptions());
+        model.addAttribute(DAYS, formFactory.orderedDays());
     }
 }
