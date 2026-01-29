@@ -18,7 +18,7 @@ public class PaymentController {
 
     @GetMapping("/payments/approve")
     public String approveSuccess(
-            @RequestParam("paymentType") String paymentType,
+            @RequestParam(value = "paymentType", required = false) String paymentType,
             @Valid @ModelAttribute PaymentApproveRequest request,
             BindingResult bindingResult
     ) {

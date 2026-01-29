@@ -48,7 +48,7 @@ public interface PaymentMapper {
                 attempt.getReservationId(),
                 attempt.getOrderId(),
                 attempt.getAmount(),
-                attempt.getPaymentMethod(),
+                PaymentMethod.PG,
                 confirm.paymentKey(),
                 confirm.approvedAt().toLocalDateTime()
         );

@@ -6,6 +6,7 @@ import com.example.studyroomreservation.domain.payment.dto.request.PaymentApprov
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
+import com.example.studyroomreservation.domain.payment.entity.PaymentMethod;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
@@ -70,7 +71,7 @@ public class PaymentService {
         }
 
         int realAmount = reservation.getTotalAmount();
-        PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, null);
+        PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, PaymentMethod.PG);
 
         paymentAttemptRepository.save(paymentAttempt);
 
@@ -88,26 +89,32 @@ public class PaymentService {
         );
     }
 
-    public void  approveSuccess(String paymentType,PaymentApproveRequest request){
-
-        String lockKey = "payment:approval:" + request.orderId(); // 페이먼츠 말고 다른곳에서 받을려면 매개변수로 키명 받아와서
+    public void approveSuccess(String paymentType, PaymentApproveRequest request) {
+        String lockKey = "payment:approval:" + request.orderId();
         RLock lock = redissonClient.getLock(lockKey);
 
+        boolean locked = false;
         try {
-            boolean available = lock.tryLock(5, 10, TimeUnit.SECONDS); // 락을 정의 하는거다
-            if (!available) {
-                throw new BusinessException(ErrorCode.PAYMENT_CONFLICT); // 예외 코드도 다르게
+            locked = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!locked) {
+                throw new BusinessException(ErrorCode.PAYMENT_IN_PROGRESS);
             }
+
             transactionTemplate.execute(status -> {
-                processingApprovalLogic(paymentType,request); //돌아가는 로직 바껴야하고
+                processingApprovalLogic(paymentType, request);
                 return null;
             });
-        } catch (Exception e) {
+
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+
         } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
+            if (locked) {
+                try {
+                    lock.unlock();
+                } catch (Exception ignore) {
+                }
             }
         }
     }

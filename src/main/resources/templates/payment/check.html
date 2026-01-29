@@ -62,7 +62,7 @@
 
             // [중요] 결제 성공/실패 시 이동할 URL (현재 도메인 + API 경로)
             // window.location.origin은 'http://localhost:8080'을 자동으로 찾아줍니다.
-            successUrl: window.location.origin + '/api/payments/success',
+            successUrl: window.location.origin + '/payments/approve',
             failUrl: window.location.origin + '/api/payments/fail',
         });
     });

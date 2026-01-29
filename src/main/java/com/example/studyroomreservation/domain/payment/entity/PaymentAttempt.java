@@ -50,6 +50,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.orderId = "RES_" + reservationId + "_" + java.util.UUID.randomUUID().toString().substring(0, 5);
+        this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
     }
 
     public static PaymentAttempt createPending(

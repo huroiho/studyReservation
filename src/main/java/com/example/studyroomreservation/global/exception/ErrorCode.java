@@ -49,6 +49,7 @@ public enum ErrorCode {
     PAYMENT_CONFLICT(HttpStatus.CONFLICT, "P005", "결제 처리 중 충돌이 발생했습니다."),
     PAYMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P008", "결제 처리에 실패했습니다."),
     PAYMENT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "P009", "잘못된 결제 요청입니다."),
+    PAYMENT_IN_PROGRESS(HttpStatus.CONFLICT, "P010", "이미 결제가 처리 중입니다."),
 
     // OPERATION POLICY
     OP_POLICY_SCHEDULE_REQUIRED(HttpStatus.BAD_REQUEST, "OP001", "요일별 운영 스케줄이 필요합니다."),
