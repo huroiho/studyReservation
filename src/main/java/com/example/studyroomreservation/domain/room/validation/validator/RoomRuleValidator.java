@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.room.validation.validator;
 
 import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.repository.RoomRuleRepository;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -28,12 +29,27 @@ public class RoomRuleValidator implements Validator {
     public void validate(Object target, Errors errors) {
         RoomRuleCreateRequest request = (RoomRuleCreateRequest) target;
 
+        if (errors.hasErrors()) return;
         validateNameUniqueness(request, errors);
+        validateValueUniqueness(request, errors);
     }
-
     private void validateNameUniqueness(RoomRuleCreateRequest request, Errors errors) {
         if (request.name() != null && roomRuleRepository.existsByName(request.name())) {
-            errors.rejectValue("name", "RR001", "이미 존재하는 규칙 이름입니다.");
+//            errors.rejectValue("name", "RR001", "이미 존재하는 규칙 이름입니다.");
+            errors.rejectValue("name",
+                    ErrorCode.RR_NAME_DUPLICATE.getCode(),
+                    ErrorCode.RR_NAME_DUPLICATE.getMessage());
+        }
+    }
+    private void validateValueUniqueness(RoomRuleCreateRequest request, Errors errors) {
+        boolean isDuplicate = roomRuleRepository.existsByMinDurationMinutesAndBookingOpenDays(
+                request.minDurationMinutes(),
+                request.bookingOpenDays()
+        );
+
+        if (isDuplicate) {
+            errors.reject(ErrorCode.RR_VALUES_DUPLICATE.getCode(),
+                    ErrorCode.RR_VALUES_DUPLICATE.getMessage());
         }
     }
 }

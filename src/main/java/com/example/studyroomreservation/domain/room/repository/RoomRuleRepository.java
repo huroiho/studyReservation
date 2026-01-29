@@ -15,4 +15,8 @@ public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
 
     // 규칙명 중복 확인 (Validator에서 사용)
     boolean existsByName(String name);
+
+    // 설정 값 조합 중복 체크 (최소 이용 시간 + 예약 가능 기간)
+    boolean existsByMinDurationMinutesAndBookingOpenDays(Integer minDurationMinutes, Integer bookingOpenDays);
+
 }
