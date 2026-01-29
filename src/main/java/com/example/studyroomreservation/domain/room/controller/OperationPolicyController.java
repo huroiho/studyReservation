@@ -68,27 +68,27 @@ public class OperationPolicyController {
         model.addAttribute(DAYS, formFactory.orderedDays());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(DETAIL_PATH)
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("policy", operationPolicyService.getDetail(id));
-        return "room/operation-policy/detail";
+        model.addAttribute(POLICY, operationPolicyService.getDetail(id));
+        return DETAIL_VIEW;
     }
 
-    @PostMapping("/{id}/activate")
+    @PostMapping(ACTIVATE_PATH)
     public String activate(@PathVariable Long id) {
         operationPolicyService.activate(id);
-        return "redirect:/admin/operation-policies/" + id;
+        return REDIRECT_BASE + id;
     }
 
-    @PostMapping("/{id}/deactivate")
+    @PostMapping(DEACTIVATE_PATH)
     public String deactivate(@PathVariable Long id) {
         operationPolicyService.deactivate(id);
-        return "redirect:/admin/operation-policies/" + id;
+        return REDIRECT_BASE + id;
     }
 
-    @PostMapping("/{id}/delete")
+    @PostMapping(DELETE_PATH)
     public String delete(@PathVariable Long id) {
         operationPolicyService.delete(id);
-        return "redirect:/admin/operation-policies";
+        return REDIRECT_LIST;
     }
 }
