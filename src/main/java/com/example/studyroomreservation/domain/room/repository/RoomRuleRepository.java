@@ -5,9 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
 
     // 목록 조회
@@ -15,4 +12,11 @@ public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
 
     // 활성화 목록 조회 (룸 등록시 목록)
     Page<RoomRule> findAllByIsActiveTrue(Pageable pageable);
+
+    // 규칙명 중복 확인 (Validator에서 사용)
+    boolean existsByName(String name);
+
+    // 설정 값 조합 중복 체크 (최소 이용 시간 + 예약 가능 기간)
+    boolean existsByMinDurationMinutesAndBookingOpenDays(Integer minDurationMinutes, Integer bookingOpenDays);
+
 }
