@@ -70,7 +70,7 @@ public class OperationPolicyController {
     @GetMapping
     public String list(Pageable pageable, Model model){
 
-
+        model.addAttribute("page", operationPolicyService.getList(pageable));
 
         return "room/operation-policy/list";
     }

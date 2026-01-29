@@ -2,27 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>방 예약 규칙 관리</title>
+    <title>운영 정책 관리</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/css/room-rule-style.css">
 </head>
-<body>
 
+<body>
 <div class="container">
-    <h2>방 예약 규칙</h2>
+    <h2>운영 정책</h2>
 
     <div class="info-box">
         <span class="material-icons icon">error</span>
         <div>
-            <div>방 예약 규칙은 생성 후 수정할 수 없습니다.</div>
+            <div>운영 정책은 생성 후 수정할 수 없습니다.</div>
             <div class="text-muted">필요 시 새로운 규칙을 등록하거나 상태를 변경하세요.</div>
         </div>
     </div>
 
     <div style="margin-bottom: 20px;">
-        <a href="/admin/roomrules/new" class="btn-register">
+        <a href="/admin/operation-policies/new" class="btn-register">
             <span class="material-icons" style="font-size: 18px;">add</span>
-            방 예약 규칙 등록
+            운영 정책 등록
         </a>
     </div>
 
@@ -91,8 +91,6 @@
             </tbody>
         </table>
     </div>
-
 </div>
-
 </body>
 </html>
