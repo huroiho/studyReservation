@@ -49,19 +49,19 @@ public class OperationPolicyService {
      * 추후 공통 Policy 제약 검증 컴포넌트로 분리 예정
      */
 
-    // 운영 정책 활성화
+    // 운영 정책 활성화 (이미 활성 상태면 no-op)
     @Transactional
     public void activate(Long id) {
         OperationPolicy policy = findPolicyById(id);
-        policy.markActive();
+        policy.activate();
     }
 
-    // 운영 정책 비활성화 - 연결된 룸이 있으면 비활성화 불가
+    // 운영 정책 비활성화 (연결된 룸이 있으면 불가, 이미 비활성 상태면 no-op)
     @Transactional
     public void deactivate(Long id) {
         OperationPolicy policy = findPolicyById(id);
         assertNotUsedByRooms(id);
-        policy.markInactive();
+        policy.deactivate();
     }
 
     // 운영 정책 삭제 - 연결된 룸이 있거나 예약 이력이 있으면 삭제 불가
