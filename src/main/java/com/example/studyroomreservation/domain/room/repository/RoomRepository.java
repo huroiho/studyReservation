@@ -1,13 +1,14 @@
 package com.example.studyroomreservation.domain.room.repository;
 
 import com.example.studyroomreservation.domain.room.entity.Room;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface RoomRepository {
+public interface RoomRepository extends JpaRepository<Room, Long> {
     // 룸 상세조회시 이미지와 규칙 한 번에
     @Query("select r from Room r " +
             "left join fetch r.images " +

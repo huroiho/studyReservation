@@ -25,7 +25,7 @@ public class PaymentAttempt extends BaseCreatedEntity {
     private int amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 20)
+    @Column(name = "payment_method", length = 20)
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
@@ -43,26 +43,22 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     private PaymentAttempt(
             Long reservationId,
-            String orderId,
             int amount,
             PaymentMethod paymentMethod
     ){
         this.reservationId = reservationId;
         this.amount = amount;
-        this.orderId = orderId;
         this.paymentMethod = paymentMethod;
-        this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
+        this.orderId = "RES_" + reservationId + "_" + java.util.UUID.randomUUID().toString().substring(0, 5);
     }
 
     public static PaymentAttempt createPending(
             Long reservationId,
-            String orderId,
             int amount,
             PaymentMethod paymentMethod
     ) {
         return new PaymentAttempt(
                 reservationId,
-                orderId,
                 amount,
                 paymentMethod
         );

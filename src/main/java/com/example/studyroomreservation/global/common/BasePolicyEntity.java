@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class BasePolicyEntity extends BaseCreatedEntity{
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, unique = true)
     protected String name;
 
     @Column(nullable = false)

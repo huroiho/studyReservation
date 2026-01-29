@@ -49,3 +49,8 @@ logging:
     com.mall.project: DEBUG # 내 코드는 자세히 보기
     p6spy: INFO            # 쿼리 로그 보기
     org.hibernate.SQL: INFO
+
+
+toss:
+  client-key: ${TOSS_CLIENT_KEY}
+  secret-key: ${TOSS_SECRET_KEY}
