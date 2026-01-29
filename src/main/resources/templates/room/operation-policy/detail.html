@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>운영 정책 상세</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/room-rule-style.css}" />
+    <link rel="stylesheet" th:href="@{/css/operation-policy-detail.css}" />
+</head>
+
+<body>
+<div class="container">
+    <h2>운영 정책 상세</h2>
+
+    <div class="info-box">
+        <span class="material-icons icon">info</span>
+        <div>
+            <div>운영 정책은 생성 후 수정할 수 없습니다.</div>
+            <div class="text-muted">필요 시 새로운 정책을 등록하거나 상태를 변경하세요.</div>
+        </div>
+    </div>
+
+    <!-- 정책 기본 정보 -->
+    <div class="detail-card">
+        <h3>정책 기본 정보</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">정책 ID</span>
+                <span class="detail-value" th:text="${policy.id}">1</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">정책명</span>
+                <span class="detail-value" th:text="${policy.name}">표준 운영 정책</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">슬롯 단위</span>
+                <span class="detail-value" th:text="${policy.slotUnit.label}">60분</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">상태</span>
+                <span th:class="${policy.active ? 'status-active' : 'status-inactive'}"
+                      th:text="${policy.active ? '활성' : '비활성'}">활성</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">생성일</span>
+                <span class="detail-value"
+                      th:text="${policy.createdAt != null ? #temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                    2026-01-15 10:30
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">활성 변경일</span>
+                <span class="detail-value"
+                      th:text="${#temporals.format(policy.activeUpdatedAt, 'yyyy-MM-dd HH:mm')}">
+                    2026-01-15 10:30
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 요일별 운영 스케줄 -->
+    <div class="table-container">
+        <h3 style="margin-bottom: 15px;">요일별 운영 스케줄</h3>
+        <table>
+            <thead>
+            <tr>
+                <th style="padding-left: 25px;">요일</th>
+                <th>운영 여부</th>
+                <th>오픈 시간</th>
+                <th>마감 시간</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="s : ${policy.schedules}">
+                <td style="padding-left: 25px;"
+                    th:text="${s.dayOfWeek.getDisplayName(T(java.time.format.TextStyle).FULL, T(java.util.Locale).KOREAN)}">
+                    월요일
+                </td>
+
+                <td>
+                    <span th:class="${s.closed ? 'status-inactive' : 'status-active'}"
+                          th:text="${s.closed ? '휴무' : '운영'}">운영</span>
+                </td>
+
+                <td th:if="${!s.closed}" th:text="${#temporals.format(s.openTime, 'HH:mm')}">09:00</td>
+                <td th:if="${s.closed}" class="text-muted">-</td>
+
+                <td th:if="${!s.closed}" th:text="${#temporals.format(s.closeTime, 'HH:mm')}">22:00</td>
+                <td th:if="${s.closed}" class="text-muted">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a th:href="@{/admin/operation-policies}" class="btn-back">
+            <span class="material-icons" style="font-size: 18px;">arrow_back</span>
+            목록으로
+        </a>
+    </div>
+</div>
+</body>
+</html>
