@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @RequestMapping("/admin/roomrules")
 public class RoomRuleController {
-
     private final RoomRuleService roomRuleService;
     private final RoomRuleValidator roomRuleValidator;
+
 
     // 전체 목록
     @GetMapping
@@ -41,7 +41,7 @@ public class RoomRuleController {
         return "room/admin/roomrule-detail";
     }
 
-    @InitBinder("RoomRuleRequest")
+    @InitBinder("roomRuleRequest")
     protected void initBinder(WebDataBinder binder) {
         binder.addValidators(roomRuleValidator);
     }
@@ -49,13 +49,14 @@ public class RoomRuleController {
     // 등록 폼 (룸 규칙은 수정불가)
     @GetMapping("/new")
     public String showCreateForm(Model model){
-        model.addAttribute("RoomRuleRequest", new RoomRuleCreateRequest("", 0, 0, true));
+        model.addAttribute("roomRuleRequest", new RoomRuleCreateRequest("", 0, 0, true));
         return "room/admin/roomrule-form";
     }
 
     // 저장처리
     @PostMapping
-    public String create(@ModelAttribute("RoomRuleRequest") @Valid RoomRuleCreateRequest request, BindingResult result) {
+    public String create(@ModelAttribute("roomRuleRequest") @Valid RoomRuleCreateRequest request, BindingResult result) {
+        roomRuleValidator.validate(request, result);
         if (result.hasErrors()) {
             return "room/admin/roomrule-form";
         }
