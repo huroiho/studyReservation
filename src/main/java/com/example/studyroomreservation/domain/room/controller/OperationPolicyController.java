@@ -7,7 +7,6 @@ import com.example.studyroomreservation.domain.room.web.OperationPolicyFormFacto
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -75,5 +74,29 @@ public class OperationPolicyController {
         model.addAttribute("page", operationPolicyService.getList(pageable));
 
         return "room/operation-policy/list";
+    }
+
+    @GetMapping(DETAIL_PATH)
+    public String detail(@PathVariable Long id, Model model) {
+        model.addAttribute(POLICY, operationPolicyService.getDetail(id));
+        return DETAIL_VIEW;
+    }
+
+    @PostMapping(ACTIVATE_PATH)
+    public String activate(@PathVariable Long id) {
+        operationPolicyService.activate(id);
+        return REDIRECT_BASE + id;
+    }
+
+    @PostMapping(DEACTIVATE_PATH)
+    public String deactivate(@PathVariable Long id) {
+        operationPolicyService.deactivate(id);
+        return REDIRECT_BASE + id;
+    }
+
+    @PostMapping(DELETE_PATH)
+    public String delete(@PathVariable Long id) {
+        operationPolicyService.delete(id);
+        return REDIRECT_LIST;
     }
 }
