@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>스터디룸 예약 결제</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+
+    <style>
+        /* 간단한 스타일링 */
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f9f9f9; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 16px; }
+        .amount { font-weight: bold; color: #333; font-size: 20px; }
+        .btn-pay { width: 100%; padding: 15px; background-color: #3182f6; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-pay:hover { background-color: #1b64da; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>예약 결제 확인</h2>
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div class="info-row">
+        <span style="color: #666;">상품명</span>
+        <span th:text="${payment.orderName}">스터디룸 A</span>
+    </div>
+    <div class="info-row">
+        <span style="color: #666;">예약자</span>
+        <span th:text="${payment.customerName}">홍길동</span>
+    </div>
+    <div class="info-row">
+        <span style="color: #666;">결제 금액</span>
+        <span class="amount" th:text="${#numbers.formatInteger(payment.amount, 0, 'COMMA')} + '원'">10,000원</span>
+    </div>
+
+    <br>
+    <button id="payment-button" class="btn-pay">결제하기</button>
+</div>
+
+<script th:inline="javascript">
+    /* [서버 데이터 바인딩]
+       Controller에서 model.addAttribute("payment", response)로 넘겨준 데이터를
+       자바스크립트 객체로 변환합니다.
+    */
+    const paymentData = [[${payment}]];
+
+    // 2. 클라이언트 키로 SDK 초기화
+    const tossPayments = TossPayments(paymentData.clientKey);
+
+    const button = document.getElementById('payment-button');
+
+    button.addEventListener('click', function () {
+
+        // 3. 결제창 호출 (SDK)
+        tossPayments.requestPayment('카드', { // '카드'는 기본 진입 탭을 의미
+            amount: paymentData.amount,
+            orderId: paymentData.orderId,
+            orderName: paymentData.orderName,
+            customerName: paymentData.customerName,
+            customerEmail: paymentData.customerEmail,
+
+            // [중요] 결제 성공/실패 시 이동할 URL (현재 도메인 + API 경로)
+            // window.location.origin은 'http://localhost:8080'을 자동으로 찾아줍니다.
+            successUrl: window.location.origin + '/api/payments/success',
+            failUrl: window.location.origin + '/api/payments/fail',
+        });
+    });
+</script>
+</body>
+</html>
+
+

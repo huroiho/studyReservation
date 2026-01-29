@@ -22,14 +22,14 @@ public class OperationPolicyService {
     private final OperationPolicyRepository operationPolicyRepository;
     private final OperationPolicyMapper operationPolicyMapper;
 
+    /**
+     * 운영 정책 생성
+     * - 검증은 OperationPolicyValidator에서 이미 완료됨
+     * - 비즈니스 로직만 수행
+     */
     @Transactional
     public Long create(OperationPolicyCreateRequest request){
-
-        if(operationPolicyRepository.existsByName(request.name()))
-            throw new BusinessException(ErrorCode.OP_POLICY_NAME_DUPLICATE);
-
         OperationPolicy newPolicy = operationPolicyMapper.createPolicy(request);
-
         return operationPolicyRepository.save(newPolicy).getId();
     }
 

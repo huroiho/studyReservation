@@ -2,9 +2,8 @@ package com.example.studyroomreservation.domain.refund.controller;
 
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
-import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
-import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.domain.refund.validation.validator.RefundPolicyValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,6 +26,12 @@ import java.util.ArrayList;
 public class AdminRefundViewController {
 
     private final RefundPolicyService refundPolicyService;
+    private final RefundPolicyValidator refundPolicyValidator;
+
+    @InitBinder("policyForm")
+    protected void initBinder(WebDataBinder binder) {
+        binder.addValidators(refundPolicyValidator);
+    }
 
     @GetMapping("/policy/new")
     public String createForm(Model model) {
@@ -42,24 +48,15 @@ public class AdminRefundViewController {
             RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
-            log.info("validation errors={}", bindingResult);
+            log.debug("Validation errors: {}", bindingResult.getAllErrors());
             return "refund/admin/policy-form";
         }
 
-        try {
-            Long savedId = refundPolicyService.registerPolicy(request);
-            redirectAttributes.addFlashAttribute("message", "환불 정책이 성공적으로 등록되었습니다.");
+        Long savedId = refundPolicyService.registerPolicy(request);
+        log.info("Refund policy created: id={}, name={}", savedId, request.name());
+        redirectAttributes.addFlashAttribute("message", "환불 정책이 성공적으로 등록되었습니다.");
 
-            // 생성 후 상세 페이지로 이동
-            return "redirect:/admin/refund/policy/" + savedId;
-        } catch (BusinessException e) {
-            bindingResult.reject("business", e.getErrorCode().getMessage());
-            log.warn("정책 등록 실패: errorCode={}, message={}",
-                    e.getErrorCode(), e.getMessage());
-
-            // 오류 발생 시 입력값 유지해서 다시 폼페이지로 이동
-            return "refund/admin/policy-form";
-        }
+        return "redirect:/admin/refund/policy/" + savedId;
     }
 
     @GetMapping("/policy/list")

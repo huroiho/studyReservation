@@ -10,6 +10,13 @@ public enum ErrorCode {
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C001", "알 수 없는 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "C002", "잘못된 요청입니다."),
 
+    //MEMBER
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "해당 회원이 존재하지 않습니다."),
+
+
+    //ROOM
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "R001","해당 방이 존재하지 않습니다." ),
+
     // REFUND
     REF_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "RF001", "정책 이름은 필수입니다."),
     REF_RULE_REQUIRED(HttpStatus.BAD_REQUEST, "RF002", "최소 하나의 환불 규칙이 필요합니다."),
@@ -32,6 +39,12 @@ public enum ErrorCode {
     RES_ALREADY_EXPIRED(HttpStatus.CONFLICT, "R006", "이미 만료된 예약입니다."),
     RES_NOT_EXPIRED_YET(HttpStatus.CONFLICT, "R007", "아직 만료되지 않은 예약입니다."),
     RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "R008", "아직 이용 종료 시간이 지나지 않았습니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R009", "해당 예약이 존재하지 않습니다."),
+
+
+    //PAYMENT
+    PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P002", "결제 금액이 일치하지 않습니다."),
 
     // OPERATION POLICY
     OP_POLICY_SCHEDULE_REQUIRED(HttpStatus.BAD_REQUEST, "OP001", "요일별 운영 스케줄이 필요합니다."),
@@ -49,7 +62,11 @@ public enum ErrorCode {
     OS_TIME_ORDER_INVALID(HttpStatus.BAD_REQUEST, "OS004", "오픈 시간은 마감 시간보다 빨라야 합니다."),
     OS_HOUR_ONLY(HttpStatus.BAD_REQUEST, "OS005", "운영 시간은 정각 단위로만 설정할 수 있습니다."),
     OS_NOT_ALIGNED_TO_SLOT(HttpStatus.BAD_REQUEST, "OS006", "운영 시간은 슬롯 단위로 나누어 떨어져야 합니다."),
-    OS_CLOSED_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "OS007", "휴무일에는 운영 시간을 설정할 수 없습니다.");
+    OS_CLOSED_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "OS007", "휴무일에는 운영 시간을 설정할 수 없습니다."),
+
+    // ROOM
+    RR_NAME_DUPLICATE(HttpStatus.CONFLICT, "RR001", "이미 존재하는 규칙 이름입니다."),
+    RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다.");
 
     private final HttpStatus status;
     private final String code;
