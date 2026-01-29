@@ -2,7 +2,7 @@ package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.service.OperationPolicyService;
-import com.example.studyroomreservation.domain.room.validation.validator.OperationPolicyValidator;
+import com.example.studyroomreservation.domain.room.validation.OperationPolicyValidator;
 import com.example.studyroomreservation.domain.room.web.OperationPolicyFormFactory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

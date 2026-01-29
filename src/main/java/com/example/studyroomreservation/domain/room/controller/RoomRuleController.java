@@ -3,7 +3,7 @@ package com.example.studyroomreservation.domain.room.controller;
 import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.service.RoomRuleService;
-import com.example.studyroomreservation.domain.room.validation.validator.RoomRuleValidator;
+import com.example.studyroomreservation.domain.room.validation.RoomRuleValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
