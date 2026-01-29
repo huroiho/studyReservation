@@ -21,6 +21,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     // 활성화된 룸 목록 조회 (사용자(관리자는 findAll()로 조회))
     List<Room> findAllByStatus(String status);
 
-
-
+    // 해당 roomRuleId를 참조하는 Room 존재 확인
+    boolean existsByRoomRuleId(Long roomRuleId);
 }

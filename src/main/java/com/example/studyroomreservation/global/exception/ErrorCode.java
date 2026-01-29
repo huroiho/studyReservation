@@ -64,9 +64,11 @@ public enum ErrorCode {
     OS_NOT_ALIGNED_TO_SLOT(HttpStatus.BAD_REQUEST, "OS006", "운영 시간은 슬롯 단위로 나누어 떨어져야 합니다."),
     OS_CLOSED_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "OS007", "휴무일에는 운영 시간을 설정할 수 없습니다."),
 
-    // ROOM
+    // ROOM RULE
     RR_NAME_DUPLICATE(HttpStatus.CONFLICT, "RR001", "이미 존재하는 규칙 이름입니다."),
-    RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다.");
+    RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다."),
+    RR_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RR003", "최소 1개의 이용 규칙은 활성화되어 있어야 합니다."),
+    RR_IN_USE(HttpStatus.BAD_REQUEST, "RR004", "현재 객실에서 사용 중인 규칙은 비활성화할 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
