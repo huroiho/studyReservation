@@ -121,6 +121,15 @@ public class OperationPolicy extends BasePolicyEntity {
         return t.getMinute() == 0 && t.getSecond() == 0 && t.getNano() == 0;
     }
 
+    // --- Read-only accessors for detail view ---
+    public SlotUnit getSlotUnit() {
+        return this.slotUnit;
+    }
+
+    public List<OperationSchedule> getSchedules() {
+        return Collections.unmodifiableList(this.schedules);
+    }
+
     // draft로 묶어서 요일별 세트로 가져가기 위해.
     // 레코드(record)는 클래스 내부에 선언될 때 명시적으로 static을 붙이지 않아도 무조건 static으로 동작
     public record ScheduleDraft(

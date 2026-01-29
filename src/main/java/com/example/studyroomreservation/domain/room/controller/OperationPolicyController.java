@@ -65,4 +65,10 @@ public class OperationPolicyController {
         model.addAttribute("hours", formFactory.hourOptions());
         model.addAttribute("days", formFactory.orderedDays());
     }
+
+    @GetMapping("/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        model.addAttribute("policy", operationPolicyService.getDetail(id));
+        return "room/operation-policy/detail";
+    }
 }

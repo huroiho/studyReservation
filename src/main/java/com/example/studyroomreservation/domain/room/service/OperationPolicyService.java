@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
@@ -10,10 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OperationPolicyService {
 
     private final OperationPolicyRepository operationPolicyRepository;
@@ -30,4 +30,9 @@ public class OperationPolicyService {
         return operationPolicyRepository.save(newPolicy).getId();
     }
 
+    public OperationPolicyDetailResponse getDetail(Long id) {
+        OperationPolicy policy = operationPolicyRepository.findByIdWithSchedules(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OP_POLICY_NOT_FOUND));
+        return operationPolicyMapper.toDetailResponse(policy);
+    }
 }

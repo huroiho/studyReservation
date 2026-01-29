@@ -54,6 +54,7 @@ public enum ErrorCode {
     OP_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "OP005", "운영 정책 이름은 필수입니다."),
     OP_SLOT_UNIT_REQUIRED(HttpStatus.BAD_REQUEST, "OP006", "슬롯 단위는 필수입니다."),
     OP_POLICY_NAME_DUPLICATE(HttpStatus.BAD_REQUEST, "OP007", "이미 존재하는 정책 이름입니다."),
+    OP_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "OP008", "운영 정책이 존재하지 않습니다."),
 
     // OPERATION SCHEDULE
     OS_POLICY_REQUIRED(HttpStatus.BAD_REQUEST, "OS001", "운영 스케줄은 운영 정책에 속해야 합니다."),
