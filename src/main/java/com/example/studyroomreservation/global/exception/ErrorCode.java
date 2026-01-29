@@ -40,7 +40,8 @@ public enum ErrorCode {
     RES_NOT_EXPIRED_YET(HttpStatus.CONFLICT, "R007", "아직 만료되지 않은 예약입니다."),
     RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "R008", "아직 이용 종료 시간이 지나지 않았습니다."),
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R009", "해당 예약이 존재하지 않습니다."),
-
+    RES_MIN_DURATION_NOT_MET(HttpStatus.BAD_REQUEST, "R010", "최소 이용 시간을 준수해야 합니다."),
+    RES_BOOKING_PERIOD_EXCEEDED(HttpStatus.BAD_REQUEST, "R011", "예약 가능 기간을 초과했습니다."),
 
     //PAYMENT
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
