@@ -35,7 +35,7 @@ public record OperationPolicyCreateRequest(
             boolean closed
     ) {
         @AssertTrue(message = "운영일에는 오픈/마감 시간을 모두 선택해야 합니다.")
-        public boolean isTimesPresnetWhenOpen() {
+        public boolean isTimesPresentWhenOpen() {
             if (closed) return true;
             return openTime != null && closeTime != null;
         }

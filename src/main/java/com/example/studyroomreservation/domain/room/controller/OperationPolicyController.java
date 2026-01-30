@@ -7,6 +7,7 @@ import com.example.studyroomreservation.domain.room.web.OperationPolicyFormFacto
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -66,5 +67,67 @@ public class OperationPolicyController {
         model.addAttribute(SLOT_UNITS, formFactory.slotUnits());
         model.addAttribute(HOURS, formFactory.hourOptions());
         model.addAttribute(DAYS, formFactory.orderedDays());
+    }
+
+    @GetMapping
+    public String list(
+            @RequestParam(name = PARAM_SEARCH, required = false) String search,
+            @RequestParam(name = PARAM_STATUS, required = false) String status,
+            Pageable pageable,
+            Model model
+    ) {
+        Boolean isActive = parseStatusFilter(status);
+        String keyword = (search != null && !search.isBlank()) ? search.trim() : null;
+
+        model.addAttribute(PAGE, operationPolicyService.getList(keyword, isActive, pageable));
+
+        return LIST_VIEW;
+    }
+
+    private Boolean parseStatusFilter(String status) {
+        if (STATUS_ACTIVE.equalsIgnoreCase(status)) {
+            return true;
+        }
+        if (STATUS_INACTIVE.equalsIgnoreCase(status)) {
+            return false;
+        }
+        return null; // ALL
+    }
+
+    @GetMapping(DETAIL_PATH)
+    public String detail(@PathVariable Long id, Model model) {
+        model.addAttribute(POLICY, operationPolicyService.getDetail(id));
+        return DETAIL_VIEW;
+    }
+
+    @PostMapping(ACTIVATE_PATH)
+    public String activate(
+            @PathVariable Long id,
+            @RequestParam(name = PARAM_REDIRECT, required = false) String redirect
+    ) {
+        operationPolicyService.activate(id);
+        return resolveRedirect(redirect, id);
+    }
+
+    @PostMapping(DEACTIVATE_PATH)
+    public String deactivate(
+            @PathVariable Long id,
+            @RequestParam(name = PARAM_REDIRECT, required = false) String redirect
+    ) {
+        operationPolicyService.deactivate(id);
+        return resolveRedirect(redirect, id);
+    }
+
+    private String resolveRedirect(String redirect, Long id) {
+        if (REDIRECT_TARGET_LIST.equals(redirect)) {
+            return REDIRECT_LIST;
+        }
+        return REDIRECT_BASE + id;
+    }
+
+    @PostMapping(DELETE_PATH)
+    public String delete(@PathVariable Long id) {
+        operationPolicyService.delete(id);
+        return REDIRECT_LIST;
     }
 }

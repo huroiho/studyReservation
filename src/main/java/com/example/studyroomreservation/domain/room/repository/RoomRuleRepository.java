@@ -19,4 +19,6 @@ public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
     // 설정 값 조합 중복 체크 (최소 이용 시간 + 예약 가능 기간)
     boolean existsByMinDurationMinutesAndBookingOpenDays(Integer minDurationMinutes, Integer bookingOpenDays);
 
+    // 현재 활성화된 규칙의 총 개수
+    long countByIsActiveTrue();
 }

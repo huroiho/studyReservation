@@ -30,4 +30,10 @@ public class RoomRule extends BasePolicyEntity {
         if (!active) rule.deactivate();
         return rule;
     }
+
+    // 상태변경 (객체 스스로 하는일이라 엔티티에)
+    public void toggleActiveStatus(boolean active) {
+        if (active) this.isActive = true;
+        else this.deactivate();
+    }
 }

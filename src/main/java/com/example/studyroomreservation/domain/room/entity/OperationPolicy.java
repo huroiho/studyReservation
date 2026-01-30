@@ -5,6 +5,7 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
@@ -14,15 +15,16 @@ import java.util.*;
 
 @Entity
 @Table(name = "operation_policies")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(name = "slot_unit", nullable = false, updatable = false)
     private SlotUnit slotUnit;
 
     //정책 하나에 여러 시간표(스케줄)를 List로 담기
-    //orphanRemoval = 고아객체 제거
     @OneToMany(mappedBy = "operationPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationSchedule> schedules = new ArrayList<>();
 
@@ -120,6 +122,14 @@ public class OperationPolicy extends BasePolicyEntity {
     private boolean isHourOnly(LocalTime t) {
         return t.getMinute() == 0 && t.getSecond() == 0 && t.getNano() == 0;
     }
+
+    // --- 읽기 전용 ---
+    public List<OperationSchedule> getSchedules() {
+        return Collections.unmodifiableList(this.schedules);
+    }
+
+    // activate() / deactivate()는 BasePolicyEntity에서 상속
+    // - 이미 활성/비활성 상태이면 no-op (idempotent)
 
     // draft로 묶어서 요일별 세트로 가져가기 위해.
     // 레코드(record)는 클래스 내부에 선언될 때 명시적으로 static을 붙이지 않아도 무조건 static으로 동작

@@ -5,7 +5,9 @@
     <title>방 예약 규칙 상세</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/room-rule-style.css}">
-
+    <script th:src="@{/js/room-rule-update.js}" defer></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -39,11 +41,18 @@
                 <label>상태</label>
                 <div class="status-wrapper">
                     <label class="switch">
-                        <input type="checkbox" th:checked="${roomRules.isActive}" disabled>
+                        <input type="checkbox"
+                               class="status-checkbox"
+                               th:checked="${roomRules.isActive}"
+                               th:onchange="|confirmStatusChange(this, ${roomRules.id})|">
                         <span class="slider"></span>
                     </label>
-                    <span th:class="${roomRules.isActive ? 'badge badge-active' : 'badge badge-inactive'}"
-                          th:text="${roomRules.isActive ? 'ACTIVE' : 'INACTIVE'}">ACTIVE</span>
+
+                    <span th:id="'statusText-' + ${roomRules.id}"
+                          th:class="${roomRules.isActive ? 'badge badge-active' : 'badge badge-inactive'}"
+                          th:text="${roomRules.isActive ? '활성' : '비활성'}">
+                        활성
+                    </span>
                 </div>
             </div>
             <div class="info-item">
@@ -63,7 +72,11 @@
             </div>
             <div class="info-item">
                 <label>활성 변경일</label>
-                <span th:text="${#temporals.format(roomRules.activeUpdatedAt, 'yyyy. MM. dd. a hh:mm')}">2025. 01. 15. 오전 10:30</span>
+                <span th:text="${roomRules.activeUpdatedAt != null
+                    ? #temporals.format(roomRules.activeUpdatedAt, 'yyyy. MM. dd. a hh:mm')
+                    : '-'}">
+                </span>
+
             </div>
         </div>
     </div>
