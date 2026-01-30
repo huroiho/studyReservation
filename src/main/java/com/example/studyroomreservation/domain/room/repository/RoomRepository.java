@@ -7,10 +7,29 @@ import org.springframework.data.repository.query.Param;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
+
+    // ========== User Room List (two-query approach) ==========
+
+    @Query("""
+        SELECT r.id FROM Room r
+        WHERE r.status = 'ACTIVE' AND r.deletedAt IS NULL
+          AND (:minCapacity IS NULL OR r.maxCapacity >= :minCapacity)
+        """)
+    Page<Long> findActiveRoomIds(@Param("minCapacity") Integer minCapacity, Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT r FROM Room r
+        LEFT JOIN FETCH r.images
+        WHERE r.id IN :ids
+        """)
+    List<Room> findWithImagesByIds(@Param("ids") List<Long> ids);
     // 룸 상세조회시 이미지와 규칙 한 번에
     @Query("select r from Room r " +
             "left join fetch r.images " +

@@ -187,7 +187,67 @@ VALUES
 
     (5, 2, 3, 2, '세미나실 E (12인)', 12, 60000,
      '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER", "COFFEE_MACHINE", "SOUND_SYSTEM"]',
-     'ACTIVE', NOW(), NOW(), NULL);
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (6, 1, 1, 1, '포커스룸 F (2인)', 2, 8000,
+     '["WIFI", "AIR_CONDITIONER"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (7, 1, 2, 1, '스터디룸 G (4인)', 4, 12000,
+     '["WIFI", "WHITEBOARD"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (8, 2, 4, 1, '프로젝트룸 H (6인)', 6, 22000,
+     '["WIFI", "WHITEBOARD", "PROJECTOR"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (9, 1, 1, 1, '미니룸 I (2인)', 2, 9000,
+     '["WIFI"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (10, 3, 2, 1, '주말룸 J (4인)', 4, 18000,
+     '["WIFI", "AIR_CONDITIONER", "COFFEE_MACHINE"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (11, 1, 3, 2, '컨퍼런스룸 K (10인)', 10, 50000,
+     '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER", "SOUND_SYSTEM"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (12, 2, 4, 1, '야간룸 L (6인)', 6, 28000,
+     '["WIFI", "WHITEBOARD", "AIR_CONDITIONER"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (13, 1, 2, 1, '조용한 방 M (3인)', 3, 14000,
+     '["WIFI", "AIR_CONDITIONER"]',
+     'INACTIVE', NOW(), NOW(), NULL),
+
+    (14, 1, 1, 1, '1인실 N', 1, 7000,
+     '["WIFI"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (15, 2, 3, 2, '프리미엄룸 O (8인)', 8, 45000,
+     '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER", "COFFEE_MACHINE"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (16, 1, 4, 1, '플렉스룸 P (6인)', 6, 20000,
+     '["WIFI", "WHITEBOARD", "AIR_CONDITIONER"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (17, 3, 2, 1, '주말전용 Q (5인)', 5, 16000,
+     '["WIFI", "PROJECTOR"]',
+     'INACTIVE', NOW(), NOW(), NULL),
+
+    (18, 1, 1, 1, '코워킹룸 R (2인)', 2, 11000,
+     '["WIFI", "AIR_CONDITIONER", "COFFEE_MACHINE"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (19, 2, 3, 2, '이벤트홀 S (10인)', 10, 55000,
+     '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER", "COFFEE_MACHINE", "SOUND_SYSTEM"]',
+     'ACTIVE', NOW(), NOW(), NULL),
+
+    (20, 1, 4, 1, '브레인스톰룸 T (8인)', 8, 35000,
+     '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER"]',
+     'INACTIVE', NOW(), NOW(), NULL);
 
 
 -- =============================================================================
@@ -296,4 +356,4 @@ ALTER TABLE operation_schedules AUTO_INCREMENT = 22;
 ALTER TABLE room_rules AUTO_INCREMENT = 6;
 ALTER TABLE refund_policies AUTO_INCREMENT = 3;
 ALTER TABLE refund_rules AUTO_INCREMENT = 10;
-ALTER TABLE rooms AUTO_INCREMENT = 6;
+ALTER TABLE rooms AUTO_INCREMENT = 21;
