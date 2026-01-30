@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,10 +23,9 @@ public class GlobalExceptionHandler {
      * 비즈니스 예외 처리
      * - 중복 등록, 권한 없음, 데이터 없음 등의 예상 가능한 에러
      * - 사용자에게 적절한 에러 메시지를 보여줌
-     * [수정] AJAX 요청 여부를 판단하여 JSON 또는 HTML로 응답합니다.
      */
     @ExceptionHandler(BusinessException.class)
-    public Object handleBusinessException(
+    public String handleBusinessException(
             BusinessException e,
             Model model,
             HttpServletResponse response,
@@ -41,18 +39,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 LogMaskingUtil.mask(e.getDetailMessage())
         );
-
-        // 비동기(AJAX) 요청인지 확인
-        if (isAjaxRequest(request)) {
-            ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                    errorCode.getCode(),
-                    errorCode.getMessage(),
-                    request.getRequestURI()
-            );
-            return ResponseEntity
-                    .status(errorCode.getStatus())
-                    .body(apiErrorResponse);
-        }
 
         // HTTP 상태 코드 설정
         response.setStatus(errorCode.getStatus().value());
@@ -146,10 +132,9 @@ public class GlobalExceptionHandler {
      * 예상치 못한 시스템 예외 처리
      * - NullPointerException, IllegalStateException 등
      * - 개발자에게 알려야 하는 심각한 에러
-     * [수정] 시스템 예외 발생 시에도 AJAX 요청이면 JSON을 반환하도록 보완 가능
      */
     @ExceptionHandler(Exception.class)
-    public Object handleException(
+    public String handleException(
             Exception e,
             Model model,
             HttpServletResponse response,
@@ -164,15 +149,6 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 e  // 스택 트레이스 포함
         );
-
-        if (isAjaxRequest(request)) {
-            ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
-                    errorCode.getCode(),
-                    errorCode.getMessage(),
-                    request.getRequestURI()
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiErrorResponse);
-        }
 
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 
@@ -195,14 +171,6 @@ public class GlobalExceptionHandler {
         model.addAttribute("statusCode", 404);
         model.addAttribute("path", request.getRequestURI());
         return "error/common";
-    }
-
-    /**
-     * [추가] AJAX 요청 여부 판별 유틸리티
-     */
-    private boolean isAjaxRequest(HttpServletRequest request) {
-        String accept = request.getHeader("Accept");
-        return accept != null && accept.contains("application/json");
     }
 
 }

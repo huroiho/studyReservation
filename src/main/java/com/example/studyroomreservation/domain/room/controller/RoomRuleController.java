@@ -74,10 +74,10 @@ public class RoomRuleController {
     }
 
     // 상태변경
-    @PatchMapping("/{id}/status")
-    @ResponseBody
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
-            roomRuleService.updateStatus(id, active);
-            return ResponseEntity.ok().build();
-    }
+//    @PatchMapping("/{id}/status")
+//    @ResponseBody
+//    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
+//            roomRuleService.updateStatus(id, active);
+//            return ResponseEntity.ok().build();
+//    }
 }
