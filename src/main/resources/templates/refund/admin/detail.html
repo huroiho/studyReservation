@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>환불 정책 상세</title>
+
+    <!-- 목록과 같은 css 사용 -->
+    <link rel="stylesheet" th:href="@{/css/refund-admin-list.css}" />
+    <link rel="stylesheet" th:href="@{/css/refund-admin-detail.css}" />
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar__inner">
+        <div class="brand">
+            <div class="brand__icon">🏢</div>
+            <div class="brand__name">스터디룸</div>
+        </div>
+
+        <nav class="gnb">
+            <a class="gnb__item" href="#">스터디룸</a>
+            <a class="gnb__item" href="#">내 예약</a>
+            <a class="gnb__item gnb__item--active" href="#">관리자</a>
+        </nav>
+
+        <a class="btn btn--primary btn--sm" href="#">로그아웃</a>
+    </div>
+
+    <div class="subnav">
+        <div class="subnav__inner">
+            <div class="subnav__title">Refund Policy Management UI</div>
+            <div class="subnav__menu">
+                <a class="subnav__item" href="#">룸 관리</a>
+                <a class="subnav__item" href="#">운영정책</a>
+                <a class="subnav__item subnav__item--active" href="#">예약관리</a>
+                <a class="subnav__item" href="#">회원조회</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+    <a class="back-link" th:href="@{list}">
+        ← 목록으로
+    </a>
+
+    <h1 class="detail-title">환불 정책 상세</h1>
+
+    <!-- 정책 기본 정보 -->
+    <section class="card">
+        <div class="card__header">정책 기본 정보</div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">정책 ID</div>
+                <div class="info-value" th:text="${policy.id}">1</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">정책명</div>
+                <div class="info-value" th:text="${policy.name}">일반 환불 정책</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">사용 여부</div>
+                <div class="info-value">
+                    <span class="badge" th:classappend="${policy.active} ? 'badge--on' : 'badge--off'"
+                          th:text="${policy.active} ? '활성' : '비활성'">활성</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">생성일</div>
+                <div class="info-value"
+                     th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    2024-01-15 10:30:00
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">활성 변경일</div>
+                <div class="info-value"
+                     th:text="${#temporals.format(policy.activeUpdatedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    2024-01-15 10:30:00
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 환불 규칙 목록 -->
+    <section class="section-title">환불 규칙 목록</section>
+
+    <section class="card card--p0">
+        <table class="table table--radius">
+            <thead>
+            <tr>
+                <th>규칙명</th>
+                <th style="width: 120px;">우선순위</th>
+                <th style="width: 180px;">기준 시간</th>
+                <th style="width: 120px;">환불율</th>
+                <th style="width: 180px;">생성일</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="r, stat : ${policy.rules}">
+                <td th:text="${r.name}">24시간 전 전액 환불</td>
+
+                <!-- 우선순위: 네 엔티티에는 priority 없으니까 화면에서 1..N으로 표시 -->
+                <td th:text="${stat.count}">1</td>
+
+                <!-- 기준 시간 표시: 분 기준 -> 화면용 텍스트(간단히 '예약 N분 전/후') -->
+                <td>
+                    <span th:if="${r.refundBaseMinutes >= 0}"
+                          th:text="'예약 ' + ${r.refundBaseMinutes} + '분 전'">예약 1440분 전</span>
+                    <span th:if="${r.refundBaseMinutes < 0}"
+                          th:text="'예약 ' + ${-r.refundBaseMinutes} + '분 후'">예약 10분 후</span>
+                </td>
+
+                <td>
+                    <span th:text="${r.refundRate}">100</span>%
+                </td>
+
+                <td th:text="${#temporals.format(r.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    2024-01-15 10:30:00
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="notice">
+        <div class="notice__icon">ⓘ</div>
+        <div class="notice__text">
+            환불 생성 시, <b>refund.applied_refund_policy_id</b>는 해당 환불 정책을 참조합니다.
+        </div>
+    </div>
+
+</main>
+
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__brand">
+            <div class="footer__logo">🏢</div>
+            <div>
+                <div class="footer__title">스터디룸</div>
+                <div class="footer__desc">최고의 스터디 공간을 제공하는<br/>프리미엄 예약 플랫폼</div>
+            </div>
+        </div>
+
+        <div class="footer__cols">
+            <div class="footer__col">
+                <div class="footer__col-title">바로가기</div>
+                <a href="#">스터디룸 찾기</a>
+                <a href="#">내 예약</a>
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+            </div>
+
+            <div class="footer__col">
+                <div class="footer__col-title">문의</div>
+                <div class="footer__item">support@studyroom.com</div>
+                <div class="footer__item">02-1234-5678</div>
+                <div class="footer__item">서울시 강남구 테헤란로 123</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer__bottom">© 2026 스터디룸. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

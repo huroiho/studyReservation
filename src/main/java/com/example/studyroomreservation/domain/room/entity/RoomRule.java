@@ -2,12 +2,13 @@ package com.example.studyroomreservation.domain.room.entity;
 
 import com.example.studyroomreservation.global.common.BasePolicyEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
+@Getter
 @Table(name="room_rules")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용
+//@AllArgsConstructor // MapStruct 주입용 (Mapper에서 찾아서 매핑)
 public class RoomRule extends BasePolicyEntity {
 
     @Column(name="min_duration_minutes", nullable = false)
@@ -24,26 +25,15 @@ public class RoomRule extends BasePolicyEntity {
     };
 
     // --- 정적 팩토리 메서드 ----
-    public static RoomRule create(String name, Integer minDurationMinutes, Integer bookingOpenDays){
-
-        validate(name, minDurationMinutes, bookingOpenDays);
-        return new RoomRule(name, minDurationMinutes, bookingOpenDays);
+    public static RoomRule createRoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays, boolean active){
+        RoomRule rule = new RoomRule(name, minDurationMinutes, bookingOpenDays);
+        if (!active) rule.deactivate();
+        return rule;
     }
 
-    // --- 유효성 검증 ----
-    private static void validate(
-            String name,
-            Integer minDurationMinutes,
-            Integer bookingOpenDays
-    ) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("정책 이름은 필수입니다.");
-        }
-        if (minDurationMinutes != null && minDurationMinutes <= 0) {
-            throw new IllegalArgumentException("최소 이용시간은 1분 이상이어야 합니다.");
-        }
-        if (bookingOpenDays != null && bookingOpenDays < 0) {
-            throw new IllegalArgumentException("예약 오픈일 수는 0 이상이어야 합니다.");
-        }
+    // 상태변경 (객체 스스로 하는일이라 엔티티에)
+    public void toggleActiveStatus(boolean active) {
+        if (active) this.isActive = true;
+        else this.deactivate();
     }
 }

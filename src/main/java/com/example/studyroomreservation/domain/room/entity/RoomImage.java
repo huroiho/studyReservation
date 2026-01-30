@@ -41,21 +41,9 @@ public class RoomImage extends BaseCreatedEntity {
     // --- 정적 팩토리 메서드 ----
     public static RoomImage create(Room room, String imageUrl, ImageType type, Integer sortOrder){
 
-        validate(room, imageUrl);
         RoomImage roomImage = new RoomImage(room, imageUrl, type, sortOrder);
         room.addImage(roomImage);
         return roomImage;
-    }
-
-    // --- 유효성 검증 ----
-    private static void validate(Room room, String imageUrl
-    ) {
-        if (room == null) {
-            throw new IllegalArgumentException("Room은 필수입니다.");
-        }
-        if (imageUrl == null || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("이미지는 필수입니다.");
-        }
     }
 
     //==========================================

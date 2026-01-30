@@ -173,6 +173,15 @@ public class Reservation extends BaseAuditableEntity {
         return status == TEMP && expiresAt != null && !now.isBefore(expiresAt);
     }
 
+    public void extendExpiresAt(int minutes){
+        if(this.expiresAt == null){
+            throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING);
+        }
+
+        this.expiresAt = this.expiresAt.plusMinutes(minutes);
+
+    }
+
     // ===== 검증 메서드 =====
     private void validateTransitionTo(ReservationStatus target) {
         if (!this.status.canChangeTo(target)) {

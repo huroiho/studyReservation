@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class BasePolicyEntity extends BaseCreatedEntity{
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, unique = true)
     protected String name;
 
     @Column(nullable = false)
@@ -23,14 +23,14 @@ public abstract class BasePolicyEntity extends BaseCreatedEntity{
     @Column(name = "active_updated_at", nullable = false)
     protected LocalDateTime activeUpdatedAt;
 
-    protected void activate() {
+    public void activate() {
         if (!this.isActive) {
             this.isActive = true;
             this.activeUpdatedAt = LocalDateTime.now();
         }
     }
 
-    protected void deactivate() {
+    public void deactivate() {
         if (this.isActive) {
             this.isActive = false;
             this.activeUpdatedAt = LocalDateTime.now();

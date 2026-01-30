@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.room.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +32,7 @@ public class OperationSchedule extends BaseCreatedEntity {
     private LocalTime closeTime;
 
     @Column(name = "is_closed", nullable = false)
-    private boolean isClosed = false;
+    private boolean isClosed;
 
 
     private OperationSchedule(OperationPolicy policy,
@@ -39,35 +41,27 @@ public class OperationSchedule extends BaseCreatedEntity {
                               LocalTime closeTime,
                               boolean closed) {
 
-        if (policy == null) throw new IllegalArgumentException("operationPolicy는 필수입니다.");
-        if (dayOfWeek == null) throw new IllegalArgumentException("dayOfWeek는 필수입니다.");
+        if (policy == null) throw new BusinessException(ErrorCode.OS_POLICY_REQUIRED);
+        if (dayOfWeek == null) throw new BusinessException(ErrorCode.OS_DAY_REQUIRED);
 
         this.operationPolicy = policy;
         this.dayOfWeek = dayOfWeek;
-        assignBusinessHours(openTime, closeTime, closed);
-    }
+        this.isClosed = closed;
 
-    public static OperationSchedule create(OperationPolicy policy,
-                                           DayOfWeek dayOfWeek,
-                                           LocalTime openTime,
-                                           LocalTime closeTime,
-                                           boolean closed){
-        return new OperationSchedule(policy,dayOfWeek,openTime,closeTime,closed);
-    }
-
-    private void assignBusinessHours(LocalTime openTime, LocalTime closeTime, boolean closed) {
-        if(closed) {
+        if (closed) {
             this.openTime = null;
             this.closeTime = null;
-            return;
+        } else {
+            this.openTime = openTime;
+            this.closeTime = closeTime;
         }
-        if (openTime == null || closeTime == null) {
-            throw new IllegalArgumentException("운영일의 openTime/closeTime은 필수입니다.");
-        }
-        if (!openTime.isBefore(closeTime)) {
-            throw new IllegalArgumentException("openTime은 closeTime보다 빨라야 합니다.");
-        }
-        this.openTime = openTime;
-        this.closeTime = closeTime;
+    }
+
+    static OperationSchedule create(OperationPolicy policy,
+                                    DayOfWeek dayOfWeek,
+                                    LocalTime openTime,
+                                    LocalTime closeTime,
+                                    boolean closed){
+        return new OperationSchedule(policy,dayOfWeek,openTime,closeTime,closed);
     }
 }
