@@ -19,12 +19,12 @@ import java.util.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(name = "slot_unit", nullable = false, updatable = false)
     private SlotUnit slotUnit;
 
     //정책 하나에 여러 시간표(스케줄)를 List로 담기
-    //orphanRemoval = 고아객체 제거
     @OneToMany(mappedBy = "operationPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OperationSchedule> schedules = new ArrayList<>();
 
@@ -121,6 +121,20 @@ public class OperationPolicy extends BasePolicyEntity {
 
     private boolean isHourOnly(LocalTime t) {
         return t.getMinute() == 0 && t.getSecond() == 0 && t.getNano() == 0;
+    }
+
+    // --- 읽기 전용 ---
+    public List<OperationSchedule> getSchedules() {
+        return Collections.unmodifiableList(this.schedules);
+    }
+
+    // --- actions ---
+    public void markActive() {
+        activate();
+    }
+
+    public void markInactive() {
+        deactivate();
     }
 
     // draft로 묶어서 요일별 세트로 가져가기 위해.

@@ -191,26 +191,106 @@ VALUES
 
 
 -- =============================================================================
--- F) RESERVATIONS (4 Scenarios) [수정됨: updated_at 추가]
+-- E) RESERVATIONS (6 reservations)
 -- =============================================================================
--- Reservation은 BaseAuditableEntity를 상속받으므로 updated_at 필수
+-- ReservationStatus enum: TEMP, CONFIRMED, EXPIRED, CANCELED, USED
+-- TEMP requires expires_at
+-- Using room_id 1~5, operation_policy_id/refund_policy_id should match rooms' policy settings
 
-INSERT INTO reservations (id, member_id, room_id, applied_operation_policy_id, applied_refund_policy_id, status, start_time, end_time, total_amount, confirmed_at, canceled_at, used_at, expires_at, created_at, updated_at)
+INSERT INTO reservations (
+    id,
+    member_id,
+    room_id,
+    applied_operation_policy_id,
+    applied_refund_policy_id,
+    status,
+    start_time,
+    end_time,
+    total_amount,
+    expires_at,
+    confirmed_at,
+    canceled_at,
+    used_at,
+    created_at,
+    updated_at
+)
 VALUES
-    -- 1. [확정]
-    (1, 1, 1, 1, 1, 'CONFIRMED', '2026-02-01 14:00:00', '2026-02-01 15:00:00', 10000, NOW(), NULL, NULL, NULL, NOW(), NOW()),
+    (1, 1, 1, 1, 1, 'TEMP',
+     NOW() + INTERVAL 2 HOUR,
+     NOW() + INTERVAL 3 HOUR,
+     10000,
+     NOW() + INTERVAL 15 MINUTE,
+     NULL, NULL, NULL,
+     NOW(), NOW()),
 
-    -- 2. [취소] - 취소된 건은 updated_at이 취소 시점과 같아야 논리적으로 맞음
-    (2, 2, 2, 1, 1, 'CANCELED',  '2026-02-01 16:00:00', '2026-02-01 18:00:00', 30000, NOW(), NOW(), NULL, NULL, NOW(), NOW()),
+    (2, 1, 2, 1, 1, 'CONFIRMED',
+     NOW() + INTERVAL 1 DAY,
+     NOW() + INTERVAL 1 DAY + INTERVAL 2 HOUR,
+     15000,
+     NULL,
+     NOW(), NULL, NULL,
+     NOW(), NOW()),
 
-    -- 3. [임시]
-    (3, 1, 3, 2, 1, 'TEMP',      '2026-02-02 10:00:00', '2026-02-02 11:00:00', 25000, NULL, NULL, NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), NOW(), NOW()),
+    (3, 2, 3, 2, 1, 'EXPIRED',
+     NOW() + INTERVAL 4 HOUR,
+     NOW() + INTERVAL 5 HOUR,
+     25000,
+     NULL,
+     NULL, NULL, NULL,
+     NOW(), NOW()),
 
-    -- 4. [완료] - 이용 완료 시점에 업데이트되었을 것임
-    (4, 2, 1, 1, 1, 'USED',      '2026-01-28 14:00:00', '2026-01-28 16:00:00', 20000, NOW(), NULL, NOW(), NULL, NOW(), NOW());
+    (4, 2, 4, 1, 2, 'CANCELED',
+     NOW() + INTERVAL 2 DAY,
+     NOW() + INTERVAL 2 DAY + INTERVAL 2 HOUR,
+     40000,
+     NULL,
+     NULL, NOW(), NULL,
+     NOW(), NOW()),
 
+    (5, 3, 5, 2, 2, 'USED',
+     NOW() - INTERVAL 3 HOUR,
+     NOW() - INTERVAL 1 HOUR,
+     60000,
+     NULL,
+     NOW(), NULL, NOW() - INTERVAL 30 MINUTE,
+     NOW(), NOW()),
+
+    (6, 3, 2, 1, 1, 'TEMP',
+     NOW() + INTERVAL 6 HOUR,
+     NOW() + INTERVAL 7 HOUR,
+     15000,
+     NOW() + INTERVAL 10 MINUTE,
+     NULL, NULL, NULL,
+     NOW(), NOW());
 
 -- =============================================================================
+-- F) MEMBERS (3 members)
+-- =============================================================================
+-- Role enum: USER, ADMIN
+-- password는 암호화 안 된 더미 값 (실제 서비스에서는 BCrypt 등 사용)
+
+INSERT INTO members (
+    id,
+    name,
+    email,
+    password,
+    phone_number,
+    role,
+    created_at,
+    updated_at,
+    deleted_at
+)
+VALUES
+    (1, '홍길동', 'hong@test.com', 'password123', '010-1111-1111', 'USER', NOW(), NOW(), NULL),
+    (2, '김개발', 'dev@test.com', 'password123', '010-2222-2222', 'USER', NOW(), NOW(), NULL),
+    (3, '관리자', 'admin@test.com', 'admin123', '010-9999-9999', 'ADMIN', NOW(), NOW(), NULL);
+
+-- AUTO_INCREMENT 맞추기
+-- =============================================================================
+-- Reset AUTO_INCREMENT for future inserts
+-- =============================================================================
+ALTER TABLE members AUTO_INCREMENT = 4;
+ALTER TABLE reservations AUTO_INCREMENT = 7;
 ALTER TABLE operation_policies AUTO_INCREMENT = 4;
 ALTER TABLE operation_schedules AUTO_INCREMENT = 22;
 ALTER TABLE room_rules AUTO_INCREMENT = 6;

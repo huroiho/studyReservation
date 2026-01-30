@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.refund.service;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleResponse;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.mapper.RefundMapper;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service

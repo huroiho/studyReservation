@@ -15,4 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Reservation r where r.id = :id")
     Optional<Reservation> findByIdWithLock(@Param("id") Long id);
+
+    // 운영 정책이 적용된 예약 존재 여부 확인
+    boolean existsByAppliedOperationPolicyId(Long appliedOperationPolicyId);
 }

@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.payment.entity;
 
 import com.example.studyroomreservation.global.common.BaseAuditableEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,6 +19,9 @@ public class Payment extends BaseAuditableEntity {
     @Column(name = "reservation_id", nullable = false, unique = true)
     private Long reservationId;
 
+    @Column(name = "success_order_id", nullable = false)
+    private String successOrderId;
+
     @Column(nullable = false)
     private int amount;
 
@@ -28,48 +33,51 @@ public class Payment extends BaseAuditableEntity {
     @Column(nullable = false, length = 20)
     private PaymentStatus paymentStatus;
 
-    @Column(name = "pg_tid", unique = true, length = 100)
-    private String pgTid;
+    @Column(name = "pg_tid", nullable = false, unique = true, length = 100)
+    private String paymentKey;
 
-    @Column(name = "approved_at")
+    @Column(name = "approved_at", nullable = false)
     private LocalDateTime approvedAt;
 
     private Payment(
             Long reservationId,
+            String successOrderId,
             int amount,
-            PaymentMethod paymentMethod
+            PaymentMethod paymentMethod,
+            String paymentKey,
+            LocalDateTime approvedAt
     ){
         this.reservationId = reservationId;
+        this.successOrderId = successOrderId;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
-        this.paymentStatus = PaymentStatus.PENDING;
+        this.paymentKey = paymentKey;
+        this.approvedAt = (approvedAt != null) ? approvedAt : LocalDateTime.now();
+        this.paymentStatus = PaymentStatus.SUCCESS;
     }
 
-    public static Payment createPending(
+    public static Payment createSuccess(
             Long reservationId,
+            String orderId,
             int amount,
-            PaymentMethod method
+            PaymentMethod method,
+            String paymentKey,
+            LocalDateTime approvedAt
     ) {
         return new Payment(
                 reservationId,
+                orderId,
                 amount,
-                method
+                method,
+                paymentKey,
+                approvedAt
         );
     }
 
-    public void markAsSuccess(String pgTid, LocalDateTime pgApprovalTime) {
-        if (this.paymentStatus != PaymentStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 SUCCESS로 변경할 수 있습니다.");
+    public void markRefunded() {
+        if (this.paymentStatus != PaymentStatus.SUCCESS) {
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
-        this.pgTid = pgTid;
-        this.paymentStatus = PaymentStatus.SUCCESS;
-        this.approvedAt = (pgApprovalTime != null) ? pgApprovalTime : LocalDateTime.now();
-    }
-
-    public void markAsFailed() {
-        if (this.paymentStatus != PaymentStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 FAILED로 변경할 수 있습니다.");
-        }
-        this.paymentStatus = PaymentStatus.FAILED;
+        this.paymentStatus = PaymentStatus.REFUNDED;
     }
 }

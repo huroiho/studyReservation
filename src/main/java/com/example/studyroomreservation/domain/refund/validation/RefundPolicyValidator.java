@@ -1,4 +1,4 @@
-package com.example.studyroomreservation.domain.refund.validation.validator;
+package com.example.studyroomreservation.domain.refund.validation;
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
