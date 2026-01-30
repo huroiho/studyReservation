@@ -10,5 +10,6 @@ public record OperationPolicyListResponse(
         SlotUnit slotUnit,
         boolean active,
         LocalDateTime createdAt,
-        LocalDateTime activeUpdatedAt
+        LocalDateTime activeUpdatedAt,
+        long roomCount
 ) {}

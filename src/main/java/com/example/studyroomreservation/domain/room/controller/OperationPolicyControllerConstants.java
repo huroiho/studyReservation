@@ -3,7 +3,13 @@ package com.example.studyroomreservation.domain.room.controller;
 public final class OperationPolicyControllerConstants {
     private OperationPolicyControllerConstants() {}
 
-    // === URL Paths ===
+    // ===== API Controller =====
+    public static final String API_BASE_PATH = "/api/operation-policies";
+    public static final String ROOMS_BY_POLICY = "/{policyId}/rooms";
+
+
+    // ===== MVC Controller =====
+    // --- URL Paths ---
     // 관리자 운영정책 기본 경로 (RequestMapping에 사용)
     public static final String BASE_PATH = "/admin/operation-policies";
 
@@ -17,6 +23,9 @@ public final class OperationPolicyControllerConstants {
     // 리다이렉트 경로
     public static final String REDIRECT_BASE = "redirect:" + BASE_PATH + "/";
     public static final String REDIRECT_LIST = "redirect:" + BASE_PATH;
+
+    public static final String PARAM_REDIRECT = "redirect";
+    public static final String REDIRECT_TARGET_LIST = "list";
 
     // === View Names ===
     // Thymeleaf 템플릿 경로 (templates/ 하위)
@@ -33,4 +42,12 @@ public final class OperationPolicyControllerConstants {
     public static final String SLOT_UNITS = "slotUnits";
     public static final String HOURS = "hours";
     public static final String DAYS = "days";
+
+    // === Request Parameter Names ===
+    public static final String PARAM_SEARCH = "search";
+    public static final String PARAM_STATUS = "status";
+
+    // === Status Filter Values ===
+    public static final String STATUS_ACTIVE = "active";
+    public static final String STATUS_INACTIVE = "inactive";
 }

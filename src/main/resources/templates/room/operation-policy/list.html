@@ -1,96 +1,323 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>운영 정책 관리</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="/css/room-rule-style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운영 정책 목록</title>
+    <link rel="stylesheet" th:href="@{/css/operation-policy.css}">
 </head>
-
 <body>
-<div class="container">
-    <h2>운영 정책</h2>
+<div class="page-container">
+    <div class="content-wrapper">
 
-    <div class="info-box">
-        <span class="material-icons icon">error</span>
-        <div>
-            <div>운영 정책은 생성 후 수정할 수 없습니다.</div>
-            <div class="text-muted">필요 시 새로운 규칙을 등록하거나 상태를 변경하세요.</div>
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">운영 정책</h1>
+            <p class="page-description">
+                운영 정책은 슬롯 단위와 요일별 운영 시간을 정의합니다.
+            </p>
+            <p class="page-description">
+                정책 내용은 수정할 수 없으며, 필요 시 새로운 정책을 생성하거나 상태를 변경합니다.
+            </p>
         </div>
-    </div>
 
-    <div style="margin-bottom: 20px;">
-        <a href="/admin/operation-policies/new" class="btn-register">
-            <span class="material-icons" style="font-size: 18px;">add</span>
-            운영 정책 등록
-        </a>
-    </div>
-
-    <!-- 검색 / 필터 (아직 동작 X, UI만 유지) -->
-    <div class="search-card">
-        <input type="text" class="form-control" placeholder="규칙명으로 검색">
-        <div class="filter-group">
-            <span class="text-muted" style="margin-right: 10px;">상태:</span>
-            <button class="filter-btn active">전체</button>
-            <button class="filter-btn">활성</button>
-            <button class="filter-btn">비활성</button>
+        <!-- Create Button -->
+        <div class="action-section">
+            <a th:href="@{/admin/operation-policies/new}" class="btn btn-primary">
+                <svg class="icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                운영 정책 등록
+            </a>
         </div>
-    </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-            <tr>
-                <th style="padding-left: 25px;">규칙명</th>
-                <th>상태</th>
-                <th>슬롯 단위</th>
-                <th>예약 가능 기간</th>
-                <th>생성일</th>
-                <th class="text-center">액션</th>
-            </tr>
-            </thead>
+        <!-- Search & Filter Form -->
+        <form method="get" th:action="@{/admin/operation-policies}" class="search-section">
+            <!-- Search Input -->
+            <div class="search-row">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                            type="text"
+                            name="search"
+                            placeholder="정책명 검색"
+                            class="search-input"
+                            th:value="${param.search}"
+                    >
+                </div>
+            </div>
 
-            <tbody>
-            <!-- 조회 결과 없음 -->
-            <tr th:if="${page.empty}">
-                <td colspan="6"
-                    style="text-align: center; padding: 50px 0; color: #999;">
-                    조회된 규칙이 없습니다.
-                </td>
-            </tr>
-
-            <!-- 목록 출력 -->
-            <tr th:each="policy : ${page.content}">
-                <td style="padding-left: 25px;"
-                    th:text="${policy.name}">
-                    규칙명
-                </td>
-
-                <td>
-                    <span th:text="${policy.active ? '활성' : '비활성'}"
-                          th:classappend="${policy.active ? 'status-active' : 'status-inactive'}">
+            <!-- Status Filter Chips -->
+            <div class="filter-row">
+                <span class="filter-label">상태:</span>
+                <div class="filter-chips">
+                    <button
+                            type="submit"
+                            name="status"
+                            value=""
+                            class="filter-chip"
+                            th:classappend="${param.status == null or param.status.isEmpty() or param.status[0] == ''} ? 'active' : ''"
+                    >
+                        전체
+                    </button>
+                    <button
+                            type="submit"
+                            name="status"
+                            value="active"
+                            class="filter-chip"
+                            th:classappend="${param.status != null and !param.status.isEmpty() and param.status[0] == 'active'} ? 'active' : ''"
+                    >
                         활성
-                    </span>
-                </td>
+                    </button>
+                    <button
+                            type="submit"
+                            name="status"
+                            value="inactive"
+                            class="filter-chip"
+                            th:classappend="${param.status != null and !param.status.isEmpty() and param.status[0] == 'inactive'} ? 'active' : ''"
+                    >
+                        비활성
+                    </button>
+                </div>
+            </div>
+        </form>
 
-                <td th:text="${policy.slotUnit}">
-                    30분
-                </td>
+        <!-- Empty State (show when no policies) -->
+        <div th:if="${page.isEmpty()}" class="empty-state">
+            <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p class="empty-state-text">등록된 운영 정책이 없습니다.</p>
+            <a th:href="@{/admin/operation-policies/new}" class="btn btn-primary">
+                <svg class="icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                운영 정책 등록
+            </a>
+        </div>
 
-                <!-- 아직 정책에 없는 값 → 임시 처리 -->
-                <td>-</td>
+        <!-- Table (show when policies exist) -->
+        <div th:if="${!page.isEmpty()}" class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>정책 ID</th>
+                    <th>정책명</th>
+                    <th>슬롯 단위</th>
+                    <th>사용 여부</th>
+                    <th>사용 중인 룸 수</th>
+                    <th>생성일</th>
+                    <th>활성 변경일</th>
+                    <th>액션</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="policy : ${page.content}">
+                    <td class="text-primary" th:text="${policy.id}"></td>
+                    <td class="text-primary" th:text="${policy.name}"></td>
+                    <td th:text="${policy.slotUnit.label}"></td>
+                    <td>
+                        <div class="status-toggle-cell">
+                            <!-- Toggle Switch - 활성화/비활성화 분기 -->
+                            <form th:if="${policy.active}" method="post" class="toggle-form"
+                                  th:action="@{/admin/operation-policies/{id}/deactivate(id=${policy.id})}"
+                                  onsubmit="return handleToggleSubmit(event, this)"
+                                  th:attr="data-policy-id=${policy.id},data-has-rooms=${policy.roomCount > 0},data-room-count=${policy.roomCount},data-current-active='true'">
+                                <input type="hidden" name="redirect" value="list">
+                                <button type="submit" class="toggle-switch active">
+                                    <span class="toggle-slider"></span>
+                                </button>
+                            </form>
+                            <form th:unless="${policy.active}" method="post" class="toggle-form"
+                                  th:action="@{/admin/operation-policies/{id}/activate(id=${policy.id})}"
+                                  th:attr="data-policy-id=${policy.id},data-current-active='false'">
+                                <input type="hidden" name="redirect" value="list">
+                                <button type="submit" class="toggle-switch">
+                                    <span class="toggle-slider"></span>
+                                </button>
+                            </form>
+                            <span class="status-text" th:classappend="${policy.active} ? 'active' : ''" th:text="${policy.active} ? '활성' : '비활성'"></span>
+                        </div>
+                    </td>
+                    <td>
+                        <button th:if="${policy.roomCount > 0}"
+                                class="room-count-link"
+                                onclick="openRoomModal(this)"
+                                th:data-policy-id="${policy.id}"
+                                th:data-room-count="${policy.roomCount}"
+                                th:text="${policy.roomCount + '개'}">
+                        </button>
+                        <span th:unless="${policy.roomCount > 0}" class="room-count-zero">0개</span>
+                    </td>
+                    <td th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${policy.activeUpdatedAt != null ? #temporals.format(policy.activeUpdatedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/admin/operation-policies/{id}(id=${policy.id})}"
+                               class="action-btn action-btn-view"
+                               title="상세 보기">
+                                <svg class="icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
+                            <button
+                                    onclick="openDeleteModal(this)"
+                                    class="action-btn action-btn-delete"
+                                    th:data-policy-id="${policy.id}"
+                                    th:data-policy-name="${policy.name}"
+                                    th:disabled="${policy.roomCount > 0}"
+                                    th:title="${policy.roomCount > 0} ? '사용 중인 룸이 있어 삭제할 수 없습니다.' : '삭제'">
+                                <svg class="icon-sm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-                <td th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">
-                    2026-01-01
-                </td>
+        <!-- Pagination -->
+        <div th:if="${!page.isEmpty()}" class="pagination-section">
+            <p class="pagination-info">
+                총 <span class="font-medium" th:text="${page.totalElements}"></span>개의 정책
+            </p>
+            <div class="pagination-buttons">
+                <!-- Previous Button -->
+                <a th:href="@{/admin/operation-policies(page=${page.number - 1}, search=${param.search}, status=${param.status})}"
+                   class="pagination-btn"
+                   th:classappend="${page.first} ? 'disabled' : ''">이전</a>
 
-                <td class="text-center">
-                    <a href="#" class="action-btn">상세</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                <!-- Page Numbers -->
+                <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                    <a th:href="@{/admin/operation-policies(page=${i}, search=${param.search}, status=${param.status})}"
+                       class="pagination-btn"
+                       th:classappend="${page.number == i} ? 'active' : ''"
+                       th:text="${i + 1}"></a>
+                </th:block>
+
+                <!-- Next Button -->
+                <a th:href="@{/admin/operation-policies(page=${page.number + 1}, search=${param.search}, status=${param.status})}"
+                   class="pagination-btn"
+                   th:classappend="${page.last} ? 'disabled' : ''">다음</a>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<!-- Delete Confirmation Modal (hidden by default) -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-backdrop" onclick="closeDeleteModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-icon modal-icon-danger">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <h3 class="modal-title">운영 정책을 삭제할까요?</h3>
+            </div>
+            <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text">
+                <span class="font-medium" id="deletePolicyName">"정책명"</span> 정책을 삭제하시겠습니까?
+            </p>
+            <p class="modal-hint">
+                이 정책을 사용하는 룸과 예약이 없는 경우에만 삭제할 수 있습니다.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">취소</button>
+            <form id="deleteForm" method="post" th:action="@{/admin/operation-policies/0/delete}" style="display: inline;">
+                <button type="submit" class="btn btn-danger">삭제</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Blocked Dialog (hidden by default) -->
+<div id="toggleConfirmDialog" class="modal" style="display: none;">
+    <div class="modal-backdrop" onclick="closeToggleConfirm()"></div>
+    <div class="modal-content modal-content-sm">
+        <div class="confirm-dialog-body">
+            <div class="confirm-dialog-icon" style="color: #f59e0b;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <div class="confirm-dialog-text">
+                <h3 class="confirm-dialog-title">비활성화 불가</h3>
+                <p class="confirm-dialog-message" id="toggleConfirmMessage">
+                    현재 이 정책을 사용하는 룸이 있습니다. 해당 룸들의 정책을 먼저 변경해야 비활성화할 수 있습니다.
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="closeToggleConfirm()">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- Room List Modal (hidden by default) -->
+<div id="roomModal" class="modal" style="display: none;">
+    <div class="modal-backdrop" onclick="closeRoomModal()"></div>
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3 class="modal-title">사용 중인 룸 목록</h3>
+            <button type="button" class="modal-close" onclick="closeRoomModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body-scroll">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>룸 ID</th>
+                        <th>룸명</th>
+                        <th>상태</th>
+                        <th>액션</th>
+                    </tr>
+                    </thead>
+                    <tbody id="roomTableBody">
+                    <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeRoomModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/operation-policy-list.js"></script>
 </body>
 </html>
