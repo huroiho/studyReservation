@@ -59,11 +59,11 @@
 
     <!-- 요일별 운영 스케줄 -->
     <div class="table-container">
-        <h3 style="margin-bottom: 15px;">요일별 운영 스케줄</h3>
+        <h3 class="table-container-title">요일별 운영 스케줄</h3>
         <table>
             <thead>
             <tr>
-                <th style="padding-left: 25px;">요일</th>
+                <th class="th-padded">요일</th>
                 <th>운영 여부</th>
                 <th>오픈 시간</th>
                 <th>마감 시간</th>
@@ -72,7 +72,7 @@
 
             <tbody>
             <tr th:each="s : ${policy.schedules}">
-                <td style="padding-left: 25px;"
+                <td class="td-padded"
                     th:text="${s.dayOfWeek.getDisplayName(T(java.time.format.TextStyle).FULL, T(java.util.Locale).KOREAN)}">
                     월요일
                 </td>
@@ -94,7 +94,7 @@
 
     <!-- 연결된 룸 -->
     <div class="table-container">
-        <h3 style="margin-bottom: 15px;">
+        <h3 class="table-container-title">
             연결된 룸
             <span class="room-count" th:text="'(' + ${policy.deleteInfo.connectedRoomCount} + '개)'"></span>
         </h3>
@@ -107,14 +107,14 @@
         <table th:if="${policy.deleteInfo.connectedRoomCount > 0}">
             <thead>
             <tr>
-                <th style="padding-left: 25px;">ID</th>
+                <th class="th-padded">ID</th>
                 <th>룸 이름</th>
                 <th>상태</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="room : ${policy.rooms}">
-                <td style="padding-left: 25px;" th:text="${room.id}">1</td>
+                <td class="td-padded" th:text="${room.id}">1</td>
                 <td th:text="${room.name}">스터디룸 A</td>
                 <td>
                     <span th:class="${room.status == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
@@ -142,40 +142,38 @@
     <!-- 액션 버튼 영역 -->
     <div class="action-buttons">
         <a th:href="@{/admin/operation-policies}" class="btn-back">
-            <span class="material-icons" style="font-size: 18px;">arrow_back</span>
+            <span class="material-icons icon-btn">arrow_back</span>
             목록으로
         </a>
 
         <div class="right-buttons">
             <!-- 비활성화 버튼 (활성 상태일 때만 표시) -->
-            <button th:if="${policy.active}" type="button" class="btn-deactivate"
-                    onclick="openDeactivateModal()">
-                <span class="material-icons" style="font-size: 18px;">pause_circle</span>
+            <button th:if="${policy.active}" type="button" class="btn-deactivate">
+                <span class="material-icons icon-btn">pause_circle</span>
                 비활성화
             </button>
 
             <!-- 활성화 버튼 (비활성 상태일 때만 표시) -->
             <form th:if="${!policy.active}" th:action="@{/admin/operation-policies/{id}/activate(id=${policy.id})}"
-                  method="post" style="display: inline;">
+                  method="post" class="inline-form">
                 <button type="submit" class="btn-activate">
-                    <span class="material-icons" style="font-size: 18px;">play_circle</span>
+                    <span class="material-icons icon-btn">play_circle</span>
                     활성화
                 </button>
             </form>
 
             <!-- 삭제 버튼 -->
             <form th:if="${policy.deleteInfo.deletable}" th:action="@{/admin/operation-policies/{id}/delete(id=${policy.id})}"
-                  method="post" style="display: inline;">
-                <button type="submit" class="btn-delete"
-                        onclick="return confirm('이 정책을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-                    <span class="material-icons" style="font-size: 18px;">delete</span>
+                  method="post" class="inline-form">
+                <button type="submit" class="btn-delete">
+                    <span class="material-icons icon-btn">delete</span>
                     삭제
                 </button>
             </form>
 
             <button th:if="${!policy.deleteInfo.deletable}" class="btn-delete" disabled
                     th:title="${(policy.deleteInfo.connectedRoomCount > 0 ? '연결된 룸 ' + policy.deleteInfo.connectedRoomCount + '개 존재' : '') + (policy.deleteInfo.connectedRoomCount > 0 && policy.deleteInfo.hasReservationReference ? ', ' : '') + (policy.deleteInfo.hasReservationReference ? '예약 이력 존재' : '')}">
-                <span class="material-icons" style="font-size: 18px;">delete</span>
+                <span class="material-icons icon-btn">delete</span>
                 삭제
             </button>
         </div>
@@ -198,8 +196,8 @@
             </p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-modal-cancel" onclick="closeModal('deactivateBlockedModal')">취소</button>
-            <button type="button" class="btn-modal-confirm" onclick="closeModal('deactivateBlockedModal')">확인</button>
+            <button type="button" class="btn-modal-cancel">취소</button>
+            <button type="button" class="btn-modal-confirm">확인</button>
         </div>
     </div>
 </div>
@@ -219,47 +217,15 @@
             <p>기존 예약에는 영향을 주지 않습니다.</p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-modal-cancel" onclick="closeModal('deactivateConfirmModal')">취소</button>
+            <button type="button" class="btn-modal-cancel">취소</button>
             <form id="deactivateForm" th:action="@{/admin/operation-policies/{id}/deactivate(id=${policy.id})}"
-                  method="post" style="display: inline;">
+                  method="post" class="inline-form">
                 <button type="submit" class="btn-modal-confirm">확인</button>
             </form>
         </div>
     </div>
 </div>
 
-<script th:inline="javascript">
-    const connectedRoomCount = /*[[${policy.deleteInfo.connectedRoomCount}]]*/ 0;
-
-    function openDeactivateModal() {
-        if (connectedRoomCount > 0) {
-            document.getElementById('deactivateBlockedModal').style.display = 'flex';
-        } else {
-            document.getElementById('deactivateConfirmModal').style.display = 'flex';
-        }
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
-    // ESC 키로 모달 닫기
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay').forEach(function(modal) {
-                modal.style.display = 'none';
-            });
-        }
-    });
-
-    // 모달 외부 클릭 시 닫기
-    document.querySelectorAll('.modal-overlay').forEach(function(modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    });
-</script>
+<script th:src="@{/js/operation-policy-detail.js}"></script>
 </body>
 </html>

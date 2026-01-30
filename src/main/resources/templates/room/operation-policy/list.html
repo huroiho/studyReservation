@@ -128,8 +128,10 @@
                             <!-- Toggle Switch - 활성화/비활성화 분기 -->
                             <form th:if="${policy.active}" method="post" class="toggle-form"
                                   th:action="@{/admin/operation-policies/{id}/deactivate(id=${policy.id})}"
-                                  onsubmit="return handleToggleSubmit(event, this)"
-                                  th:attr="data-policy-id=${policy.id},data-has-rooms=${policy.roomCount > 0},data-room-count=${policy.roomCount},data-current-active='true'">
+                                  th:data-policy-id="${policy.id}"
+                                  th:data-has-rooms="${policy.roomCount > 0}"
+                                  th:data-room-count="${policy.roomCount}"
+                                  data-current-active="true">
                                 <input type="hidden" name="redirect" value="list">
                                 <button type="submit" class="toggle-switch active">
                                     <span class="toggle-slider"></span>
@@ -137,7 +139,8 @@
                             </form>
                             <form th:unless="${policy.active}" method="post" class="toggle-form"
                                   th:action="@{/admin/operation-policies/{id}/activate(id=${policy.id})}"
-                                  th:attr="data-policy-id=${policy.id},data-current-active='false'">
+                                  th:data-policy-id="${policy.id}"
+                                  data-current-active="false">
                                 <input type="hidden" name="redirect" value="list">
                                 <button type="submit" class="toggle-switch">
                                     <span class="toggle-slider"></span>
@@ -148,8 +151,8 @@
                     </td>
                     <td>
                         <button th:if="${policy.roomCount > 0}"
+                                type="button"
                                 class="room-count-link"
-                                onclick="openRoomModal(this)"
                                 th:data-policy-id="${policy.id}"
                                 th:data-room-count="${policy.roomCount}"
                                 th:text="${policy.roomCount + '개'}">
@@ -169,7 +172,7 @@
                                 </svg>
                             </a>
                             <button
-                                    onclick="openDeleteModal(this)"
+                                    type="button"
                                     class="action-btn action-btn-delete"
                                     th:data-policy-id="${policy.id}"
                                     th:data-policy-name="${policy.name}"
@@ -220,7 +223,7 @@
 
 <!-- Delete Confirmation Modal (hidden by default) -->
 <div id="deleteModal" class="modal" style="display: none;">
-    <div class="modal-backdrop" onclick="closeDeleteModal()"></div>
+    <div class="modal-backdrop"></div>
     <div class="modal-content">
         <div class="modal-header">
             <div class="modal-header-left">
@@ -233,7 +236,7 @@
                 </div>
                 <h3 class="modal-title">운영 정책을 삭제할까요?</h3>
             </div>
-            <button type="button" class="modal-close" onclick="closeDeleteModal()">
+            <button type="button" class="modal-close">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -249,8 +252,8 @@
             </p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">취소</button>
-            <form id="deleteForm" method="post" th:action="@{/admin/operation-policies/0/delete}" style="display: inline;">
+            <button type="button" class="btn btn-secondary">취소</button>
+            <form id="deleteForm" method="post" th:action="@{/admin/operation-policies/0/delete}">
                 <button type="submit" class="btn btn-danger">삭제</button>
             </form>
         </div>
@@ -259,10 +262,10 @@
 
 <!-- Deactivate Blocked Dialog (hidden by default) -->
 <div id="toggleConfirmDialog" class="modal" style="display: none;">
-    <div class="modal-backdrop" onclick="closeToggleConfirm()"></div>
+    <div class="modal-backdrop"></div>
     <div class="modal-content modal-content-sm">
         <div class="confirm-dialog-body">
-            <div class="confirm-dialog-icon" style="color: #f59e0b;">
+            <div class="confirm-dialog-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -277,18 +280,18 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="closeToggleConfirm()">확인</button>
+            <button type="button" class="btn btn-primary">확인</button>
         </div>
     </div>
 </div>
 
 <!-- Room List Modal (hidden by default) -->
 <div id="roomModal" class="modal" style="display: none;">
-    <div class="modal-backdrop" onclick="closeRoomModal()"></div>
+    <div class="modal-backdrop"></div>
     <div class="modal-content modal-content-large">
         <div class="modal-header">
             <h3 class="modal-title">사용 중인 룸 목록</h3>
-            <button type="button" class="modal-close" onclick="closeRoomModal()">
+            <button type="button" class="modal-close">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -313,11 +316,11 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeRoomModal()">닫기</button>
+            <button type="button" class="btn btn-secondary">닫기</button>
         </div>
     </div>
 </div>
 
-<script src="/js/operation-policy-list.js"></script>
+<script th:src="@{/js/operation-policy-list.js}"></script>
 </body>
 </html>
