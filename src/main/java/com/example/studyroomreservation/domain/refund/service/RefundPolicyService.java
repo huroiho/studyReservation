@@ -60,6 +60,7 @@ public class RefundPolicyService {
     public void changePolicyActive(Long policyId, boolean active) {
         RefundPolicy policy = refundPolicyRepository.findById(policyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
+        //FIXME: 검증 추가 필요, 공통화 하기
 
         policy.changeActive(active);
     }

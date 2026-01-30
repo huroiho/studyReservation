@@ -42,6 +42,9 @@ public enum ErrorCode {
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R009", "해당 예약이 존재하지 않습니다."),
     RES_MIN_DURATION_NOT_MET(HttpStatus.BAD_REQUEST, "R010", "최소 이용 시간을 준수해야 합니다."),
     RES_BOOKING_PERIOD_EXCEEDED(HttpStatus.BAD_REQUEST, "R011", "예약 가능 기간을 초과했습니다."),
+    RES_OUT_OF_OPERATION_HOURS(HttpStatus.BAD_REQUEST, "R012", "운영 시간 내에서만 예약 가능합니다."),
+    RES_CROSS_DAY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "R013", "예약은 하루 단위로만 가능합니다."),
+    RES_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "R014", "예약은 하루 단위로만 가능합니다."),
 
     //PAYMENT
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
@@ -56,6 +59,7 @@ public enum ErrorCode {
     OP_SLOT_UNIT_REQUIRED(HttpStatus.BAD_REQUEST, "OP006", "슬롯 단위는 필수입니다."),
     OP_POLICY_NAME_DUPLICATE(HttpStatus.BAD_REQUEST, "OP007", "이미 존재하는 정책 이름입니다."),
 
+
     // OPERATION SCHEDULE
     OS_POLICY_REQUIRED(HttpStatus.BAD_REQUEST, "OS001", "운영 스케줄은 운영 정책에 속해야 합니다."),
     OS_DAY_REQUIRED(HttpStatus.BAD_REQUEST, "OS002", "운영 스케줄의 요일 정보는 필수입니다."),
@@ -64,6 +68,8 @@ public enum ErrorCode {
     OS_HOUR_ONLY(HttpStatus.BAD_REQUEST, "OS005", "운영 시간은 정각 단위로만 설정할 수 있습니다."),
     OS_NOT_ALIGNED_TO_SLOT(HttpStatus.BAD_REQUEST, "OS006", "운영 시간은 슬롯 단위로 나누어 떨어져야 합니다."),
     OS_CLOSED_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "OS007", "휴무일에는 운영 시간을 설정할 수 없습니다."),
+    OS_DAY_NOT_FOUND(HttpStatus.BAD_REQUEST, "OS008", "해당 요일의 운영 스케줄이 존재하지 않습니다."),
+    OS_CLOSED_DAY(HttpStatus.BAD_REQUEST, "OS009", "선택하신 날짜는 휴무일입니다."),
 
     // ROOM
     RR_NAME_DUPLICATE(HttpStatus.CONFLICT, "RR001", "이미 존재하는 규칙 이름입니다."),

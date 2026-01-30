@@ -5,6 +5,7 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
@@ -14,6 +15,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "operation_policies")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 

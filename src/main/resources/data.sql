@@ -191,7 +191,25 @@ VALUES
 
 
 -- =============================================================================
--- Reset AUTO_INCREMENT for future inserts
+-- F) RESERVATIONS (4 Scenarios) [수정됨: updated_at 추가]
+-- =============================================================================
+-- Reservation은 BaseAuditableEntity를 상속받으므로 updated_at 필수
+
+INSERT INTO reservations (id, member_id, room_id, applied_operation_policy_id, applied_refund_policy_id, status, start_time, end_time, total_amount, confirmed_at, canceled_at, used_at, expires_at, created_at, updated_at)
+VALUES
+    -- 1. [확정]
+    (1, 1, 1, 1, 1, 'CONFIRMED', '2026-02-01 14:00:00', '2026-02-01 15:00:00', 10000, NOW(), NULL, NULL, NULL, NOW(), NOW()),
+
+    -- 2. [취소] - 취소된 건은 updated_at이 취소 시점과 같아야 논리적으로 맞음
+    (2, 2, 2, 1, 1, 'CANCELED',  '2026-02-01 16:00:00', '2026-02-01 18:00:00', 30000, NOW(), NOW(), NULL, NULL, NOW(), NOW()),
+
+    -- 3. [임시]
+    (3, 1, 3, 2, 1, 'TEMP',      '2026-02-02 10:00:00', '2026-02-02 11:00:00', 25000, NULL, NULL, NULL, DATE_ADD(NOW(), INTERVAL 10 MINUTE), NOW(), NOW()),
+
+    -- 4. [완료] - 이용 완료 시점에 업데이트되었을 것임
+    (4, 2, 1, 1, 1, 'USED',      '2026-01-28 14:00:00', '2026-01-28 16:00:00', 20000, NOW(), NULL, NOW(), NULL, NOW(), NOW());
+
+
 -- =============================================================================
 ALTER TABLE operation_policies AUTO_INCREMENT = 4;
 ALTER TABLE operation_schedules AUTO_INCREMENT = 22;
