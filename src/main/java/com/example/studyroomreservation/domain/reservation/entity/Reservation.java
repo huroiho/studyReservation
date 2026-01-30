@@ -90,6 +90,7 @@ public class Reservation extends BaseAuditableEntity {
     }
 
     // ==== 정적 팩토리 메서드 ===
+    //TODO: 인자값이 많고 개발 시 값 설정에 오류가 발생할 확률이 높아서 논의 필요
     public static Reservation createTemp(Long memberId,
                                          Long roomId,
                                          Long appliedOperationPolicyId,

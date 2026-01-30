@@ -15,6 +15,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "operation_policies")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 

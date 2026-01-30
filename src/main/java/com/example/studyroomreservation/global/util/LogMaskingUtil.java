@@ -16,7 +16,7 @@ public class LogMaskingUtil {
 
         String maskedContent = content;
         for (String key : SENSITIVE_KEYS) {
-            Pattern pattern = Pattern.compile(String.format(REGEX_TEMPLATE, key));
+            Pattern pattern = Pattern.compile(String.format(REGEX_TEMPLATE, key)); // Pattern.compile를 위쪽으로 -> cpu 사용량이 높음
             Matcher matcher = pattern.matcher(maskedContent);
 
             if (matcher.find()) {
