@@ -169,7 +169,7 @@ public class PaymentService {
                 throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
             }
 
-            // 멱등성 재확인
+            // 멱등성 재확인.
             if (lockedAttempt.getPaymentAttemptStatus() == PaymentAttemptStatus.SUCCESS) {
                 if (lockedAttempt.getPaymentKey() != null && lockedAttempt.getPaymentKey().equals(request.paymentKey())) {
                     return null;
