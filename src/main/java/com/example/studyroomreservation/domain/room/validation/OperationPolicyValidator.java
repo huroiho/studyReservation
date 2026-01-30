@@ -1,4 +1,4 @@
-package com.example.studyroomreservation.domain.room.validation.validator;
+package com.example.studyroomreservation.domain.room.validation;
 
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest.ScheduleRequest;
