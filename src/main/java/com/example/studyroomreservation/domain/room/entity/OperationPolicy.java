@@ -15,6 +15,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "operation_policies")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OperationPolicy extends BasePolicyEntity {
 
@@ -127,14 +128,8 @@ public class OperationPolicy extends BasePolicyEntity {
         return Collections.unmodifiableList(this.schedules);
     }
 
-    // --- actions ---
-    public void markActive() {
-        activate();
-    }
-
-    public void markInactive() {
-        deactivate();
-    }
+    // activate() / deactivate()는 BasePolicyEntity에서 상속
+    // - 이미 활성/비활성 상태이면 no-op (idempotent)
 
     // draft로 묶어서 요일별 세트로 가져가기 위해.
     // 레코드(record)는 클래스 내부에 선언될 때 명시적으로 static을 붙이지 않아도 무조건 static으로 동작

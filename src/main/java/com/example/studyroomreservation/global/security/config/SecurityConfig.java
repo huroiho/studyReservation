@@ -18,10 +18,29 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/public/**", "/session-expired").permitAll()
+                        // 1. 공용 리소스 및 Swagger 관련 경로 허용
+                        .requestMatchers(
+                                "/", "/login", "/public/**", "/session-expired",
+                                "/swagger-ui/**",    // Swagger UI 접속용
+                                "/v3/api-docs/**",   // OpenAPI Spec(JSON) 데이터용
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // 2. API 테스트를 위해 /api로 시작하는 모든 경로 임시 허용
+                        .requestMatchers("/api/**").permitAll()
+
+                        // 3. 권한별 접근 제어
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // 나머지는 인증 필요
                         .anyRequest().authenticated()
+                )
+
+                // 4. CSRF 설정: API와 Swagger 경로에서 POST/PUT 테스트가 가능하도록 예외 처리
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**", "/swagger-ui/**", "/v3/api-docs/**")
                 )
 
                 .formLogin(form -> form
@@ -42,15 +61,12 @@ public class SecurityConfig {
                         .expiredUrl("/session-expired")
                 );
 
-        // CSRF 설정 (기본값 활성화) - 별도 설정이 없으면 기본적으로 활성화 (Form 태그에 _csrf 토큰 필요)
-
-        // .requiresChannel(channel -> channel.anyRequest().requiresSecure());
-
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
+        // 인메모리 사용자 설정 (테스트용)
         UserDetails user = User.builder()
                 .username("user")
                 .password("{noop}1234")

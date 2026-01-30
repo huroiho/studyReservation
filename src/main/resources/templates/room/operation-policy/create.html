@@ -2,11 +2,12 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>운영 정책 생성</title>
     <link rel="stylesheet" th:href="@{/css/operation-policy.css}" />
 </head>
 
-<body>
+<body class="operation-policy-create">
 <section class="card">
     <h2>운영 정책 생성</h2>
     <p>정책 기본 정보와 요일별 운영 시간을 설정하세요.</p>
@@ -104,8 +105,8 @@
                 <!-- 행 단위 검증 메시지(AssertTrue 3개) -->
                 <div class="row-errors">
                     <p class="error"
-                       th:if="${#fields.hasErrors('schedules[' + stat.index + '].timesPresnetWhenOpen')}"
-                       th:errors="*{schedules[__${stat.index}__].timesPresnetWhenOpen}"></p>
+                       th:if="${#fields.hasErrors('schedules[' + stat.index + '].timesPresentWhenOpen')}"
+                       th:errors="*{schedules[__${stat.index}__].timesPresentWhenOpen}"></p>
 
                     <p class="error"
                        th:if="${#fields.hasErrors('schedules[' + stat.index + '].hourOnlyWhenOpen')}"
