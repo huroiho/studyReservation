@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.payment.mapper;
 import com.example.studyroomreservation.domain.member.entity.Member;
 import com.example.studyroomreservation.domain.payment.dto.request.PaymentPrepareRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
+import com.example.studyroomreservation.domain.payment.dto.response.TossConfirmResponse;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
 import com.example.studyroomreservation.domain.payment.entity.PaymentMethod;
@@ -12,6 +13,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Mapper(
@@ -41,4 +43,14 @@ public interface PaymentMapper {
         );
     }
 
+    default Payment toPaymentSuccess(PaymentAttempt attempt, TossConfirmResponse confirm) {
+        return Payment.createSuccess(
+                attempt.getReservationId(),
+                attempt.getOrderId(),
+                attempt.getAmount(),
+                PaymentMethod.PG,
+                confirm.paymentKey(),
+                confirm.approvedAt().toLocalDateTime()
+        );
+    }
 }
