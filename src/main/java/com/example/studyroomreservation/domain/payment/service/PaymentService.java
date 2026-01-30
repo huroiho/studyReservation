@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -52,7 +51,7 @@ public class PaymentService {
     private final TossPaymentConfig tossPaymentConfig;
     //private final ReservationService reservationService; // TODO : 예약 파트 하면 주석 제거
     private static final int RESERVATION_EXPIRE_EXTENSION_MINUTES = 3;
-
+    private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
     @Transactional
     public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
 
@@ -100,10 +99,7 @@ public class PaymentService {
                 throw new BusinessException(ErrorCode.PAYMENT_IN_PROGRESS);
             }
 
-            transactionTemplate.execute(status -> {
                 processingApprovalLogic(paymentType, request);
-                return null;
-            });
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -124,11 +120,15 @@ public class PaymentService {
         PaymentAttempt attempt = paymentAttemptRepository.findByOrderId(request.orderId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_ATTEMPT_NOT_FOUND));
 
+        if (attempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(java.time.LocalDateTime.now())) {
+            failService.markFailed(request.orderId(), "PAYMENT_EXPIRED", "payment attempt expired");
+            throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
+        }
+
         Long reservationId = attempt.getReservationId();
 
         //멱등성
         if (attempt.getPaymentAttemptStatus() == PaymentAttemptStatus.SUCCESS) {
-
             if (attempt.getPaymentKey() != null && attempt.getPaymentKey().equals(request.paymentKey())) {
                 return;
             }
@@ -145,11 +145,10 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
-        // 토스 confirm 요청 생성
+        // 트랜잭션 밖 토스 confirm 호출
         TossConfirmRequest confirmRequest = tossConfirmMapper.toConfirmRequest(request, attempt);
 
-        // 토스 confirm 호출
-        TossConfirmResponse confirmResponse;
+        final TossConfirmResponse confirmResponse;
         try {
             confirmResponse = tossPaymentsClient.confirm(confirmRequest);
         } catch (Exception ex) {
@@ -157,8 +156,33 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_FAILED);
         }
 
+        transactionTemplate.execute(status -> {
+
+            // attempt 재조회
+            PaymentAttempt lockedAttempt = paymentAttemptRepository.findByOrderId(request.orderId())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_ATTEMPT_NOT_FOUND));
+
+            Long lockedReservationId = lockedAttempt.getReservationId();
+
+            if (lockedAttempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(java.time.LocalDateTime.now())) {
+                failService.markFailed(request.orderId(), "PAYMENT_EXPIRED", "payment attempt expired");
+                throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
+            }
+
+            // 멱등성 재확인
+            if (lockedAttempt.getPaymentAttemptStatus() == PaymentAttemptStatus.SUCCESS) {
+                if (lockedAttempt.getPaymentKey() != null && lockedAttempt.getPaymentKey().equals(request.paymentKey())) {
+                    return null;
+                }
+                throw new BusinessException(ErrorCode.PAYMENT_DUPLICATE_APPROVE);
+            }
+
+            if (lockedAttempt.getPaymentAttemptStatus() != PaymentAttemptStatus.PENDING) {
+                throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
+            }
+
         // 최종 금액 검증
-        if (confirmResponse.totalAmount() != attempt.getAmount()) {
+        if (confirmResponse.totalAmount() != lockedAttempt.getAmount()) {
             failService.markFailed(request.orderId(), "AMOUNT_MISMATCH", "PG amount mismatch");
             throw new BusinessException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
@@ -168,18 +192,20 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
         }
 
-        attempt.markAsSuccess(confirmResponse.paymentKey());
-        if (paymentRepository.existsByReservationId(reservationId)) {
-            return;
+        lockedAttempt.markAsSuccess(confirmResponse.paymentKey());
+        if (paymentRepository.existsByReservationId(lockedReservationId)) {
+            return null;
         }
         try {
-            Payment payment = paymentMapper.toPaymentSuccess(attempt, confirmResponse);
+            Payment payment = paymentMapper.toPaymentSuccess(lockedAttempt, confirmResponse);
             paymentRepository.save(payment);
         } catch (DataIntegrityViolationException e) {
 
-            return;
+            return null;
         }
 
-        //reservationService.updateReservationStatus(reservationId, ReservationStatus.PAID); // TODO : 예약 도메인 생성시 주석 제거
+        //reservationService.updateReservationStatus(lockedReservationId, ReservationStatus.PAID); // TODO : 예약 도메인 생성시 주석 제거
+            return null;
+        });
     }
 }
