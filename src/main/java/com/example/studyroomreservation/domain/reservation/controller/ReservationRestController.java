@@ -1,13 +1,18 @@
 package com.example.studyroomreservation.domain.reservation.controller;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -29,4 +34,15 @@ public class ReservationRestController {
         Long reservationId = reservationService.createReservation(request, memberId);
         return ApiResponse.success(reservationId);
     }
+
+    @GetMapping("/availability")
+    public ApiResponse<List<RoomReservableTimeResponse>> getAvailability(
+            @RequestParam Long roomId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date)
+    {
+        List<RoomReservableTimeResponse> reservedTimes = reservationService.getReservedTimes(roomId, date);
+        return ApiResponse.success(reservedTimes);
+    }
+
+
 }

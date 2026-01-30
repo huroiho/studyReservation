@@ -1,10 +1,10 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
-import com.example.studyroomreservation.domain.reservation.repository.ReservationRepositoryCustom;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -14,10 +14,10 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
-    private static final LocalDateTime BASIC_EXPIRED_AT = LocalDateTime.now().plusMinutes(10);
+    private static final int BASIC_EXPIRED_TIME = 10;
 
     /*
     방id랑 시작-종료시간 프론트에서 받고 컨트롤러에서 멤버 id 받아서
@@ -60,7 +60,9 @@ public class ReservationService {
 
         int totalAmount = calculateTotalAmount(room, request.startTime(), request.endTime());
 
-        Reservation reservation = reservationMapper.toTempReservation(request, memberId, room, totalAmount,BASIC_EXPIRED_AT);
+        LocalDateTime expiredAt = LocalDateTime.now().plusMinutes(BASIC_EXPIRED_TIME);
+
+        Reservation reservation = reservationMapper.toTempReservation(request, memberId, room, totalAmount, expiredAt);
         reservationRepository.save(reservation);
 
         return reservation.getId();
@@ -106,6 +108,13 @@ public class ReservationService {
         }
     }
 
+    @Transactional
+    public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
+    }
 
     private void validateRoomRule(RoomRule rule, LocalDateTime start, LocalDateTime end) {
         long duration = Duration.between(start, end).toMinutes();
