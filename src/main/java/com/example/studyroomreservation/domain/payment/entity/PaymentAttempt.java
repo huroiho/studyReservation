@@ -1,13 +1,13 @@
 package com.example.studyroomreservation.domain.payment.entity;
 
 import com.example.studyroomreservation.global.common.BaseCreatedEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -17,6 +17,9 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     @Column(name = "reservation_id", nullable = false)
     private Long reservationId;
+
+    @Column(name = "order_id", nullable = false, unique = true)
+    private String orderId;
 
     @Column(nullable = false)
     private int amount;
@@ -29,11 +32,8 @@ public class PaymentAttempt extends BaseCreatedEntity {
     @Column(nullable = false, length = 20)
     private PaymentAttemptStatus paymentAttemptStatus;
 
-    @Column(name = "order_id", nullable = false, unique = true)
-    private String orderId;
-
     @Column(name = "pg_tid", length = 100)
-    private String pgTid;
+    private String paymentKey;
 
     @Column(name = "error_code", length = 50)
     private String errorCode;
@@ -48,11 +48,11 @@ public class PaymentAttempt extends BaseCreatedEntity {
     ){
         this.reservationId = reservationId;
         this.amount = amount;
-        this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
+        this.paymentMethod = paymentMethod;
         this.orderId = "RES_" + reservationId + "_" + java.util.UUID.randomUUID().toString().substring(0, 5);
+        this.paymentAttemptStatus = PaymentAttemptStatus.PENDING;
     }
 
-    // 팩토리 메서드 수정
     public static PaymentAttempt createPending(
             Long reservationId,
             int amount,
@@ -64,11 +64,18 @@ public class PaymentAttempt extends BaseCreatedEntity {
                 paymentMethod
         );
     }
+
     public void markAsSuccess(String pgTid) {
-        if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 SUCCESS로 변경할 수 있습니다.");
+        if (this.paymentAttemptStatus == PaymentAttemptStatus.SUCCESS) {
+            if (this.paymentKey != null && this.paymentKey.equals(pgTid)) return;
+            throw new BusinessException(ErrorCode.PAYMENT_DUPLICATE_APPROVE);
         }
-        this.pgTid = pgTid;
+
+        if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
+        }
+
+        this.paymentKey = pgTid;
         this.errorCode = null;
         this.errorMessage = null;
         this.paymentAttemptStatus = PaymentAttemptStatus.SUCCESS;
@@ -76,9 +83,9 @@ public class PaymentAttempt extends BaseCreatedEntity {
 
     public void markFailed(String errorCode, String errorMessage) {
         if (this.paymentAttemptStatus != PaymentAttemptStatus.PENDING) {
-            throw new IllegalStateException("PENDING 상태에서만 FAILED로 변경할 수 있습니다.");
+            throw new BusinessException(ErrorCode.PAYMENT_STATUS_INVALID_TRANSITION);
         }
-        this.pgTid = null;
+        this.paymentKey = null;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
         this.paymentAttemptStatus = PaymentAttemptStatus.FAILED;
