@@ -67,4 +67,28 @@ public class OperationPolicyController {
         model.addAttribute(HOURS, formFactory.hourOptions());
         model.addAttribute(DAYS, formFactory.orderedDays());
     }
+
+    @GetMapping(DETAIL_PATH)
+    public String detail(@PathVariable Long id, Model model) {
+        model.addAttribute(POLICY, operationPolicyService.getDetail(id));
+        return DETAIL_VIEW;
+    }
+
+    @PostMapping(ACTIVATE_PATH)
+    public String activate(@PathVariable Long id) {
+        operationPolicyService.activate(id);
+        return REDIRECT_BASE + id;
+    }
+
+    @PostMapping(DEACTIVATE_PATH)
+    public String deactivate(@PathVariable Long id) {
+        operationPolicyService.deactivate(id);
+        return REDIRECT_BASE + id;
+    }
+
+    @PostMapping(DELETE_PATH)
+    public String delete(@PathVariable Long id) {
+        operationPolicyService.delete(id);
+        return REDIRECT_LIST;
+    }
 }
