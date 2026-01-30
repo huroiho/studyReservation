@@ -1,6 +1,9 @@
 package com.example.studyroomreservation.domain.room.repository;
 
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,10 +16,34 @@ public interface OperationPolicyRepository extends JpaRepository<OperationPolicy
 
     boolean existsByName(String name);
 
-    @Query("""
-        SELECT p FROM OperationPolicy p
-        LEFT JOIN FETCH p.schedules
-        WHERE p.id = :id
-    """)
+    /**
+     * 스케줄과 함께 정책 조회 (상세 페이지용)
+     */
+    @Query("SELECT p FROM OperationPolicy p LEFT JOIN FETCH p.schedules WHERE p.id = :id")
     Optional<OperationPolicy> findByIdWithSchedules(@Param("id") Long id);
+
+    /**
+     * 목록 조회 (검색/필터/페이징 지원)
+     * - roomCount는 서브쿼리로 계산
+     */
+    @Query("""
+        SELECT new com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse(
+            p.id,
+            p.name,
+            p.slotUnit,
+            p.isActive,
+            p.createdAt,
+            p.activeUpdatedAt,
+            (SELECT COUNT(r) FROM Room r WHERE r.operationPolicy = p AND r.deletedAt IS NULL)
+        )
+        FROM OperationPolicy p
+        WHERE (:keyword IS NULL OR p.name LIKE %:keyword%)
+          AND (:isActive IS NULL OR p.isActive = :isActive)
+        ORDER BY p.id DESC
+    """)
+    Page<OperationPolicyListResponse> findList(
+            @Param("keyword") String keyword,
+            @Param("isActive") Boolean isActive,
+            Pageable pageable
+    );
 }

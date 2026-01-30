@@ -79,9 +79,11 @@ public enum ErrorCode {
     OS_DAY_NOT_FOUND(HttpStatus.BAD_REQUEST, "OS008", "해당 요일의 운영 스케줄이 존재하지 않습니다."),
     OS_CLOSED_DAY(HttpStatus.BAD_REQUEST, "OS009", "선택하신 날짜는 휴무일입니다."),
 
-    // ROOM
+    // ROOM RULE
     RR_NAME_DUPLICATE(HttpStatus.CONFLICT, "RR001", "이미 존재하는 규칙 이름입니다."),
-    RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다.");
+    RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다."),
+    RR_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RR003", "최소 1개의 이용 규칙은 활성화되어 있어야 합니다."),
+    RR_IN_USE(HttpStatus.BAD_REQUEST, "RR004", "현재 객실에서 사용 중인 규칙은 비활성화할 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;

@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.room.service;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
@@ -11,6 +12,8 @@ import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +29,19 @@ public class OperationPolicyService {
     private final ReservationRepository reservationRepository;
     private final OperationPolicyMapper operationPolicyMapper;
 
-    // 운영 정책 생성 - 검증은 OperationPolicyValidator에서 이미 완료됨
+    /**
+     * 운영 정책 생성
+     * - 검증은 OperationPolicyValidator에서 이미 완료됨
+     * - 비즈니스 로직만 수행
+     */
     @Transactional
     public Long create(OperationPolicyCreateRequest request){
         OperationPolicy newPolicy = operationPolicyMapper.createPolicy(request);
         return operationPolicyRepository.save(newPolicy).getId();
+    }
+
+    public Page<OperationPolicyListResponse> getList(String keyword, Boolean isActive, Pageable pageable) {
+        return operationPolicyRepository.findList(keyword, isActive, pageable);
     }
 
     // 운영 정책 상세 조회 - 팩트 데이터만 조회, 메시지 조합은 View 책임
@@ -71,6 +82,13 @@ public class OperationPolicyService {
         assertNotUsedByRooms(id);
         assertNotUsedByReservations(id);
         operationPolicyRepository.delete(policy);
+    }
+
+    // 룸 목록 조회 api 컨트롤러용 메서드
+    public List<OperationPolicyDetailResponse.RoomSummary> getRoomsByPolicy(Long id){
+        findPolicyById(id);
+        List<Room> rooms = roomRepository.findByOperationPolicyId(id);
+        return operationPolicyMapper.toRoomSummaries(rooms);
     }
 
     // === 공통 메서드 ===
