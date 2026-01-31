@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 
-
+// TODO: where 절의 순서와 인덱스의 columnList 순서 맞추기
 @Entity
 @Table(
         name = "reservations",
