@@ -56,7 +56,6 @@ public class PaymentService {
     @Transactional
     public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
 
-
         Reservation reservation = reservationRepository.findByIdWithLock(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
