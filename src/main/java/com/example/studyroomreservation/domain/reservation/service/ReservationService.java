@@ -68,12 +68,34 @@ public class ReservationService {
         return reservation.getId();
     }
 
+    @Transactional
+    public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
+    }
+
+    private void validateRoomRule(RoomRule rule, LocalDateTime start, LocalDateTime end) {
+        long duration = Duration.between(start, end).toMinutes();
+        if (duration < rule.getMinDurationMinutes()) {
+            throw new BusinessException(ErrorCode.RES_MIN_DURATION_NOT_MET);
+        }
+
+        LocalDate maxDate = LocalDate.now().plusDays(rule.getBookingOpenDays());
+        if (start.toLocalDate().isAfter(maxDate)) {
+            throw new BusinessException(ErrorCode.RES_BOOKING_PERIOD_EXCEEDED);
+        }
+    }
+
+
     // 편의 매서드
     private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
         long minutes = Duration.between(start, end).toMinutes();
         double hours = minutes / 60.0;
         return (int) (hours * room.getPrice());
     }
+
     private void validateOperationSchedule(OperationPolicy policy, LocalDateTime start, LocalDateTime end) {
         DayOfWeek dayOfWeek = start.getDayOfWeek();
 
@@ -108,25 +130,7 @@ public class ReservationService {
         }
     }
 
-    @Transactional
-    public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-        return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
-    }
-
-    private void validateRoomRule(RoomRule rule, LocalDateTime start, LocalDateTime end) {
-        long duration = Duration.between(start, end).toMinutes();
-        if (duration < rule.getMinDurationMinutes()) {
-            throw new BusinessException(ErrorCode.RES_MIN_DURATION_NOT_MET);
-        }
-
-        LocalDate maxDate = LocalDate.now().plusDays(rule.getBookingOpenDays());
-        if (start.toLocalDate().isAfter(maxDate)) {
-            throw new BusinessException(ErrorCode.RES_BOOKING_PERIOD_EXCEEDED);
-        }
-    }
 
 
 }
