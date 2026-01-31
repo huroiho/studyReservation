@@ -1,11 +1,10 @@
 package com.example.studyroomreservation.domain.room.repository;
 
 import com.example.studyroomreservation.domain.room.entity.Room;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.example.studyroomreservation.domain.room.entity.Room;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +29,12 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
         WHERE r.id IN :ids
         """)
     List<Room> findWithImagesByIds(@Param("ids") List<Long> ids);
+
+    // ========== User Room Detail (single-query with EntityGraph) ==========
+    @EntityGraph(attributePaths = {"images"})
+    @Query("SELECT r FROM Room r WHERE r.id = :id AND r.deletedAt IS NULL")
+    Optional<Room> findUserDetailById(@Param("id") Long id);
+
     // 룸 상세조회시 이미지와 규칙 한 번에
     @Query("select r from Room r " +
             "left join fetch r.images " +

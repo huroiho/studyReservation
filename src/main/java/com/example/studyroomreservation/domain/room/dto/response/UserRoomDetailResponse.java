@@ -1,4 +1,19 @@
 package com.example.studyroomreservation.domain.room.dto.response;
 
-public record UserRoomDetailResponse() {
+import java.util.List;
+
+public record UserRoomDetailResponse(
+        Long id,
+        String name,
+        Integer maxCapacity,
+        Integer price,
+        List<String> amenities,
+        String heroImageUrl,
+        List<GalleryImage> galleryImages
+) {
+    public record GalleryImage(
+            Long id,
+            String url,
+            Integer sortOrder
+    ) {}
 }

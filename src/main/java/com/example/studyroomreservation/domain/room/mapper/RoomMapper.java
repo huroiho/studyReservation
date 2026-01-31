@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.room.mapper;
 
 import com.example.studyroomreservation.domain.room.dto.response.RoomResponse;
+import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
@@ -26,6 +27,28 @@ public interface RoomMapper {
         );
     }
 
+    default UserRoomDetailResponse toUserDetailResponse(Room room) {
+        List<String> amenities = room.getAmenities() == null
+                ? List.of()
+                : room.getAmenities().stream()
+                        .map(Enum::name)
+                        .sorted()
+                        .toList();
+
+        String heroImageUrl = selectHeroImageUrl(room.getImages());
+        List<UserRoomDetailResponse.GalleryImage> galleryImages = selectGalleryImages(room.getImages());
+
+        return new UserRoomDetailResponse(
+                room.getId(),
+                room.getName(),
+                room.getMaxCapacity(),
+                room.getPrice(),
+                amenities,
+                heroImageUrl,
+                galleryImages
+        );
+    }
+
     @Named("selectMainImageUrl")
     default String selectMainImageUrl(List<RoomImage> images) {
         if (images == null || images.isEmpty()) {
@@ -38,6 +61,29 @@ public interface RoomMapper {
                 .or(() -> findByType(images, RoomImage.ImageType.GENERAL))
                 .map(RoomImage::getImageUrl)
                 .orElse(null);
+    }
+
+    @Named("selectHeroImageUrl")
+    default String selectHeroImageUrl(List<RoomImage> images) {
+        if (images == null || images.isEmpty()) {
+            return null;
+        }
+        // Priority: MAIN -> GENERAL (by lowest sortOrder)
+        return findByType(images, RoomImage.ImageType.MAIN)
+                .or(() -> findByType(images, RoomImage.ImageType.GENERAL))
+                .map(RoomImage::getImageUrl)
+                .orElse(null);
+    }
+
+    default List<UserRoomDetailResponse.GalleryImage> selectGalleryImages(List<RoomImage> images) {
+        if (images == null || images.isEmpty()) {
+            return List.of();
+        }
+        return images.stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
+                .sorted(Comparator.comparing(RoomImage::getSortOrder))
+                .map(img -> new UserRoomDetailResponse.GalleryImage(img.getId(), img.getImageUrl(), img.getSortOrder()))
+                .toList();
     }
 
     private Optional<RoomImage> findByType(List<RoomImage> images, RoomImage.ImageType type) {

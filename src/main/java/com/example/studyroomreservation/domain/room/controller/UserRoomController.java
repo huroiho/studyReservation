@@ -1,5 +1,6 @@
 package com.example.studyroomreservation.domain.room.controller;
 
+import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -48,5 +50,13 @@ public class UserRoomController {
         model.addAttribute("sort", safeSort);
 
         return "room/user/list";
+    }
+
+    @GetMapping("/{roomId}")
+    public String detail(@PathVariable Long roomId, Model model) {
+        UserRoomDetailResponse room = roomService.getUserDetail(roomId);
+        model.addAttribute("room", room);
+
+        return "room/user/detail";
     }
 }

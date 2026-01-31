@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     //ROOM
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "R001","해당 방이 존재하지 않습니다." ),
+    ROOM_NOT_AVAILABLE(HttpStatus.NOT_FOUND, "RM001", "해당 방은 현재 이용할 수 없습니다."),
 
     // REFUND
     REF_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "RF001", "정책 이름은 필수입니다."),

@@ -1,9 +1,12 @@
 package com.example.studyroomreservation.domain.room.service;
 
+import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,5 +45,16 @@ public class RoomService {
                 .toList();
 
         return new PageImpl<>(items, pageable, idPage.getTotalElements());
+    }
+
+    public UserRoomDetailResponse getUserDetail(Long roomId) {
+        Room room = roomRepository.findUserDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getStatus() != Room.RoomStatus.ACTIVE) {
+            throw new BusinessException(ErrorCode.ROOM_NOT_AVAILABLE);
+        }
+
+        return roomMapper.toUserDetailResponse(room);
     }
 }
