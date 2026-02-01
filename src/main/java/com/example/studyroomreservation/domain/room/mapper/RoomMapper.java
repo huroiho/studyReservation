@@ -13,8 +13,11 @@ import java.util.Optional;
 @Mapper(componentModel = "spring")
 public interface RoomMapper {
 
+    int DEFAULT_SLOT_MINUTES = 60;
+    int DEFAULT_MIN_DURATION_MINUTES = 60;
+    int DEFAULT_BOOKING_OPEN_DAYS = 30;
 
-     default UserRoomDetailResponse toUserDetailResponse(Room room) {
+    default UserRoomDetailResponse toUserDetailResponse(Room room) {
         List<String> amenities = room.getAmenities() == null
                 ? List.of()
                 : room.getAmenities().stream()
@@ -27,13 +30,13 @@ public interface RoomMapper {
 
         Integer slotMinutes = room.getOperationPolicy() != null
                 ? room.getOperationPolicy().getSlotUnit().getMinutes()
-                : 60;
+                : DEFAULT_SLOT_MINUTES;
         Integer minDurationMinutes = room.getRoomRule() != null
                 ? room.getRoomRule().getMinDurationMinutes()
-                : 60;
+                : DEFAULT_MIN_DURATION_MINUTES;
         Integer bookingOpenDays = room.getRoomRule() != null
                 ? room.getRoomRule().getBookingOpenDays()
-                : 30;
+                : DEFAULT_BOOKING_OPEN_DAYS;
 
         return new UserRoomDetailResponse(
                 room.getId(),
@@ -49,12 +52,11 @@ public interface RoomMapper {
         );
     }
 
-    @Named("selectHeroImageUrl")
     default String selectHeroImageUrl(List<RoomImage> images) {
         if (images == null || images.isEmpty()) {
             return null;
         }
-        // Priority: MAIN -> GENERAL (by lowest sortOrder)
+
         return findByType(images, RoomImage.ImageType.MAIN)
                 .or(() -> findByType(images, RoomImage.ImageType.GENERAL))
                 .map(RoomImage::getImageUrl)
