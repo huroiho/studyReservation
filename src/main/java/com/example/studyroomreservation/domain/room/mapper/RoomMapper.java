@@ -4,7 +4,6 @@ import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailR
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
 import org.mapstruct.Mapper;
-import org.mapstruct.Named;
 
 import java.util.Comparator;
 import java.util.List;

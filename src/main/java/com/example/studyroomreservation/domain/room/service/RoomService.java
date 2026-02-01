@@ -8,7 +8,6 @@ import com.example.studyroomreservation.domain.room.dto.response.UserRoomListRes
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
-import com.example.studyroomreservation.domain.room.entity.SlotUnit;
 import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
@@ -37,7 +36,6 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
-    private final OperationPolicyMapper operationPolicyMapper;
     private final ReservationService reservationService;
 
     public Page<UserRoomListResponse> getUserList(Integer minCapacity, Pageable pageable) {

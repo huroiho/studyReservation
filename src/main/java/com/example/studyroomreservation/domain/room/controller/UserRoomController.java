@@ -23,7 +23,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserRoomController {
 
-    private static final int DEFAULT_PAGE_SIZE = 12;
     private static final int MAX_PAGE_SIZE = 48;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "price");
 
