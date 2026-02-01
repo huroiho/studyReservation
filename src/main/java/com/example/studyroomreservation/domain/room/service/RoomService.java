@@ -42,20 +42,23 @@ public class RoomService {
     private final ReservationService reservationService;
 
     public Page<UserRoomListResponse> getUserList(Integer minCapacity, Pageable pageable) {
+
+        // ID 기준으로 페이징/정렬 먼저
         Page<Long> idPage = roomRepository.findActiveRoomIds(minCapacity, pageable);
 
         if (idPage.isEmpty()) {
             return Page.empty(pageable);
         }
 
-        List<Room> rooms = roomRepository.findWithImagesByIds(idPage.getContent());
+        // 현재 페이지에 해당하는 ID 목록으로 목록용 DTO 조회
+        List<Long> ids = idPage.getContent();
+        List<UserRoomListResponse> responses = roomRepository.findUserListResponsesByIds(ids);
 
-        Map<Long, Room> roomMap = rooms.stream()
-                .collect(Collectors.toMap(Room::getId, Function.identity()));
-
-        List<UserRoomListResponse> items = idPage.getContent().stream()
-                .map(roomMap::get)
-                .map(roomMapper::toUserListResponse)
+        // IN 조회 결과 순서 보정
+        Map<Long, UserRoomListResponse> responseMap = responses.stream()
+                .collect(Collectors.toMap(UserRoomListResponse::id, Function.identity()));
+        List<UserRoomListResponse> items = ids.stream()
+                .map(responseMap::get)
                 .toList();
 
         return new PageImpl<>(items, pageable, idPage.getTotalElements());

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,22 +29,21 @@ public class UserRoomController {
 
     private final RoomService roomService;
 
+    // TODO : 정렬 기준 enum으로 분리하고 문자열로 들어간 정렬 기준 제거
     @GetMapping
     public String list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) Integer minCapacity,
             @RequestParam(defaultValue = "name") String sort,
+            @PageableDefault(size = 12) Pageable pageable,
             Model model
     ) {
-        // Sanitize inputs
-        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
-        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(pageable.getPageSize(), 1), MAX_PAGE_SIZE);
+
         String safeSort = ALLOWED_SORT_FIELDS.contains(sort) ? sort : "name";
         Integer safeMinCapacity = (minCapacity != null && minCapacity >= 1) ? minCapacity : null;
 
-        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, safeSort));
-        Page<UserRoomListResponse> roomPage = roomService.getUserList(safeMinCapacity, pageable);
+        Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, Sort.by(Sort.Direction.ASC, safeSort));
+        Page<UserRoomListResponse> roomPage = roomService.getUserList(safeMinCapacity, safePageable);
 
         model.addAttribute("page", roomPage);
         model.addAttribute("minCapacity", safeMinCapacity);

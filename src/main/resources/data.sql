@@ -169,7 +169,7 @@ VALUES
 
 INSERT INTO rooms (id, operation_policy_id, room_rule_id, refund_policy_id, name, max_capacity, price, amenities, status, created_at, updated_at, deleted_at)
 VALUES
-    (1, 1, 1, 1, '미팅룸 A (소형)', 2, 10000,
+    (1, 1, 1, 1, '미팅룸 A (소형)', 3, 10000,
      '["WIFI", "AIR_CONDITIONER"]',
      'ACTIVE', NOW(), NOW(), NULL),
 
@@ -177,7 +177,7 @@ VALUES
      '["WIFI", "WHITEBOARD", "AIR_CONDITIONER"]',
      'ACTIVE', NOW(), NOW(), NULL),
 
-    (3, 2, 4, 1, '회의실 C (6인)', 6, 25000,
+    (3, 2, 4, 1, '회의실 C (5인)', 5, 25000,
      '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER"]',
      'ACTIVE', NOW(), NOW(), NULL),
 
