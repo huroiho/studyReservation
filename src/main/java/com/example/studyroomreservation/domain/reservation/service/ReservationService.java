@@ -12,7 +12,7 @@ import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -72,14 +72,11 @@ public class ReservationService {
     }
 
     // RoomService에서 호출
-    @Transactional
+    // TODO: RoomReservableTimeResponse 명칭 재검토 필요
+    @Transactional(readOnly = true)
     public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
-        if (date.isBefore(LocalDate.now())) {
-            throw new BusinessException(ErrorCode.ROOM_INVALID_PAST_DATE);
-        }
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-
         return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
     }
 

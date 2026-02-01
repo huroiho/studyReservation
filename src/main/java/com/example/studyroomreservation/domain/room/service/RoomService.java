@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,23 +74,13 @@ public class RoomService {
         return roomMapper.toUserDetailResponse(room);
     }
 
-    // 예약 가능한 시간 조회용
-    public OperationPolicyResponse getRoomPolicy(Long roomId) {
-
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
-        OperationPolicy policy = room.getOperationPolicy();
-
-        return operationPolicyMapper.toOperationPolicyResponseForRoom(policy);
-    }
-
+    // TODO : LocalDate.now()/LocalTime.now() -> clock 주입으로 수정
     public List<RoomSlotResponse> getRoomSlots(Long roomId, LocalDate date) {
         // date가 현재날짜보다 이전이면 예약 불가능
         if (date.isBefore(LocalDate.now())) {
             throw new BusinessException(ErrorCode.ROOM_INVALID_PAST_DATE);
         }
 
-        // 룸+운영정책(스케줄 포함)
         Room room = roomRepository.findWithOperationPolicyById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
@@ -101,58 +90,74 @@ public class RoomService {
 
         OperationPolicy policy = room.getOperationPolicy();
 
-        // Find schedule for the given day
+        // 해당 날짜 스케줄 확인
         OperationSchedule schedule = policy.getSchedules().stream()
                 .filter(s -> s.getDayOfWeek() == date.getDayOfWeek())
                 .findFirst()
                 .orElse(null);
 
-        // If no schedule or closed day, return empty list
         if (schedule == null || schedule.isClosed()) {
             return List.of();
         }
 
-        // Get reserved time ranges for the day (fact from reservation domain)
+        // 예약된 시간 조회(예약 서비스 호출 - 순환 참조 없는거 확인)
         List<RoomReservableTimeResponse> reservedTimes = reservationService.getReservedTimes(roomId, date);
 
-        // Generate slots based on slotUnit
-        SlotUnit slotUnit = policy.getSlotUnit();
-        int slotMinutes = slotUnit.getMinutes();
+        return buildSlots(date, policy, schedule, reservedTimes);
+    }
+
+    // 슬롯 생성
+    private List<RoomSlotResponse> buildSlots(
+            LocalDate date,
+            OperationPolicy policy,
+            OperationSchedule schedule,
+            List<RoomReservableTimeResponse> reservedTimes
+    ) {
+        int slotMinutes = policy.getSlotUnit().getMinutes();
         LocalTime openTime = schedule.getOpenTime();
         LocalTime closeTime = schedule.getCloseTime();
+
+        boolean isToday = date.equals(LocalDate.now());
+        LocalTime now = isToday ? LocalTime.now() : null;
 
         List<RoomSlotResponse> slots = new ArrayList<>();
         LocalTime current = openTime;
 
-        // 오늘 날짜인 경우 현재 시간 기준으로 지난 슬롯 판단
-        boolean isToday = date.equals(LocalDate.now());
-        LocalTime now = LocalTime.now();
-
         while (current.plusMinutes(slotMinutes).compareTo(closeTime) <= 0) {
             LocalTime slotEnd = current.plusMinutes(slotMinutes);
-            LocalDateTime slotStartDt = date.atTime(current);
-            LocalDateTime slotEndDt = date.atTime(slotEnd);
 
-            // 슬롯 상태 결정: UNAVAILABLE > RESERVED > AVAILABLE
-            RoomSlotResponse.SlotStatus status;
-
-            if (isToday && current.isBefore(now)) {
-                // 오늘이고 슬롯 종료 시간이 현재 시간보다 이전이면 예약 불가
-                status = RoomSlotResponse.SlotStatus.UNAVAILABLE;
-            } else {
-                // Check if slot overlaps with any reserved time
-                boolean isReserved = reservedTimes.stream()
-                        .anyMatch(r -> r.startTime().isBefore(slotEndDt) && r.endTime().isAfter(slotStartDt));
-
-                status = isReserved
-                        ? RoomSlotResponse.SlotStatus.RESERVED
-                        : RoomSlotResponse.SlotStatus.AVAILABLE;
-            }
+            RoomSlotResponse.SlotStatus status =
+                    determineSlotStatus(date, current, slotEnd, reservedTimes, isToday, now);
 
             slots.add(new RoomSlotResponse(current, slotEnd, status));
             current = slotEnd;
         }
 
         return slots;
+    }
+
+    // 슬롯 상태 판정
+    private RoomSlotResponse.SlotStatus determineSlotStatus(
+            LocalDate date,
+            LocalTime slotStart,
+            LocalTime slotEnd,
+            List<RoomReservableTimeResponse> reservedTimes,
+            boolean isToday,
+            LocalTime now
+    ) {
+        if (isToday && slotStart.isBefore(now)) {
+            return RoomSlotResponse.SlotStatus.UNAVAILABLE;
+        }
+
+        LocalDateTime slotStartDt = date.atTime(slotStart);
+        LocalDateTime slotEndDt = date.atTime(slotEnd);
+
+        // TODO : 슬롯 단위의 점유 여부(boolean)를 배열로 미리 계산하는 방법 고려
+        boolean reserved = reservedTimes.stream()
+                .anyMatch(r -> r.startTime().isBefore(slotEndDt) && r.endTime().isAfter(slotStartDt));
+
+        return reserved
+                ? RoomSlotResponse.SlotStatus.RESERVED
+                : RoomSlotResponse.SlotStatus.AVAILABLE;
     }
 }

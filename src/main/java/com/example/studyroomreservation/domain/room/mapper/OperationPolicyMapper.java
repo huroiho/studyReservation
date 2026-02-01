@@ -5,7 +5,6 @@ import com.example.studyroomreservation.domain.room.dto.response.OperationPolicy
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.DeleteBlockInfo;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.ScheduleDetail;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.RoomSummary;
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -84,27 +83,6 @@ public interface OperationPolicyMapper {
                 schedules,
                 rooms,
                 deleteInfo
-        );
-    }
-
-    default OperationPolicyResponse toOperationPolicyResponseForRoom(OperationPolicy policy) {
-        if ( policy == null ) {
-            return null;
-        }
-
-        List<OperationPolicyResponse.ScheduleResponse> schedules = policy.getSchedules().stream()
-                .map(s -> new OperationPolicyResponse.ScheduleResponse(
-                        s.getDayOfWeek(),
-                        s.getOpenTime(),
-                        s.getCloseTime(),
-                        s.isClosed()
-                )).toList();
-
-        return new OperationPolicyResponse(
-                policy.getId(),
-                policy.getName(),
-                policy.getSlotUnit(),
-                schedules
         );
     }
 }

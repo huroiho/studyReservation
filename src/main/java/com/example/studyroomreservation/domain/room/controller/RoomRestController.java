@@ -1,6 +1,5 @@
 package com.example.studyroomreservation.domain.room.controller;
 
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
 import com.example.studyroomreservation.domain.room.service.RoomService;
 import com.example.studyroomreservation.global.common.ApiResponse;
@@ -16,12 +15,6 @@ import java.util.List;
 public class RoomRestController {
 
     private final RoomService roomService;
-
-    @GetMapping("/{roomId}/policy")
-    public ApiResponse<OperationPolicyResponse> getRoomPolicy(@PathVariable Long roomId) {
-         OperationPolicyResponse policy = roomService.getRoomPolicy(roomId);
-        return ApiResponse.success(policy);
-    }
 
     @GetMapping("/{roomId}/slots")
     public ApiResponse<List<RoomSlotResponse>> getRoomSlots(@PathVariable Long roomId, @RequestParam LocalDate date) {
