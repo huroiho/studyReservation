@@ -281,9 +281,9 @@ INSERT INTO members (
     deleted_at
 )
 VALUES
-    (1, '홍길동', 'hong@test.com', 'password123', '010-1111-1111', 'USER', NOW(), NOW(), NULL),
-    (2, '김개발', 'dev@test.com', 'password123', '010-2222-2222', 'USER', NOW(), NOW(), NULL),
-    (3, '관리자', 'admin@test.com', 'admin123', '010-9999-9999', 'ADMIN', NOW(), NOW(), NULL);
+    (1, '홍길동', 'hong@test.com', '$2a$10$r2IayIlyry63ToWDymcDkOrZ.1RgcdT28d0drqkR9XSwd2b9USgZm', '010-1234-1234', 'USER', NOW(), NOW(), NULL),
+    (2, '김개발', 'dev@test.com', '$2a$10$r2IayIlyry63ToWDymcDkOrZ.1RgcdT28d0drqkR9XSwd2b9USgZm', '010-2222-2222', 'USER', NOW(), NOW(), NULL),
+    (3, '관리자', 'admin2@test.com', '$2a$10$r2IayIlyry63ToWDymcDkOrZ.1RgcdT28d0drqkR9XSwd2b9USgZm', '010-9999-9999', 'ADMIN', NOW(), NOW(), NULL);
 
 -- AUTO_INCREMENT 맞추기
 -- =============================================================================
