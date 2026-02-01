@@ -1,8 +1,9 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
 
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,12 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
 
     // 현재 예약하지 못하는 시간대 조회 -> TODO: 군이 테이블 한 열 조회가 아닌 시간대 조회만으로도 충분하지 않을까? 검토하기 프로젝션으로 하기?
     @Override
-    public List<Reservation> findActiveReservations(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
+    public List<RoomReservableTimeResponse> findActiveReservations(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         return queryFactory
-                .selectFrom(reservation)
+                .select(Projections.constructor(RoomReservableTimeResponse.class,
+                        reservation.startTime,
+                        reservation.endTime))
+                .from(reservation)
                 .where(
                         reservation.roomId.eq(roomId),
                         overLappingTime(startTime, endTime),
@@ -51,6 +55,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .and(reservation.endTime.gt(start));
     }
 
+    // notin, in은 조회 성능 효율이 안좋음
     private BooleanExpression activeReservationStatus(){
         return reservation.status.notIn(ReservationStatus.EXPIRED, ReservationStatus.CANCELED);
     }
