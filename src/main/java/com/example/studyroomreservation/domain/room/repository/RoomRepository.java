@@ -31,7 +31,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findWithImagesByIds(@Param("ids") List<Long> ids);
 
     // ========== User Room Detail (single-query with EntityGraph) ==========
-    @EntityGraph(attributePaths = {"images"})
+    @EntityGraph(attributePaths = {"images", "operationPolicy", "roomRule"})
     @Query("SELECT r FROM Room r WHERE r.id = :id AND r.deletedAt IS NULL")
     Optional<Room> findUserDetailById(@Param("id") Long id);
 
@@ -55,4 +55,11 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     // 운영 정책을 사용 중인 룸 존재 여부 확인
     @Query("SELECT COUNT(r) > 0 FROM Room r WHERE r.operationPolicy.id = :policyId AND r.deletedAt IS NULL")
     boolean existsByOperationPolicyId(@Param("policyId") Long policyId);
+
+    // 사용자 Room Slots용 (Room + OperationPolicy + schedules)
+    @Query("SELECT r FROM Room r " +
+            "JOIN FETCH r.operationPolicy op " +
+            "LEFT JOIN FETCH op.schedules " +
+            "WHERE r.id = :id AND r.deletedAt IS NULL")
+    Optional<Room> findWithOperationPolicyById(@Param("id") Long id);
 }

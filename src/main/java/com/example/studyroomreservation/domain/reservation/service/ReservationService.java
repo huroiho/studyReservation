@@ -41,6 +41,9 @@ public class ReservationService {
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
+        if(request.startTime().isBefore(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
+
         Room room = roomRepository.findById(request.roomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
@@ -68,8 +71,12 @@ public class ReservationService {
         return reservation.getId();
     }
 
+    // RoomService에서 호출
     @Transactional
     public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
+        if (date.isBefore(LocalDate.now())) {
+            throw new BusinessException(ErrorCode.ROOM_INVALID_PAST_DATE);
+        }
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
+import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
@@ -55,8 +56,16 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .and(reservation.endTime.gt(start));
     }
 
-    // notin, in은 조회 성능 효율이 안좋음
-    private BooleanExpression activeReservationStatus(){
-        return reservation.status.notIn(ReservationStatus.EXPIRED, ReservationStatus.CANCELED);
+    private BooleanExpression activeReservationStatus() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // CONFIRMED 또는 USED. 확정되었거나 진행 중인 예약 (시간 점유 중)
+        BooleanExpression confirmedOrUsed = reservation.status.in(CONFIRMED, USED);
+
+        // TEMP이면서 아직 만료되지 않은 경우 (expiresAt > now)
+        BooleanExpression tempNotExpired = reservation.status.eq(TEMP)
+                .and(reservation.expiresAt.gt(now));
+
+        return confirmedOrUsed.or(tempNotExpired);
     }
 }

@@ -7,6 +7,9 @@ public record UserRoomDetailResponse(
         String name,
         Integer maxCapacity,
         Integer price,
+        Integer slotMinutes,
+        Integer minDurationMinutes,
+        Integer bookingOpenDays,
         List<String> amenities,
         String heroImageUrl,
         List<GalleryImage> galleryImages

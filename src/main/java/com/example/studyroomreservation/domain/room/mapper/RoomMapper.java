@@ -38,11 +38,24 @@ public interface RoomMapper {
         String heroImageUrl = selectHeroImageUrl(room.getImages());
         List<UserRoomDetailResponse.GalleryImage> galleryImages = selectGalleryImages(room.getImages());
 
+        Integer slotMinutes = room.getOperationPolicy() != null
+                ? room.getOperationPolicy().getSlotUnit().getMinutes()
+                : 60;
+        Integer minDurationMinutes = room.getRoomRule() != null
+                ? room.getRoomRule().getMinDurationMinutes()
+                : 60;
+        Integer bookingOpenDays = room.getRoomRule() != null
+                ? room.getRoomRule().getBookingOpenDays()
+                : 30;
+
         return new UserRoomDetailResponse(
                 room.getId(),
                 room.getName(),
                 room.getMaxCapacity(),
                 room.getPrice(),
+                slotMinutes,
+                minDurationMinutes,
+                bookingOpenDays,
                 amenities,
                 heroImageUrl,
                 galleryImages

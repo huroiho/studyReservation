@@ -1,13 +1,14 @@
 package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
 import com.example.studyroomreservation.domain.room.service.RoomService;
 import com.example.studyroomreservation.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +21,11 @@ public class RoomRestController {
     public ApiResponse<OperationPolicyResponse> getRoomPolicy(@PathVariable Long roomId) {
          OperationPolicyResponse policy = roomService.getRoomPolicy(roomId);
         return ApiResponse.success(policy);
+    }
+
+    @GetMapping("/{roomId}/slots")
+    public ApiResponse<List<RoomSlotResponse>> getRoomSlots(@PathVariable Long roomId, @RequestParam LocalDate date) {
+        List<RoomSlotResponse> slots = roomService.getRoomSlots(roomId, date);
+        return ApiResponse.success(slots);
     }
 }

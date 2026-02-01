@@ -5,7 +5,6 @@ import com.example.studyroomreservation.domain.room.dto.response.OperationPolicy
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.DeleteBlockInfo;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.ScheduleDetail;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.RoomSummary;
-//import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
