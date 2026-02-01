@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>예약 관리</title>
+    <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
+</head>
+<body>
+<div class="container">
+    <div class="profile-header">
+        <div class="profile-header">
+            <div class="user-info">
+                <div class="avatar-wrapper">
+                    <img src="/api/placeholder/48/48" alt="profile" class="avatar">
+                    <span class="status-dot"></span>
+                </div>
+                <div class="user-text">
+                    <h1 class="user-name" th:text="${userName}">사용자명</h1>
+                    <span class="user-id" th:text="${userCode}">학번</span>
+                </div>
+            </div>
+            <div class="header-icons">
+                <button class="icon-btn">
+                    <i class="icon-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="icon-btn">
+                    <i class="icon-settings"></i>
+                </button>
+            </div>
+        </div>
+        <div class="header-icons">
+            <button class="icon-btn">
+                <i class="icon-bell"></i>
+                <span class="notification-dot"></span>
+            </button>
+            <button class="icon-btn">
+                <i class="icon-settings"></i>
+            </button>
+        </div>
+    </div>
+    <nav class="tabs">
+        <a href="#" class="active">예약 관리</a>
+        <a href="#">내 정보</a>
+        <a href="#">예약 히스토리</a>
+    </nav>
+
+    <section class="content">
+        <div class="section-header">
+            <h2>현재 예약 <span class="count-badge" th:text="${reservationCount}">3</span></h2>
+        </div>
+
+        <div th:each="res : ${reservations}" class="reservation-card">
+            <div class="card-left">
+                <img src="/api/placeholder/120/80" alt="room image" class="room-img">
+                <div class="info-group">
+                    <h3 class="room-name" th:text="${res.roomName}">스터디룸 A</h3>
+                    <p class="datetime">
+                        <i class="icon-calendar"></i>
+                        <span th:text="${#temporals.format(res.startTime, 'yyyy년 M월 d일 HH:mm')}">2026.01.20</span> -
+                        <span th:text="${#temporals.format(res.endTime, 'HH:mm')}">17:00</span>
+                    </p>
+                    <p class="price-info">
+<!--                        <span th:text="${res.durationHours} + '시간'">3시간</span> |-->
+                        <span class="amount" th:text="'₩' + ${#numbers.formatInteger(res.totalAmount, 0, 'COMMA')}">₩30,000</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-right">
+                <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
+                <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">승인 대기</span>
+
+                <button th:if="${res.status == 'CONFIRMED'}" class="btn-cancel">예약 취소</button>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

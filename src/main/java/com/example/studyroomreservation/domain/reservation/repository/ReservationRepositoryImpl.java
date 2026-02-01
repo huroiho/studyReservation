@@ -54,4 +54,31 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
     private BooleanExpression activeReservationStatus(){
         return reservation.status.notIn(ReservationStatus.EXPIRED, ReservationStatus.CANCELED);
     }
+
+    // 마이페이지 예약현황 조회
+    @Override
+    public List<Reservation> findMyActiveReservations(Long memberId, LocalDateTime now) {
+        return queryFactory
+                .selectFrom(reservation)
+                .where(
+                        reservation.memberId.eq(memberId), // 내 예약
+                        reservation.status.in(ReservationStatus.CONFIRMED, ReservationStatus.TEMP),
+                        isActiveStatus(now)
+                )
+                .orderBy(reservation.startTime.asc())
+                .fetch();
+    }
+
+    private BooleanExpression isActiveStatus(LocalDateTime now) {
+        // 확정 + 종료 전
+        BooleanExpression isConfirmed = reservation.status.eq(ReservationStatus.CONFIRMED)
+                .and(reservation.endTime.gt(now));
+
+        // 대기 + 결제 시한 + 시작 전
+        BooleanExpression isTemp = reservation.status.eq(ReservationStatus.TEMP)
+                .and(reservation.expiresAt.gt(now))
+                .and(reservation.startTime.gt(now));
+
+        return isConfirmed.or(isTemp);
+    }
 }

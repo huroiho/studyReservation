@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
@@ -18,6 +19,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -119,5 +121,12 @@ public class ReservationService {
         }
     }
 
+
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Reservation> reservations = reservationRepository.findMyActiveReservations(memberId, LocalDateTime.now());
+        return reservationMapper.toResponseList(reservations);
+    }
 
 }
