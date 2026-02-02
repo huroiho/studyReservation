@@ -1,6 +1,12 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
@@ -12,31 +18,30 @@ import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
+import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
 
-    private final RoomRepository roomRepository;
-    private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
+    private final RoomRepository roomRepository;
+    private final ReservationRepository reservationRepository;
+    private final MemberRepository memberRepository;
+    private final PaymentRepository paymentRepository;
+
     private static final int BASIC_EXPIRED_TIME = 10;
-
-    /*
-    방id랑 시작-종료시간 프론트에서 받고 컨트롤러에서 멤버 id 받아서
-
-    이부분을 동시성을 위해 redis 분산락으로 코드 구성
-    해당 룸 조회하고  운영정책이랑 룸 규칙 맞는지 검증하고
-    해당 시간에 예약이 있는지 확인하고
-    이제 예약 생성
-    */
 
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
@@ -91,6 +96,50 @@ public class ReservationService {
         }
     }
 
+    //예약 상세 조회
+    @Transactional
+    public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!reservation.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 조회할 수 있습니다.");
+        }
+
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 결제 정보는 없을 수도 있음 (결제 전 취소)
+        Payment payment = paymentRepository.findByReservationId(reservationId)
+                .orElse(null);
+
+        // 취소 가능 여부 계산
+        boolean isCancellable = reservation.isCancellable(LocalDateTime.now());
+
+        // 파라미터 순서: reservationInfo, roomInfo, memberInfo, paymentInfo, isReservationCancellable
+        return reservationMapper.toDetailResponse(
+                reservation,
+                member,
+                payment,
+                isCancellable,
+                room
+        );    }
+
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
 
     // 편의 매서드
     private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
@@ -132,6 +181,8 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "예약은 하루 단위로만 가능합니다.");
         }
     }
+
+
 
 
 
