@@ -1,6 +1,12 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
@@ -12,6 +18,7 @@ import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -121,7 +128,18 @@ public class ReservationService {
                 room
         );    }
 
-
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
 
     // 편의 매서드
     private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
@@ -167,17 +185,6 @@ public class ReservationService {
 
 
 
-    // 마이페이지 예약 현황 조회
-    @Transactional
-    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
-        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
-        return results.stream()
-                .map(t -> {
-                    Reservation res = t.get(reservation); // 예약 꺼내기
-                    Room rm = t.get(room);               // 룸 꺼내기
-                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
-                })
-                .collect(Collectors.toList());
-    }
+
 
 }

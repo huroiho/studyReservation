@@ -1,15 +1,23 @@
 package com.example.studyroomreservation.domain.reservation.mapper;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.room.entity.Room;
+import com.example.studyroomreservation.domain.room.entity.RoomImage;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
+        (componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ReservationMapper {
 
     // Entity -> Response DTO (조회)
