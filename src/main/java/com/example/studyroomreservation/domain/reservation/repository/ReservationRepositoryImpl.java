@@ -36,7 +36,6 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         return fetchOne != null;
     }
 
-    // 현재 예약하지 못하는 시간대 조회 -> TODO: 군이 테이블 한 열 조회가 아닌 시간대 조회만으로도 충분하지 않을까? 검토하기 프로젝션으로 하기?
     @Override
     public List<RoomReservedTimeResponse> findActiveReservations(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         return queryFactory

@@ -108,4 +108,15 @@ public class Room extends BaseSoftDeletableEntity {
         this.price = price;
         this.maxCapacity = maxCapacity;
     }
+
+    public String getThumbnailUrl() {
+        if (this.images == null || this.images.isEmpty()) {
+            return null;
+        }
+        return this.images.stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.THUMBNAIL)
+                .findFirst()
+                .map(RoomImage::getImageUrl)
+                .orElse(null);
+    }
 }

@@ -1,6 +1,9 @@
 package com.example.studyroomreservation.domain.reservation.mapper;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -61,4 +64,18 @@ public interface ReservationMapper {
                 expiresAt
         );
     }
+
+    // 예약 상세 정보 dto 매핑
+    ReservationDetailResponse toDetailResponse(Reservation reservationInfo,
+                                               Member memberInfo,
+                                               Payment paymentInfo,
+                                               boolean isReservationCancellable,
+                                               Room roomInfo);
+
+    ReservationDetailResponse.ReservationInfo toReservationInfo(Reservation reservation);
+
+    @Mapping(target = "thumbnailUrl", expression = "java(room.getThumbnailUrl())")
+    ReservationDetailResponse.RoomInfo toRoomInfo(Room room);
+    ReservationDetailResponse.MemberInfo toMemberInfo(Member member);
+    ReservationDetailResponse.PaymentInfo toPaymentInfo(Payment payment);
 }
