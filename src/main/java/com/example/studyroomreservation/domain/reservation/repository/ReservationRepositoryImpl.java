@@ -1,7 +1,10 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
 
+import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,6 +15,7 @@ import java.util.List;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
+import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
@@ -65,5 +69,37 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .and(reservation.expiresAt.gt(now));
 
         return confirmedOrUsed.or(tempNotExpired);
+    }
+
+    // 마이페이지 예약현황 조회
+    // Tuple : 두 종류 이상의 객체 묶을때 사용 (reservation, room), map과 유사한 동작
+    @Override
+    public List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now) {
+        return queryFactory
+                .select(reservation, room)
+                .from(reservation)
+                .join(room).on(reservation.roomId.eq(room.id))
+                //.leftJoin(room.images).fetchJoin()
+                .where(
+                        reservation.memberId.eq(memberId), // 내 예약
+//                        reservation.status.in(ReservationStatus.CONFIRMED, ReservationStatus.TEMP),
+                        isActiveStatus(now)
+                )
+                .orderBy(reservation.startTime.asc())
+                .distinct()
+                .fetch();
+    }
+
+    private BooleanExpression isActiveStatus(LocalDateTime now) {
+        // 확정 + 종료 전
+        BooleanExpression isConfirmed = reservation.status.eq(ReservationStatus.CONFIRMED)
+                .and(reservation.endTime.gt(now));
+
+        // 대기 + 결제 시한 + 시작 전
+        BooleanExpression isTemp = reservation.status.eq(ReservationStatus.TEMP)
+                .and(reservation.expiresAt.gt(now))
+                .and(reservation.startTime.gt(now));
+
+        return isConfirmed.or(isTemp);
     }
 }

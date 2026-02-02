@@ -42,6 +42,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- Clear existing data (resets AUTO_INCREMENT)
 TRUNCATE TABLE rooms;
+TRUNCATE TABLE room_images;
 TRUNCATE TABLE refund_rules;
 TRUNCATE TABLE refund_policies;
 TRUNCATE TABLE room_rules;
@@ -249,6 +250,32 @@ VALUES
      '["WIFI", "WHITEBOARD", "PROJECTOR", "AIR_CONDITIONER"]',
      'INACTIVE', NOW(), NOW(), NULL);
 
+-- =============================================================================
+-- D-1) ROOM IMAGES (다중 이미지 및 타입 테스트 데이터)
+-- =============================================================================
+
+-- 룸 1번에 3개의 이미지 등록 (매퍼는 MAIN인 1번 데이터를 가져와야 함)
+INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
+VALUES
+    (1, 1, '/img/test1.png', 'MAIN', 1, NOW()),      -- 대표 이미지
+    (2, 1, '/img/test1.png', 'GENERAL', 2, NOW()),
+    (3, 1, '/img/test1.png', 'GENERAL', 3, NOW());
+
+-- 룸 2번에 2개의 이미지 등록 (MAIN 없이 THUMBNAIL만 있을 때 테스트)
+INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
+VALUES
+    (4, 2, '/img/test2.png', 'THUMBNAIL', 1, NOW()), -- MAIN 없을 시 차선책
+    (5, 2, '/img/test1.png', 'GENERAL', 2, NOW());
+
+-- 나머지 룸들 (단일 이미지)
+INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
+VALUES
+    (6, 3, '/img/test2.png', 'MAIN', 1, NOW()),
+    (7, 4, '/img/test1.png', 'MAIN', 1, NOW()),
+    (8, 5, '/img/test1.png', 'MAIN', 1, NOW());
+
+-- AUTO_INCREMENT 값 조정 (총 8개 들어갔으므로 9로 설정)
+ALTER TABLE room_images AUTO_INCREMENT = 9;
 
 -- =============================================================================
 -- E) RESERVATIONS (6 reservations)
@@ -277,7 +304,7 @@ INSERT INTO reservations (
 VALUES
     (1, 1, 1, 1, 1, 'TEMP',
      NOW() + INTERVAL 2 HOUR,
-     NOW() + INTERVAL 3 HOUR,
+     NOW() + INTERVAL 3 HOUR+ INTERVAL 30 MINUTE,
      10000,
      NOW() + INTERVAL 15 MINUTE,
      NULL, NULL, NULL,

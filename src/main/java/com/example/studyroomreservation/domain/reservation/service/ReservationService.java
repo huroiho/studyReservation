@@ -1,11 +1,6 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
-import com.example.studyroomreservation.domain.member.entity.Member;
-import com.example.studyroomreservation.domain.member.repository.MemberRepository;
-import com.example.studyroomreservation.domain.payment.entity.Payment;
-import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
-import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
@@ -23,6 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
+import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +74,6 @@ public class ReservationService {
     public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-
         return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
     }
 
@@ -168,5 +166,18 @@ public class ReservationService {
 
 
 
+
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
 
 }
