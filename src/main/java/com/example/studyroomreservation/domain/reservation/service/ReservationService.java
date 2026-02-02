@@ -1,6 +1,11 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
@@ -23,20 +28,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
 
-    private final RoomRepository roomRepository;
-    private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
 
+    private final RoomRepository roomRepository;
+    private final ReservationRepository reservationRepository;
+    private final MemberRepository memberRepository;
+    private final PaymentRepository paymentRepository;
+
     private static final int BASIC_EXPIRED_TIME = 10;
-
-    /*
-    방id랑 시작-종료시간 프론트에서 받고 컨트롤러에서 멤버 id 받아서
-
-    이부분을 동시성을 위해 redis 분산락으로 코드 구성
-    해당 룸 조회하고  운영정책이랑 룸 규칙 맞는지 검증하고
-    해당 시간에 예약이 있는지 확인하고
-    이제 예약 생성
-    */
 
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
@@ -68,6 +67,7 @@ public class ReservationService {
         return reservation.getId();
     }
 
+    // 예약 불가능 시간 조회
     @Transactional
     public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -87,6 +87,36 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.RES_BOOKING_PERIOD_EXCEEDED);
         }
     }
+
+    //예약 상세 조회
+    @Transactional
+    public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!reservation.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 조회할 수 있습니다.");
+        }
+
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 결제 정보는 없을 수도 있음 (결제 전 취소)
+        Payment payment = paymentRepository.findByReservationId(reservationId)
+                .orElse(null);
+
+        // 취소 가능 여부 계산
+        boolean isCancellable = reservation.isCancellable(LocalDateTime.now());
+
+        // 파라미터 순서: reservationInfo, roomInfo, memberInfo, paymentInfo, isReservationCancellable
+        //TODO: 자주 나오는 인자 값들 공통으로 관리해서 코드 수 줄여보기
+        //TODO: DTO 로 받아서 처리하기
+        return reservationMapper.toDetailResponse(reservation, room, member, payment, isCancellable);
+    }
+
 
 
     // 편의 매서드

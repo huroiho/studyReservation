@@ -183,6 +183,16 @@ public class Reservation extends BaseAuditableEntity {
 
     }
 
+    public boolean isCancellable(LocalDateTime now) {
+        // 결제 대기(TEMP) 상태일 때 -> 만료 시간이 존재하고, 현재 시간이 만료 시간 전이어야 취소 가능
+        if (this.status == TEMP) {
+            return this.expiresAt != null && now.isBefore(this.expiresAt);
+        }
+
+        //TODO: 예약 확정(CONFIRMED) 상태일 때의 취소 로직 추가하기
+
+        return false;
+    }
     // ===== 검증 메서드 =====
     private void validateTransitionTo(ReservationStatus target) {
         if (!this.status.canChangeTo(target)) {
