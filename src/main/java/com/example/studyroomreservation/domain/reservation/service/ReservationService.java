@@ -1,8 +1,12 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
+import com.example.studyroomreservation.domain.member.entity.Member;
+import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
