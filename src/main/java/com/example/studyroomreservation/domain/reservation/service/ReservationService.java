@@ -1,7 +1,7 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
@@ -72,9 +72,9 @@ public class ReservationService {
     }
 
     // RoomService에서 호출
-    // TODO: RoomReservableTimeResponse 명칭 재검토 필요
+    // TODO: RoomReservedTimeResponse 명칭 재검토 필요
     @Transactional(readOnly = true)
-    public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
+    public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
         return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);

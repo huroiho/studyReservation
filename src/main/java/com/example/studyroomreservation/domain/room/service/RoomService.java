@@ -1,6 +1,6 @@
 package com.example.studyroomreservation.domain.room.service;
 
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
@@ -8,7 +8,6 @@ import com.example.studyroomreservation.domain.room.dto.response.UserRoomListRes
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
-import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -99,7 +98,7 @@ public class RoomService {
         }
 
         // 예약된 시간 조회(예약 서비스 호출 - 순환 참조 없는거 확인)
-        List<RoomReservableTimeResponse> reservedTimes = reservationService.getReservedTimes(roomId, date);
+        List<RoomReservedTimeResponse> reservedTimes = reservationService.getReservedTimes(roomId, date);
 
         return buildSlots(date, policy, schedule, reservedTimes);
     }
@@ -109,7 +108,7 @@ public class RoomService {
             LocalDate date,
             OperationPolicy policy,
             OperationSchedule schedule,
-            List<RoomReservableTimeResponse> reservedTimes
+            List<RoomReservedTimeResponse> reservedTimes
     ) {
         int slotMinutes = policy.getSlotUnit().getMinutes();
         LocalTime openTime = schedule.getOpenTime();
@@ -139,7 +138,7 @@ public class RoomService {
             LocalDate date,
             LocalTime slotStart,
             LocalTime slotEnd,
-            List<RoomReservableTimeResponse> reservedTimes,
+            List<RoomReservedTimeResponse> reservedTimes,
             boolean isToday,
             LocalTime now
     ) {
