@@ -39,5 +39,5 @@ out/
 src/main/resources/application-local.yml
 
 .windsurf/
-.envC
+.env
 CLAUDE.md
