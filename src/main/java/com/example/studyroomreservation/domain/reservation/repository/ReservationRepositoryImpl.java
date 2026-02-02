@@ -3,7 +3,8 @@ package com.example.studyroomreservation.domain.reservation.repository;
 
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
+import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
@@ -71,16 +73,21 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
     }
 
     // 마이페이지 예약현황 조회
+    // Tuple : 두 종류 이상의 객체 묶을때 사용 (reservation, room), map과 유사한 동작
     @Override
-    public List<Reservation> findMyActiveReservations(Long memberId, LocalDateTime now) {
+    public List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now) {
         return queryFactory
-                .selectFrom(reservation)
+                .select(reservation, room)
+                .from(reservation)
+                .join(room).on(reservation.roomId.eq(room.id))
+                //.leftJoin(room.images).fetchJoin()
                 .where(
                         reservation.memberId.eq(memberId), // 내 예약
-                        reservation.status.in(ReservationStatus.CONFIRMED, ReservationStatus.TEMP),
+//                        reservation.status.in(ReservationStatus.CONFIRMED, ReservationStatus.TEMP),
                         isActiveStatus(now)
                 )
                 .orderBy(reservation.startTime.asc())
+                .distinct()
                 .fetch();
     }
 

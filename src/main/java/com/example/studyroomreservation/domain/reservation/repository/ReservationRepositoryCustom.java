@@ -1,7 +1,8 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.querydsl.core.Tuple;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,8 +11,8 @@ public interface ReservationRepositoryCustom {
 
     boolean existsActiveReservation(Long roomId, LocalDateTime start, LocalDateTime end);
 
-    List<RoomReservableTimeResponse> findActiveReservations(Long roomId, LocalDateTime start, LocalDateTime end);
+    List<RoomReservedTimeResponse> findActiveReservations(Long roomId, LocalDateTime start, LocalDateTime end);
 
     // 마이페이지 예약현황
-    List<Reservation> findMyActiveReservations(Long memberId, LocalDateTime now);
+    List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now);
 }

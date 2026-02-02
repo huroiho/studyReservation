@@ -6,8 +6,10 @@ import com.example.studyroomreservation.domain.reservation.dto.response.Reservat
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
+import com.example.studyroomreservation.global.security.auth.CustomUserDetails;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,26 +27,22 @@ public class ReservationMypageController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/reservations")
-    public String getMyReservations(HttpSession session, Model model) {
-
-        // data.sql 사용 (실제 데이터 생성후 제거)
-        if (session.getAttribute("loginMember") == null) {
-            Member realMember = memberRepository.findById(1L)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
-            session.setAttribute("loginMember", realMember);
-        }
-
-        // 프로필
-        Member member = (Member) session.getAttribute("loginMember");
-        if (member == null) {
+    public String getMyReservations(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        if (userDetails == null) {
             return "redirect:/login";
         }
 
         // 예약현황
-        List<ReservationResponse> responses = reservationService.getMyActiveReservations(member.getId());
-
+        List<ReservationResponse> responses = reservationService.getMyActiveReservations(userDetails.getMember().getId());
         model.addAttribute("reservations", responses);
-        model.addAttribute("userName", member.getName());
         return MY_LIST_VIEW;
     }
+
+    // 예약현황 테스트용 data.sql 사용 (실제 데이터 생성후 제거)
+//    public String getMyReservations(Model model) {
+//        Long testMemberId = 1L;
+//        List<ReservationResponse> responses = reservationService.getMyActiveReservations(testMemberId);
+//        model.addAttribute("reservations", responses);
+//        return MY_LIST_VIEW;
+//    }
 }

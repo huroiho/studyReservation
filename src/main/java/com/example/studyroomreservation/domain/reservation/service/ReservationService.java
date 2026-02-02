@@ -2,7 +2,7 @@ package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
@@ -13,12 +13,17 @@ import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
+import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
@@ -140,8 +145,14 @@ public class ReservationService {
     // 마이페이지 예약 현황 조회
     @Transactional
     public List<ReservationResponse> getMyActiveReservations(Long memberId) {
-        List<Reservation> reservations = reservationRepository.findMyActiveReservations(memberId, LocalDateTime.now());
-        return reservationMapper.toResponseList(reservations);
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
     }
 
 }
