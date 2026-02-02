@@ -8,8 +8,6 @@ public record ReservationDetailResponse(
         RoomInfo roomInfo,
         MemberInfo memberInfo,
         PaymentInfo paymentInfo,
-
-        // 취소 가능 여부
         boolean isReservationCancellable
 ) {
 

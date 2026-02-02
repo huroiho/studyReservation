@@ -15,4 +15,6 @@ public interface ReservationRepositoryCustom {
 
     // 마이페이지 예약현황
     List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now);
+
+    long confirmIfTemp(Long reservationId, LocalDateTime now);
 }

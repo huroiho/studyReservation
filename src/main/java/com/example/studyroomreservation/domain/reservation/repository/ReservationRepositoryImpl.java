@@ -8,6 +8,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,8 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
+
 
     @Override
     public boolean existsActiveReservation(Long roomId, LocalDateTime start, LocalDateTime end){
@@ -88,6 +91,31 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .orderBy(reservation.startTime.asc())
                 .distinct()
                 .fetch();
+    }
+
+    /**
+     * 예약 상태를 원자적(Atomic)으로 검증하고 확정(CONFIRMED) 상태로 변경합니다.
+     *
+     * @param reservationId 예약 ID
+     * @param now 확정 처리 시각
+     * @return 업데이트에 성공한 행의 수 (0이면 상태 불일치로 인한 실패)
+     */
+    @Override
+    public long confirmIfTemp(Long reservationId, LocalDateTime now) {
+        em.flush();
+        long count = queryFactory
+                .update(reservation)
+                .set(reservation.status, CONFIRMED)
+                .set(reservation.confirmedAt, now)
+                .set(reservation.expiresAt, (LocalDateTime) null)
+                .where(
+                        reservation.id.eq(reservationId),
+                        reservation.status.eq(TEMP)
+                )
+                .execute();
+        em.clear();
+
+        return count;
     }
 
     private BooleanExpression isActiveStatus(LocalDateTime now) {

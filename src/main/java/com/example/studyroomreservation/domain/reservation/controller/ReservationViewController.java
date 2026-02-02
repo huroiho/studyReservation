@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Controller
@@ -26,11 +24,19 @@ public class ReservationViewController {
                                     Model model) {
 
         Long memberId = userDetails.getMember().getId();
-
         ReservationDetailResponse response = reservationService.getReservationDetail(reservationId, memberId);
-
         model.addAttribute("reservationDetail", response);
 
         return "reservation/reservation-detail";
+    }
+
+    @PostMapping("/{reservationId}/cancel")
+    public String cancelReservation(@PathVariable Long reservationId,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long memberId = userDetails.getMember().getId();
+        reservationService.cancelReservation(reservationId, memberId);
+
+        return "redirect:/reservations/" + reservationId;
     }
 }

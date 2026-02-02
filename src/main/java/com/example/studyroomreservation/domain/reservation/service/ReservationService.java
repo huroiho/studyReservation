@@ -43,6 +43,7 @@ public class ReservationService {
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
+    //TODO: 락 걸기
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
@@ -139,6 +140,35 @@ public class ReservationService {
                     return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
                 })
                 .collect(Collectors.toList());
+    }
+
+    //예약 취소
+    @Transactional
+    public void cancelReservation(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        // 1. 본인 확인
+        if (!reservation.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 취소할 수 있습니다.");
+        }
+
+        // 취소 처리: 현재 로직 -TEMP 상태일 때만 취소 가능 (CONFIRMED는 엔티티에서 막힘)
+        reservation.cancel(LocalDateTime.now());
+
+        /*TODO: 결제 취소: 결제 정보가 있다면 환불 처리
+        paymentRepository.findByReservationId(reservationId)
+        */
+    }
+
+    // 임시 예약 확인 -> 결제 전 후에 확인
+    @Transactional
+    public void confirmReservation(Long reservationId) {
+        long result = reservationRepository.confirmIfTemp(reservationId, LocalDateTime.now());
+
+        if (result == 0) {
+            throw new BusinessException(ErrorCode.RES_EXPIRED);
+        }
     }
 
     // 편의 매서드
