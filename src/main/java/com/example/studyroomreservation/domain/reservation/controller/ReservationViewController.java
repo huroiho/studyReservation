@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.reservation.controller;
 
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
+import com.example.studyroomreservation.global.security.auth.CustomUserDetails;
 import com.example.studyroomreservation.global.security.auth.MemberContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,10 @@ public class ReservationViewController {
 
     @GetMapping("/{reservationId}")
     public String reservationDetail(@PathVariable Long reservationId,
-                                    @AuthenticationPrincipal MemberContext memberContext,
+                                    @AuthenticationPrincipal CustomUserDetails userDetails,
                                     Model model) {
 
-        Long memberId = memberContext.getId();
+        Long memberId = userDetails.getMember().getId();
 
         ReservationDetailResponse response = reservationService.getReservationDetail(reservationId, memberId);
 

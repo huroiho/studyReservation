@@ -27,8 +27,8 @@ public record ReservationDetailResponse(
 
         public record RoomInfo(
                 Long id,
-                String name
-                //TODO: 썸네일 이미지 넣기
+                String name,
+                String thumbnailUrl
         ) {}
 
         public record MemberInfo(

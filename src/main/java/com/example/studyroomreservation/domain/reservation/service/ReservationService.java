@@ -112,10 +112,13 @@ public class ReservationService {
         boolean isCancellable = reservation.isCancellable(LocalDateTime.now());
 
         // 파라미터 순서: reservationInfo, roomInfo, memberInfo, paymentInfo, isReservationCancellable
-        //TODO: 자주 나오는 인자 값들 공통으로 관리해서 코드 수 줄여보기
-        //TODO: DTO 로 받아서 처리하기
-        return reservationMapper.toDetailResponse(reservation, room, member, payment, isCancellable);
-    }
+        return reservationMapper.toDetailResponse(
+                reservation,
+                member,
+                payment,
+                isCancellable,
+                room
+        );    }
 
 
 

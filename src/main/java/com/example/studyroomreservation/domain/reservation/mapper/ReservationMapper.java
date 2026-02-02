@@ -7,6 +7,7 @@ import com.example.studyroomreservation.domain.reservation.dto.response.Reservat
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
@@ -35,12 +36,14 @@ public interface ReservationMapper {
 
     // 예약 상세 정보 dto 매핑
     ReservationDetailResponse toDetailResponse(Reservation reservationInfo,
-                                               Room roomInfo,
                                                Member memberInfo,
                                                Payment paymentInfo,
-                                               boolean isReservationCancellable);
+                                               boolean isReservationCancellable,
+                                               Room roomInfo);
 
     ReservationDetailResponse.ReservationInfo toReservationInfo(Reservation reservation);
+
+    @Mapping(target = "thumbnailUrl", expression = "java(room.getThumbnailUrl())")
     ReservationDetailResponse.RoomInfo toRoomInfo(Room room);
     ReservationDetailResponse.MemberInfo toMemberInfo(Member member);
     ReservationDetailResponse.PaymentInfo toPaymentInfo(Payment payment);
