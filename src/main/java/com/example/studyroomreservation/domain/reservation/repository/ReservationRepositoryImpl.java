@@ -1,7 +1,6 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
 
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.querydsl.core.Tuple;
@@ -9,6 +8,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +38,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         return fetchOne != null;
     }
 
+    // 현재 예약하지 못하는 시간대 조회 -> TODO: 군이 테이블 한 열 조회가 아닌 시간대 조회만으로도 충분하지 않을까? 검토하기 프로젝션으로 하기?
     @Override
     public List<RoomReservedTimeResponse> findActiveReservations(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         return queryFactory
@@ -101,5 +104,41 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .and(reservation.startTime.gt(now));
 
         return isConfirmed.or(isTemp);
+    }
+
+
+    // 마이페이지 예약 히스토리
+    @Override
+    public Page<Tuple> findMyReservationHistory(Long memberId, LocalDateTime now, Pageable pageable) {
+        List<Tuple> content = queryFactory
+                .select(reservation, room)
+                .from(reservation)
+                .join(room).on(reservation.roomId.eq(room.id))
+                .where(
+                        reservation.memberId.eq(memberId),
+                        isHistoryStatus(now) // 히스토리
+                )
+                .orderBy(reservation.startTime.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 페이징
+        Long total = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .where(
+                        reservation.memberId.eq(memberId),
+                        isHistoryStatus(now)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
+
+    private BooleanExpression isHistoryStatus(LocalDateTime now) {
+        return reservation.status.eq(ReservationStatus.USED)
+                .or(reservation.status.eq(ReservationStatus.CANCELED))
+                .or(reservation.endTime.loe(now));
     }
 }

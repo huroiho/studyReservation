@@ -12,6 +12,7 @@ public class ReservationControllerConstants {
 
     // === View Names ===
     public static final String MY_LIST_VIEW = "reservation/mypage-reservation-list";
+    public static final String MY_HIS_LIST_VIEW = "reservation/mypage-reservation-history";
 
 
     // === Model Attribute Names ===

@@ -304,7 +304,7 @@ INSERT INTO reservations (
 VALUES
     (1, 1, 1, 1, 1, 'TEMP',
      NOW() + INTERVAL 2 HOUR,
-     NOW() + INTERVAL 3 HOUR+ INTERVAL 30 MINUTE,
+     NOW() + INTERVAL 3 HOUR + INTERVAL 30 MINUTE,
      10000,
      NOW() + INTERVAL 15 MINUTE,
      NULL, NULL, NULL,
@@ -342,13 +342,38 @@ VALUES
      NOW(), NULL, NOW() - INTERVAL 30 MINUTE,
      NOW(), NOW()),
 
+    -- 6. 관리자: 임시 예약 (TEMP)
     (6, 3, 2, 1, 1, 'TEMP',
      NOW() + INTERVAL 6 HOUR,
      NOW() + INTERVAL 7 HOUR,
      15000,
      NOW() + INTERVAL 10 MINUTE,
      NULL, NULL, NULL,
+     NOW(), NOW()),
+
+    -- 7. [추가] 홍길동: 과거 이용 완료 데이터 (히스토리용)
+    (7, 1, 3, 2, 1, 'USED',
+     NOW() - INTERVAL 2 DAY,
+     NOW() - INTERVAL 2 DAY + INTERVAL 2 HOUR,
+     25000,
+     NULL,
+     NOW() - INTERVAL 2 DAY, NULL, NOW() - INTERVAL 2 DAY + INTERVAL 1 HOUR,
+     NOW(), NOW()),
+
+    -- 8. [추가] 홍길동: 예약 취소 데이터 (히스토리용)
+    (8, 1, 4, 1, 2, 'CANCELED',
+     NOW() + INTERVAL 3 DAY,
+     NOW() + INTERVAL 3 DAY + INTERVAL 2 HOUR,
+     40000,
+     NULL,
+     NULL, NOW() - INTERVAL 1 HOUR, NULL,
      NOW(), NOW());
+
+-- =============================================================================
+-- Reset AUTO_INCREMENT (데이터 8개이므로 9로 설정)
+-- =============================================================================
+ALTER TABLE reservations AUTO_INCREMENT = 9;
+
 
 -- =============================================================================
 -- F) MEMBERS (3 members)

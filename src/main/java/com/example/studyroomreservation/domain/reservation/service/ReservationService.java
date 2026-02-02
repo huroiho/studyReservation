@@ -19,6 +19,8 @@ import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.querydsl.core.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -128,19 +130,6 @@ public class ReservationService {
                 room
         );    }
 
-    // 마이페이지 예약 현황 조회
-    @Transactional
-    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
-        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
-        return results.stream()
-                .map(t -> {
-                    Reservation res = t.get(reservation); // 예약 꺼내기
-                    Room rm = t.get(room);               // 룸 꺼내기
-                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
-                })
-                .collect(Collectors.toList());
-    }
-
     // 편의 매서드
     private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
         long minutes = Duration.between(start, end).toMinutes();
@@ -185,6 +174,25 @@ public class ReservationService {
 
 
 
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
 
+    // 마이페이지 예약 히스토리 조회
+    @Transactional(readOnly = true)
+    public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        Page<Tuple> pageResults = reservationRepository.findMyReservationHistory(memberId, now, pageable);
 
+        return pageResults.map(t -> reservationMapper.toResponse(t.get(reservation), t.get(room)));
+    }
 }
