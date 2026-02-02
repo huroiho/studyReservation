@@ -8,8 +8,6 @@ import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleRes
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.entity.RefundRule;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -48,4 +46,6 @@ public interface RefundMapper {
                 request.refundRate()
         );
     }
+
+
 }

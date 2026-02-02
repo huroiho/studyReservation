@@ -1,7 +1,6 @@
 package com.example.studyroomreservation.domain.room.dto.response;
 
 import com.example.studyroomreservation.domain.room.entity.SlotUnit;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;

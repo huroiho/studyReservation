@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 
-
+// TODO: where 절의 순서와 인덱스의 columnList 순서 맞추기
 @Entity
 @Table(
         name = "reservations",
@@ -90,6 +90,7 @@ public class Reservation extends BaseAuditableEntity {
     }
 
     // ==== 정적 팩토리 메서드 ===
+    //TODO: 인자값이 많고 개발 시 값 설정에 오류가 발생할 확률이 높아서 논의 필요
     public static Reservation createTemp(Long memberId,
                                          Long roomId,
                                          Long appliedOperationPolicyId,

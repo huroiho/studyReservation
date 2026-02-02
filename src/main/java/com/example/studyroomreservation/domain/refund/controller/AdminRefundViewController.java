@@ -2,7 +2,6 @@ package com.example.studyroomreservation.domain.refund.controller;
 
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
-import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.refund.validation.RefundPolicyValidator;
 import jakarta.validation.Valid;

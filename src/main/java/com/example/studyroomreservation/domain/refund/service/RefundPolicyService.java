@@ -3,11 +3,9 @@ package com.example.studyroomreservation.domain.refund.service;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
-import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleResponse;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.mapper.RefundMapper;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
-import com.example.studyroomreservation.domain.refund.repository.RefundRuleRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
@@ -25,7 +23,6 @@ import java.util.List;
 public class RefundPolicyService {
 
     private final RefundPolicyRepository refundPolicyRepository;
-    private final RefundRuleRepository refundRuleRepository;
     private final RefundMapper refundMapper;
 
     /**
@@ -40,15 +37,8 @@ public class RefundPolicyService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RefundPolicyListResponse> getRefundPolicyPage(Boolean isActive,Pageable pageable) {
-
-        Page<RefundPolicy> page = (isActive == null)
-                ? refundPolicyRepository.findAll(pageable)
-                : refundPolicyRepository.findByIsActive(isActive, pageable);
-        return page.map(refundPolicy -> {
-                    long ruleCount = refundRuleRepository.countByRefundPolicyId(refundPolicy.getId());
-                    return refundMapper.toListResponse(refundPolicy, ruleCount);
-                });
+    public Page<RefundPolicyListResponse> getRefundPolicyPage(Boolean isActive, Pageable pageable) {
+        return refundPolicyRepository.findPolicyPageWithRuleCount(isActive, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +53,7 @@ public class RefundPolicyService {
     public void changePolicyActive(Long policyId, boolean active) {
         RefundPolicy policy = refundPolicyRepository.findById(policyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
+        //FIXME: 검증 추가 필요, 공통화 하기
 
         policy.changeActive(active);
     }
