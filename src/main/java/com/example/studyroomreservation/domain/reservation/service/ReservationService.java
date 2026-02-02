@@ -1,7 +1,7 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservableTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
@@ -12,7 +12,7 @@ import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +41,9 @@ public class ReservationService {
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
+        if(request.startTime().isBefore(LocalDateTime.now()))
+            throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
+
         Room room = roomRepository.findById(request.roomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
@@ -68,11 +71,11 @@ public class ReservationService {
         return reservation.getId();
     }
 
-    @Transactional
-    public List<RoomReservableTimeResponse> getReservedTimes(Long roomId, LocalDate date){
+    // RoomService에서 호출
+    @Transactional(readOnly = true)
+    public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-
         return reservationRepository.findActiveReservations(roomId, startOfDay, endOfDay);
     }
 

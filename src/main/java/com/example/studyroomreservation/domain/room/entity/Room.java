@@ -50,10 +50,6 @@ public class Room extends BaseSoftDeletableEntity {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomImage> images = new ArrayList<>();
 
-    //이미지 타입에 썸네일이 있는데 여기도 있어야하는지?
-    //private String thumbnailUrl;
-
-    // TODO : 이넘의 위치 질문하고 수정하기
     public enum RoomStatus{
         ACTIVE, INACTIVE
     }
@@ -61,7 +57,6 @@ public class Room extends BaseSoftDeletableEntity {
     public enum AmenityType {
         WIFI, WHITEBOARD, PROJECTOR, AIR_CONDITIONER, COFFEE_MACHINE, SOUND_SYSTEM
     }
-
 
     private Room(OperationPolicy operationPolicy,
                  RoomRule roomRule,

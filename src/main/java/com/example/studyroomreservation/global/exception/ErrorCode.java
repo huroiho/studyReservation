@@ -15,7 +15,9 @@ public enum ErrorCode {
 
 
     //ROOM
-    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "R001","해당 방이 존재하지 않습니다." ),
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "RM001","해당 방이 존재하지 않습니다." ),
+    ROOM_NOT_AVAILABLE(HttpStatus.NOT_FOUND, "RM002", "해당 방은 현재 이용할 수 없습니다."),
+    ROOM_INVALID_PAST_DATE(HttpStatus.BAD_REQUEST, "RM003", "과거 날짜는 조회할 수 없습니다."),
 
     // REFUND
     REF_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "RF001", "정책 이름은 필수입니다."),
@@ -29,21 +31,22 @@ public enum ErrorCode {
     REF_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "RF009", "환불 정책이 존재하지 않습니다."),
 
     // RESERVATION
-    RES_REQUIRED_VALUE_MISSING(HttpStatus.BAD_REQUEST, "R001", "필수 값이 누락되었습니다."),
-    RES_INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "R002", "예약 시간이 올바르지 않습니다."),
-    RES_NEGATIVE_AMOUNT(HttpStatus.BAD_REQUEST, "R003", "결제 금액이 올바르지 않습니다."),
-    RES_TEMP_EXPIRES_AT_REQUIRED(HttpStatus.BAD_REQUEST, "R004", "임시 예약 만료 시간이 필요합니다."),
+    RES_REQUIRED_VALUE_MISSING(HttpStatus.BAD_REQUEST, "RS001", "필수 값이 누락되었습니다."),
+    RES_INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "RS002", "예약 시간이 올바르지 않습니다."),
+    RES_NEGATIVE_AMOUNT(HttpStatus.BAD_REQUEST, "RS003", "결제 금액이 올바르지 않습니다."),
+    RES_TEMP_EXPIRES_AT_REQUIRED(HttpStatus.BAD_REQUEST, "RS004", "임시 예약 만료 시간이 필요합니다."),
 
-    RES_STATE_TRANSITION_NOT_ALLOWED(HttpStatus.CONFLICT, "R005", "예약 상태를 변경할 수 없습니다."),
-    RES_ALREADY_EXPIRED(HttpStatus.CONFLICT, "R006", "이미 만료된 예약입니다."),
-    RES_NOT_EXPIRED_YET(HttpStatus.CONFLICT, "R007", "아직 만료되지 않은 예약입니다."),
-    RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "R008", "아직 이용 종료 시간이 지나지 않았습니다."),
-    RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "R009", "해당 예약이 존재하지 않습니다."),
-    RES_MIN_DURATION_NOT_MET(HttpStatus.BAD_REQUEST, "R010", "최소 이용 시간을 준수해야 합니다."),
-    RES_BOOKING_PERIOD_EXCEEDED(HttpStatus.BAD_REQUEST, "R011", "예약 가능 기간을 초과했습니다."),
-    RES_OUT_OF_OPERATION_HOURS(HttpStatus.BAD_REQUEST, "R012", "운영 시간 내에서만 예약 가능합니다."),
-    RES_CROSS_DAY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "R013", "예약은 하루 단위로만 가능합니다."),
-    RES_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "R014", "예약은 하루 단위로만 가능합니다."),
+    RES_STATE_TRANSITION_NOT_ALLOWED(HttpStatus.CONFLICT, "RS005", "예약 상태를 변경할 수 없습니다."),
+    RES_ALREADY_EXPIRED(HttpStatus.CONFLICT, "RS006", "이미 만료된 예약입니다."),
+    RES_NOT_EXPIRED_YET(HttpStatus.CONFLICT, "RS007", "아직 만료되지 않은 예약입니다."),
+    RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "RS008", "아직 이용 종료 시간이 지나지 않았습니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "RS009", "해당 예약이 존재하지 않습니다."),
+    RES_MIN_DURATION_NOT_MET(HttpStatus.BAD_REQUEST, "RS010", "최소 이용 시간을 준수해야 합니다."),
+    RES_BOOKING_PERIOD_EXCEEDED(HttpStatus.BAD_REQUEST, "RS011", "예약 가능 기간을 초과했습니다."),
+    RES_OUT_OF_OPERATION_HOURS(HttpStatus.BAD_REQUEST, "RS012", "운영 시간 내에서만 예약 가능합니다."),
+    RES_CROSS_DAY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RS013", "예약은 하루 단위로만 가능합니다."),
+    RES_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "RS014", "예약은 하루 단위로만 가능합니다."),
+    RES_PAST_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RS015", "과거 시간은 예약할 수 없습니다."),
 
     //PAYMENT
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
@@ -84,7 +87,6 @@ public enum ErrorCode {
     RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다."),
     RR_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RR003", "최소 1개의 이용 규칙은 활성화되어 있어야 합니다."),
     RR_IN_USE(HttpStatus.BAD_REQUEST, "RR004", "현재 객실에서 사용 중인 규칙은 비활성화할 수 없습니다.");
-
     private final HttpStatus status;
     private final String code;
     private final String message;
