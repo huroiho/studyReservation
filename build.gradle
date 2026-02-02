@@ -81,6 +81,9 @@ dependencies {
     // .env 파일을 읽어주는 라이브러리
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
+    // 썸네일 생성 라이브러리 - Thumbnailator
+    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.20'
+
 }
 
 tasks.named('test') {

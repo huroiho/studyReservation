@@ -20,3 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+
+  servlet:
+    multipart:
+      max-file-size: 5MB # 단일 파일 최대
+      max-request-size: 50MB # 여러 파일 합계
