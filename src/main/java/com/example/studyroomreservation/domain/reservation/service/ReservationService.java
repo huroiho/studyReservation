@@ -72,7 +72,6 @@ public class ReservationService {
     }
 
     // RoomService에서 호출
-    // TODO: RoomReservedTimeResponse 명칭 재검토 필요
     @Transactional(readOnly = true)
     public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
