@@ -111,7 +111,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .where(
                         reservation.id.eq(reservationId),
                         reservation.status.eq(TEMP),
-                        reservation.expiresAt.gt(now)
+                        reservation.expiresAt.gt(now.plusMinutes(1))
                 )
                 .execute();
         em.clear();
