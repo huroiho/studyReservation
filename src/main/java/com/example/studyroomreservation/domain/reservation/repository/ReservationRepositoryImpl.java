@@ -110,7 +110,8 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .set(reservation.expiresAt, (LocalDateTime) null)
                 .where(
                         reservation.id.eq(reservationId),
-                        reservation.status.eq(TEMP)
+                        reservation.status.eq(TEMP),
+                        reservation.expiresAt.gt(now)
                 )
                 .execute();
         em.clear();
