@@ -26,27 +26,27 @@ public class MemberController {
         binder.addValidators(memberSignupValidator);
     }
 
-    @GetMapping("/login")
+    @GetMapping(MemberControllerConstants.LOGIN)
     public String loginPage() {
-        return "member/login";
+        return MemberControllerConstants.VIEW_LOGIN;
     }
 
-    @GetMapping("/signup")
+    @GetMapping(MemberControllerConstants.SIGNUP)
     public String signupPage(Model model) {
         model.addAttribute("memberSignupRequest", new MemberSignupRequest("", "", "", ""));
-        return "member/signup";
+        return MemberControllerConstants.VIEW_SIGNUP;
     }
 
-    @PostMapping("/signup")
+    @PostMapping(MemberControllerConstants.SIGNUP)
     public String signupSubmit(
             @Valid @ModelAttribute("memberSignupRequest")
             MemberSignupRequest memberSignupRequest,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return "member/signup";
+            return MemberControllerConstants.VIEW_SIGNUP;
         }
         memberService.signup(memberSignupRequest);
-        return "redirect:/login";
+        return  MemberControllerConstants.REDIRECT_LOGIN;
     }
 }
