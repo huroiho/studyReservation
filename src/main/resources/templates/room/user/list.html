@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>스터디룸 목록</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/room-user-list.css}">
 </head>
 <body>
-<div class="page-container">
+<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='')}"></nav>
+<div class="page-container container">
     <div class="content-wrapper">
 
         <!-- Header -->
@@ -81,24 +85,11 @@
         </div>
 
         <!-- Pagination -->
-        <nav th:if="${page.totalPages > 1}" class="pagination">
-            <a th:href="@{/rooms(page=${page.number - 1}, size=${page.size}, minCapacity=${minCapacity}, sort=${sort})}"
-               th:classappend="${page.first} ? 'disabled'"
-               class="pagination-btn">이전</a>
 
-            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
-                <a th:href="@{/rooms(page=${i}, size=${page.size}, minCapacity=${minCapacity}, sort=${sort})}"
-                   th:classappend="${page.number == i} ? 'active'"
-                   th:text="${i + 1}"
-                   class="pagination-btn">1</a>
-            </th:block>
-
-            <a th:href="@{/rooms(page=${page.number + 1}, size=${page.size}, minCapacity=${minCapacity}, sort=${sort})}"
-               th:classappend="${page.last} ? 'disabled'"
-               class="pagination-btn">다음</a>
-        </nav>
+        <div th:replace="~{fragment/pagination :: sitePagination(${page}, '/rooms')}"></div>
 
     </div>
 </div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>
