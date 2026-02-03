@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import static com.example.studyroomreservation.domain.member.controller.MemberControllerConstants.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,27 +27,27 @@ public class MemberController {
         binder.addValidators(memberSignupValidator);
     }
 
-    @GetMapping(MemberControllerConstants.LOGIN)
+    @GetMapping(LOGIN)
     public String loginPage() {
-        return MemberControllerConstants.MEMBER_LOGIN;
+        return MEMBER_LOGIN;
     }
 
-    @GetMapping(MemberControllerConstants.SIGNUP)
+    @GetMapping(SIGNUP)
     public String signupPage(Model model) {
         model.addAttribute("memberSignupRequest", new MemberSignupRequest("", "", "", ""));
-        return MemberControllerConstants.MEMBER_SIGNUP;
+        return MEMBER_SIGNUP;
     }
 
-    @PostMapping(MemberControllerConstants.SIGNUP)
+    @PostMapping(SIGNUP)
     public String signupSubmit(
             @Valid @ModelAttribute("memberSignupRequest")
             MemberSignupRequest memberSignupRequest,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.MEMBER_SIGNUP;
+            return MEMBER_SIGNUP;
         }
         memberService.signup(memberSignupRequest);
-        return  MemberControllerConstants.REDIRECT_LOGIN;
+        return  REDIRECT_LOGIN;
     }
 }
