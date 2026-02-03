@@ -1,0 +1,178 @@
+/* =========================================
+   admin-detail-style.css
+   관리자 예약 상세 페이지 전용 스타일
+   ========================================= */
+
+/* 1. 네비게이션 (가로 정렬 - 리스트 페이지와 동일) */
+.nav-inner .center ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+    gap: 30px;
+    border-bottom: 1px solid #dee2e6;
+}
+.nav-inner .center ul li a {
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 1.05rem;
+    transition: color 0.2s;
+}
+.nav-inner .center ul li a:hover { color: #0f172a; }
+.nav-inner .center ul li.active a {
+    color: #0f172a;
+    font-weight: 800;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 4px;
+}
+
+/* 2. 레이아웃 & 공통 */
+body { background-color: #f8fafc; }
+
+.container-wrapper {
+    min-height: 600px;
+    padding-top: 40px;
+    padding-bottom: 60px;
+    width: 95%;
+    max-width: 1200px; /* 상세페이지는 너무 넓으면 보기 힘드므로 적당히 제한 */
+    margin: 0 auto;
+}
+
+h1 {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 1.75rem;
+    margin-bottom: 10px;
+}
+
+/* 3. 카드 스타일 (섹션 구분) */
+.info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.card-header-custom {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+.card-header-custom i { color: #64748b; font-size: 1.1rem; }
+
+.card-body-custom {
+    padding: 20px;
+}
+
+/* 4. 상세 정보 테이블 (수직형) */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.detail-table th {
+    width: 30%;
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.detail-table td {
+    color: #334155;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+/* 마지막 줄 테두리 제거 */
+.detail-table tr:last-child th,
+.detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 강조 텍스트 */
+.text-price {
+    font-weight: 700;
+    color: #2563eb; /* 파란색 강조 */
+    font-size: 1.1rem;
+}
+
+/* 5. 상태 배지 (리스트와 동일) */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-block;
+}
+.status-confirmed { background-color: #dcfce7; color: #166534; }
+.status-canceled { background-color: #fee2e2; color: #991b1b; }
+.status-temp { background-color: #ffedd5; color: #9a3412; }
+.status-expired { background-color: #f1f5f9; color: #64748b; }
+.status-used { background-color: #e0f2fe; color: #075985; }
+
+/* 6. 이미지 썸네일 */
+.room-thumbnail {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* 7. 하단 버튼 영역 */
+.bottom-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-back:hover { background-color: #f1f5f9; color: #0f172a; }
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 6px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-cancel:hover { background-color: #fecaca; }
+.btn-cancel:disabled {
+    background-color: #f1f5f9;
+    color: #cbd5e1;
+    cursor: not-allowed;
+}
+.btn-icon { margin-right: 6px; font-size: 1.1rem; }

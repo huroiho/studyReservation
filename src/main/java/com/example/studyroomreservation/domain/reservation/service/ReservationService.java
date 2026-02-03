@@ -5,6 +5,7 @@ import com.example.studyroomreservation.domain.member.repository.MemberRepositor
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
@@ -46,6 +47,7 @@ public class ReservationService {
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
+    //TODO: 락 걸기
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
@@ -127,7 +129,80 @@ public class ReservationService {
                 payment,
                 isCancellable,
                 room
-        );    }
+        );
+    }
+
+    public ReservationDetailResponse getReservationDetailForAdmin(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        Member member = memberRepository.findById(reservation.getMemberId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Payment payment = paymentRepository.findByReservationId(reservationId)
+                .orElse(null);
+
+        boolean isCancellable = reservation.isCancellable(LocalDateTime.now());
+
+        return reservationMapper.toDetailResponse(
+                reservation,
+                member,
+                payment,
+                isCancellable,
+                room
+        );
+    }
+
+    // 마이페이지 예약 현황 조회
+    @Transactional
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
+
+    //예약 취소
+    @Transactional
+    public void cancelReservation(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        // 1. 본인 확인
+        if (!reservation.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 취소할 수 있습니다.");
+        }
+
+        // 취소 처리: 현재 로직 -TEMP 상태일 때만 취소 가능 (CONFIRMED는 엔티티에서 막힘)
+        reservation.cancel(LocalDateTime.now());
+
+        /*TODO: 결제 취소: 결제 정보가 있다면 환불 처리
+        paymentRepository.findByReservationId(reservationId)
+        */
+    }
+
+    // 임시 예약 확인 -> 결제 전 후에 확인
+    @Transactional
+    public void confirmReservation(Long reservationId) {
+        long result = reservationRepository.confirmIfTemp(reservationId, LocalDateTime.now());
+
+        if (result == 0) {
+            throw new BusinessException(ErrorCode.RES_EXPIRED);
+        }
+    }
+
+    // 관리자 용 예약 목록 조회(DTO 프로젝션 사용)
+    @Transactional(readOnly = true)
+    public Page<AdminReservationResponse> getAllReservationsForAdmin(Pageable pageable) {
+        return reservationRepository.findAllReservationsForAdmin(pageable);
+    }
 
     // 편의 매서드
     private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
@@ -171,19 +246,6 @@ public class ReservationService {
     }
 
 
-
-
-    // 마이페이지 예약 현황 조회
-    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
-        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
-        return results.stream()
-                .map(t -> {
-                    Reservation res = t.get(reservation); // 예약 꺼내기
-                    Room rm = t.get(room);               // 룸 꺼내기
-                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
-                })
-                .collect(Collectors.toList());
-    }
 
     // 마이페이지 예약 히스토리 조회
     public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {

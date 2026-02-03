@@ -51,14 +51,16 @@
             <div class="card-right">
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
-<!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
+                <!-- <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
 
-                <button th:if="${(res.status == 'CONFIRMED' || res.status == 'TEMP')
-                    and res.startTime.isAfter(#temporals.createNow())}"
-                        class="btn-cancel"
-                        th:onclick="'cancelReservation(' + ${res.reservationId} + ')'">
-                    예약 취소
-                </button>
+                <form th:if="${(res.status.name() == 'CONFIRMED' || res.status.name() == 'TEMP')
+                                and res.startTime.isAfter(#temporals.createNow())}"
+                      th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
+                      method="post"
+                      onsubmit="return confirm('정말 예약을 취소하시겠습니까?');">
+
+                    <button type="submit" class="btn-cancel">예약 취소</button>
+                </form>
             </div>
         </div>
     </section>
