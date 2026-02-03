@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.room.repository;
 
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickItemResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,4 +53,16 @@ public interface OperationPolicyRepository extends JpaRepository<OperationPolicy
             @Param("isActive") Boolean isActive,
             Pageable pageable
     );
+
+    // 룸 등록에서 보여줄 목록용
+    @Query("""
+        SELECT new com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickItemResponse(
+            p.id,
+            p.name
+        )
+        FROM OperationPolicy p
+        WHERE p.isActive = true
+        ORDER BY p.id desc
+    """)
+    List<OperationPolicyPickItemResponse> findActivePickItems();
 }

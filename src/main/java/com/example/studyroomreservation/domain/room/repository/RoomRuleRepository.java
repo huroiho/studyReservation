@@ -1,9 +1,11 @@
 package com.example.studyroomreservation.domain.room.repository;
 
+import com.example.studyroomreservation.domain.room.dto.response.RoomRulePickItemResponse;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -26,4 +28,16 @@ public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
 
     // 현재 활성화된 규칙의 총 개수
     long countByIsActiveTrue();
+
+    // 룸 등록에서 보여줄 목록용
+    @Query("""
+        SELECT new com.example.studyroomreservation.domain.room.dto.response.RoomRulePickItemResponse(
+            r.id,
+            r.name
+        )
+        FROM RoomRule r
+        WHERE r.isActive = true
+        ORDER BY r.id desc
+    """)
+    List<RoomRulePickItemResponse> findActivePickItems();
 }
