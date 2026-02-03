@@ -12,7 +12,8 @@ public enum ErrorCode {
 
     //MEMBER
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "해당 회원이 존재하지 않습니다."),
-
+    MEMBER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "M002", "이미 사용 중인 이메일입니다."),
+    MEMBER_PHONE_DUPLICATED(HttpStatus.CONFLICT, "M003", "이미 사용 중인 전화번호입니다."),
 
     //ROOM
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "RM001","해당 방이 존재하지 않습니다." ),
