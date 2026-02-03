@@ -19,9 +19,8 @@ import java.util.UUID;
 
 /**
  * Room 이미지 파일 저장 서비스
- * - 로컬 파일시스템 저장
+ * - 로컬 파일시스템 저장, 롤백 시 디렉토리 정리
  * - 썸네일 생성 (Thumbnailator 사용)
- * - 롤백 시 디렉토리 정리
  */
 @Slf4j
 @Service
@@ -32,23 +31,24 @@ public class RoomImageStorageService {
 
     private final Path basePath;
 
+    // 생성자 -> 루트 디렉토리 지정(application.yml에서 값 주입. 없으면 ./uploads)
+    // 현재 룸에서만 이미지 업로드를 해서 룸 이미지 서비스에 있음.
     public RoomImageStorageService(
             @Value("${app.upload.base-path:./uploads}") String basePathStr
     ) {
+        // 문자열을 Path 객체로 변환 -> 절대 경로로 변환 -> 정규화
         this.basePath = Paths.get(basePathStr).toAbsolutePath().normalize();
     }
 
-    /**
-     * Room 디렉토리 생성
-     */
-    public void createRoomDirectory(Long roomId) {
+    // room 디렉토리 생성
+    public void  createRoomDirectory(Long roomId) {
         Path roomDir = getRoomDirectoryPath(roomId);
         try {
-            Files.createDirectories(roomDir);
-            log.debug("Created room directory: {}", roomDir);
+            Files.createDirectories(roomDir);   // mkdir -p
+            log.debug("room 디렉토리 생성 성공: {}", roomDir);
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
-                    "디렉토리 생성 실패: " + roomDir, e);
+                    "room 디렉토리 생성 실패: " + roomDir, e);
         }
     }
 
@@ -57,8 +57,8 @@ public class RoomImageStorageService {
      * @return DB에 저장할 상대 경로 (예: /rooms/15/main_uuid.jpg)
      */
     public String saveMainImage(Long roomId, MultipartFile file) {
-        String uuid = UUID.randomUUID().toString();
-        String extension = extensionFromContentType(file.getOriginalFilename());
+        String uuid = UUID.randomUUID().toString(); // 이미지 파일명 중복 방지 + 원본 파일명 노출 방지
+        String extension = extensionFromContentType(file.getContentType());
         String filename = "main_" + uuid + "." + extension;
 
         return saveFile(roomId, file, filename);
@@ -70,24 +70,27 @@ public class RoomImageStorageService {
      * @return 썸네일의 상대 경로
      */
     public String generateThumbnail(Long roomId, String mainImageRelativePath) {
+
         Path roomDir = getRoomDirectoryPath(roomId);
 
         // 상대경로에서 파일명만 뽑아서 roomDir 기준으로 다시 조립 (substring 제거)
         String mainFilename = Path.of(mainImageRelativePath).getFileName().toString();
         Path mainImagePath = roomDir.resolve(mainFilename);
 
+        // 썸네일이 저장될 경로를 먼저 db에 저장될 스트링으로 만들기
         String uuid = UUID.randomUUID().toString();
         String thumbnailFilename = "thumb_" + uuid + ".jpg";
         Path thumbnailPath = roomDir.resolve(thumbnailFilename);
 
+        // 메인 이미지로 썸네일 생성 - Thumbnailator
         try {
             Thumbnails.of(mainImagePath.toFile())
                     .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
                     .crop(Positions.CENTER)
                     .outputFormat("jpg")
-                    .toFile(thumbnailPath.toFile());
+                    .toFile(thumbnailPath.toFile());    // Path → java.io.File(실제 디스크의 파일 객체) 변환
 
-            log.debug("Generated thumbnail: {}", thumbnailPath);
+            log.debug("썸네일 생성 성공 : {}", thumbnailPath);
             return "/rooms/" + roomId + "/" + thumbnailFilename;
 
         } catch (IOException e) {
@@ -108,13 +111,14 @@ public class RoomImageStorageService {
         List<String> savedPaths = new ArrayList<>();
         int sortOrder = 1;
 
+        // 이미지 하나씩 상대 경로 생성
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
                 continue;
             }
 
             String uuid = UUID.randomUUID().toString();
-            String extension = extensionFromContentType(file.getOriginalFilename());
+            String extension = extensionFromContentType(file.getContentType());
             String filename = "general_" + sortOrder + "_" + uuid + "." + extension;
 
             String relativePath = saveFile(roomId, file, filename);
@@ -125,9 +129,7 @@ public class RoomImageStorageService {
         return savedPaths;
     }
 
-    /**
-     * Room 디렉토리 삭제 (롤백용, best-effort)
-     */
+    // Room 디렉토리 삭제
     public void deleteRoomDirectory(Long roomId) {
         Path roomDir = getRoomDirectoryPath(roomId);
         try {
@@ -150,20 +152,22 @@ public class RoomImageStorageService {
         }
     }
 
-    // === Private Methods ===
+    // ========= 공통 메서드 ===========
 
+    // roomId 기준으로 이미지 저장 경로(폴더) 생성 (/uploads/rooms/15)
     private Path getRoomDirectoryPath(Long roomId) {
-        return basePath.resolve("rooms").resolve(String.valueOf(roomId));
+        return basePath.resolve("rooms").resolve(String.valueOf(roomId)); // resolve는 경로를 이어붙이는 메서드.
     }
 
     private String saveFile(Long roomId, MultipartFile file, String filename) {
-        Path filePath = getRoomDirectoryPath(roomId).resolve(filename);
+
+        Path filePath = getRoomDirectoryPath(roomId).resolve(filename); // 저장될 전체 경로
 
         try {
             Files.createDirectories(filePath.getParent());
 
-            file.transferTo(filePath.toFile());
-            log.debug("Saved image file: {}", filePath);
+            file.transferTo(filePath.toFile());     // 실제 디스크 파일로 복사
+            log.debug("파일 저장 성공: {}", filePath);
             return "/rooms/" + roomId + "/" + filename;
 
         } catch (IOException e) {

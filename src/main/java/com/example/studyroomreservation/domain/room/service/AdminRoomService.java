@@ -1,5 +1,7 @@
 package com.example.studyroomreservation.domain.room.service;
 
+import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
+import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -31,6 +33,7 @@ public class AdminRoomService {
 
     private final OperationPolicyRepository operationPolicyRepository;
     private final RoomRuleRepository roomRuleRepository;
+    private final RefundPolicyRepository refundPolicyRepository;
 
     @Transactional
     public Long createRoom(
@@ -38,53 +41,71 @@ public class AdminRoomService {
             MultipartFile mainImage,
             List<MultipartFile> generalImages
     ) {
-        // 정책 엔티티 조회 (Validator에서 존재/활성 검증 완료)
-        OperationPolicy operationPolicy = operationPolicyRepository.findById(request.operationPolicyId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.OP_POLICY_NOT_FOUND));
+        // 정책 조회 및 검증(존재 + 활성 상태)
+        OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
+        RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
+        validateRefundPolicy(request.refundPolicyId());
 
-        RoomRule roomRule = roomRuleRepository.findById(request.roomRuleId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_RULE_NOT_FOUND));
-
+        // Room 엔티티 생성 및 저장
         Room newRoom = roomMapper.toEntity(request, operationPolicy, roomRule);
-
-        roomRepository.saveAndFlush(newRoom);
+        roomRepository.saveAndFlush(newRoom); // GenerationType.IDENTITY라 id를 얻기 위해
         Long roomId = newRoom.getId();
 
-        log.info("Created room entity: id={}, name={}", roomId, request.name());
+        log.info("Room 엔티티 생성: id={}, name={}", roomId, request.name());
 
-        // 이미지 저장 (파일 시스템)
+        // 이미지 저장 (파일시스템)
         try {
-            // 디렉토리 생성
-            imageStorageService.createRoomDirectory(roomId);
-
-            // 메인 이미지 저장
-            String mainImagePath = imageStorageService.saveMainImage(roomId, mainImage);
-            RoomImage.create(newRoom, mainImagePath, RoomImage.ImageType.MAIN, 0);
-
-            // 썸네일 생성
-            String thumbnailPath = imageStorageService.generateThumbnail(roomId, mainImagePath);
-            RoomImage.create(newRoom, thumbnailPath, RoomImage.ImageType.THUMBNAIL, 0);
-
-            // 일반 이미지 저장
-            List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
-            List<String> generalPaths = imageStorageService.saveGeneralImages(roomId, validGeneralImages);
-            for (int i = 0; i < generalPaths.size(); i++) {
-                RoomImage.create(newRoom, generalPaths.get(i), RoomImage.ImageType.GENERAL, i + 1);
-            }
-
-            log.info("Room images saved: roomId={}, mainImage=1, thumbnail=1, generalImages={}",
-                    roomId, generalPaths.size());
+            saveRoomImages(newRoom, mainImage, generalImages);
             return roomId;
-
+        } catch (BusinessException e) {
+            cleanupOnFailure(roomId);
+            throw e;
         } catch (Exception e) {
-            // 파일 정리 (best-effort)
-            log.error("Failed to save room images, attempting cleanup: roomId={}", roomId, e);
-            try {
-                imageStorageService.deleteRoomDirectory(roomId);
-            } catch (Exception cleanupEx) {
-                log.warn("Cleanup failed for roomId={}", roomId, cleanupEx);
-            }
-            throw e; // 원본 예외 재던지기 → 트랜잭션 롤백
+            cleanupOnFailure(roomId);
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
+                    "이미지 처리 중 오류: " + e.getMessage(), e);
+        }
+    }
+
+    // ===== 이미지 저장 메서드 =====
+
+    private void saveRoomImages(
+            Room room,
+            MultipartFile mainImage,
+            List<MultipartFile> generalImages
+    ) {
+        long roomId = room.getId();
+
+        imageStorageService.createRoomDirectory(roomId);
+
+        // 메인 이미지
+        String mainImagePath = imageStorageService.saveMainImage(roomId, mainImage);
+        RoomImage.create(room, mainImagePath, RoomImage.ImageType.MAIN, 0);
+
+        // 썸네일
+        String thumbnailPath = imageStorageService.generateThumbnail(roomId, mainImagePath);
+        RoomImage.create(room, thumbnailPath, RoomImage.ImageType.THUMBNAIL, 0);
+
+        // 일반 이미지
+        List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
+        List<String> generalPaths = imageStorageService.saveGeneralImages(roomId, validGeneralImages);
+
+        // NOTE : RoomImage는 개별 엔티티로 insert됨 (이미지 N장 → insert N회).
+        // 지금은 10장까지라 괜찮지만, 대량 업로드 시 JDBC batch insert 적용 검토.
+        for (int i = 0; i < generalPaths.size(); i++) {
+            RoomImage.create(room, generalPaths.get(i), RoomImage.ImageType.GENERAL, i + 1);
+        }
+
+        log.info("Room 이미지 저장 성공: roomId={}, mainImage=1, thumbnail=1, generalImages={}",
+                roomId, generalPaths.size());
+    }
+
+    private void cleanupOnFailure(Long roomId) {
+        log.error("Room 이미지 등록 실패. 생성된 업로드 경로 삭제 : roomId={}", roomId);
+        try {
+            imageStorageService.deleteRoomDirectory(roomId);
+        } catch (Exception cleanupEx) {
+            log.warn("업로드 경로 삭제 실패 : roomId={}", roomId, cleanupEx);
         }
     }
 
@@ -95,5 +116,41 @@ public class AdminRoomService {
         return images.stream()
                 .filter(f -> f != null && !f.isEmpty())
                 .toList();
+    }
+
+    // TODO : PolicyValidation 컴포넌트(또는 공용 Validator)로 추출 검토.
+    // ===== 정책 검증 메서드 =====
+
+    private OperationPolicy loadAndValidateOperationPolicy(Long id) {
+        OperationPolicy policy = operationPolicyRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OP_POLICY_NOT_FOUND));
+
+        if (!policy.isActive()) {
+            throw new BusinessException(ErrorCode.OP_POLICY_INACTIVE,
+                    "비활성화된 운영 정책: id=" + id);
+        }
+        return policy;
+    }
+
+    private RoomRule loadAndValidateRoomRule(Long id) {
+        RoomRule rule = roomRuleRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RR_NOT_FOUND));
+
+        if (!rule.isActive()) {
+            throw new BusinessException(ErrorCode.RR_INACTIVE,
+                    "비활성화된 예약 규칙: id=" + id);
+        }
+        return rule;
+    }
+
+    private void validateRefundPolicy(Long id) {
+        RefundPolicy policy = refundPolicyRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
+
+        if (!policy.isActive()) {
+            throw new BusinessException(ErrorCode.REF_POLICY_INACTIVE,
+                    "비활성화된 환불 정책: id=" + id);
+        }
+        // refundPolicyId는 Room에 id로 저장됨.
     }
 }
