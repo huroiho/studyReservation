@@ -17,11 +17,6 @@ public interface RefundPolicyRepository extends JpaRepository<RefundPolicy, Long
     Page<RefundPolicy> findByIsActive(boolean active, Pageable pageable);
     boolean existsByName(String name);
 
-    /**
-     * 활성화된 환불 정책 목록 조회 (룸 생성 폼용)
-     */
-    List<RefundPolicy> findAllByIsActiveTrue();
-
     @Query(
             value = """
             select new com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse(

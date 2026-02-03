@@ -19,11 +19,6 @@ public interface OperationPolicyRepository extends JpaRepository<OperationPolicy
     boolean existsByName(String name);
 
     /**
-     * 활성화된 운영 정책 목록 조회 (룸 생성 폼용)
-     */
-    List<OperationPolicy> findAllByIsActiveTrue();
-
-    /**
      * 스케줄과 함께 정책 조회 (상세 페이지용)
      */
     @Query("SELECT p FROM OperationPolicy p LEFT JOIN FETCH p.schedules WHERE p.id = :id")
