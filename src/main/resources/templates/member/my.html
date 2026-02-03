@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Page</title>
+</head>
+<body>
+
+<h1>마이페이지</h1>
+
+<div>
+    <p><strong>이름:</strong> <span th:text="${myInfo.name()}">이름</span></p>
+    <p><strong>이메일:</strong> <span th:text="${myInfo.email()}">이메일</span></p>
+    <p><strong>전화번호:</strong> <span th:text="${myInfo.phoneNumber()}">전화번호</span></p>
+</div>
+
+<hr/>
+<div>
+    <a th:href="@{/my/edit}">정보 수정</a>
+    <br/>
+    <a th:href="@{/my/password}">비밀번호 변경</a>
+</div>
+
+<hr/>
+<br/>
+<a th:href="@{/login?logout}">로그아웃</a>
+
+</body>
+</html>
