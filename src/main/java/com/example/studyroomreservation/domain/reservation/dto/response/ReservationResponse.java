@@ -1,7 +1,5 @@
 package com.example.studyroomreservation.domain.reservation.dto.response;
 
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 
