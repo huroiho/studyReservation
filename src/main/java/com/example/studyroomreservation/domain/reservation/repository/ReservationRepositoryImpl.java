@@ -10,6 +10,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import com.example.studyroomreservation.domain.reservation.dto.response
+        .AdminReservationResponse;
+import com.example.studyroomreservation.domain.member.entity.QMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +25,7 @@ import java.util.List;
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
+import static com.example.studyroomreservation.domain.member.entity.QMember.member;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
@@ -93,13 +102,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .fetch();
     }
 
-    /**
-     * 예약 상태를 원자적(Atomic)으로 검증하고 확정(CONFIRMED) 상태로 변경합니다.
-     *
-     * @param reservationId 예약 ID
-     * @param now 확정 처리 시각
-     * @return 업데이트에 성공한 행의 수 (0이면 상태 불일치로 인한 실패)
-     */
+
     @Override
     public long confirmIfTemp(Long reservationId, LocalDateTime now) {
         em.flush();
@@ -131,4 +134,40 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
 
         return isConfirmed.or(isTemp);
     }
+
+    @Override
+    public Page<AdminReservationResponse> findAllReservationsForAdmin(Pageable pageable) {
+
+        List<AdminReservationResponse> content = queryFactory
+                .select(Projections.constructor(AdminReservationResponse.class,
+                        reservation.id,
+                        member.email,
+                        room.name,
+                        reservation.status,
+                        reservation.startTime,
+                        reservation.endTime,
+                        reservation.totalAmount,
+                        reservation.createdAt
+                ))
+                .from(reservation)
+
+                // ID 기반 조인
+                .leftJoin(member).on(reservation.memberId.eq(member.id))
+                .leftJoin(room).on(reservation.roomId.eq(room.id))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+
+                // 최신 순으로 정렬 고정(검색이나 다른 정렬 필요 시 수정)
+                .orderBy(reservation.id.desc())
+                .fetch();
+
+        // 전체 페이지 파악용 쿼리
+        Long total = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    }
+
 }

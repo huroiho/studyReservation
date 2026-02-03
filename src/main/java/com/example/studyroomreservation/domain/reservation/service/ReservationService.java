@@ -5,6 +5,7 @@ import com.example.studyroomreservation.domain.member.repository.MemberRepositor
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
+import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
@@ -19,6 +20,8 @@ import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.querydsl.core.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -127,7 +130,33 @@ public class ReservationService {
                 payment,
                 isCancellable,
                 room
-        );    }
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationDetailResponse getReservationDetailForAdmin(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        Member member = memberRepository.findById(reservation.getMemberId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Payment payment = paymentRepository.findByReservationId(reservationId)
+                .orElse(null);
+
+        boolean isCancellable = reservation.isCancellable(LocalDateTime.now());
+
+        return reservationMapper.toDetailResponse(
+                reservation,
+                member,
+                payment,
+                isCancellable,
+                room
+        );
+    }
 
     // 마이페이지 예약 현황 조회
     @Transactional
@@ -169,6 +198,12 @@ public class ReservationService {
         if (result == 0) {
             throw new BusinessException(ErrorCode.RES_EXPIRED);
         }
+    }
+
+    // 관리자 용 예약 목록 조회(DTO 프로젝션 사용)
+    @Transactional(readOnly = true)
+    public Page<AdminReservationResponse> getAllReservationsForAdmin(Pageable pageable) {
+        return reservationRepository.findAllReservationsForAdmin(pageable);
     }
 
     // 편의 매서드

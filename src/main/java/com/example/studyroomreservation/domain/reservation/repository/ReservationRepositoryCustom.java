@@ -1,8 +1,10 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
+import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.querydsl.core.Tuple;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,4 +19,6 @@ public interface ReservationRepositoryCustom {
     List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now);
 
     long confirmIfTemp(Long reservationId, LocalDateTime now);
+
+    Page<AdminReservationResponse> findAllReservationsForAdmin(Pageable pageable);
 }

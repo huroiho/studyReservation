@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <title>예약 상세 정보</title>
+</head>
+
+<div layout:fragment="content">
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">예약 상세 정보</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/admin/reservations}">Reservations</a></li>
+            <li class="breadcrumb-item active" th:text="'#' + ${reservation.reservationInfo.id}">#1</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-1"></i>
+                예약 기본 정보
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th class="table-light" style="width: 30%">예약 ID</th>
+                                <td th:text="${reservation.reservationInfo.id}">1</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">현재 상태</th>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:with="status=${reservation.reservationInfo.status}"
+                                          th:classappend="${status == 'CONFIRMED' ? 'bg-success' :
+                                                          (status == 'CANCELED' ? 'bg-danger' :
+                                                          (status == 'TEMP' ? 'bg-warning text-dark' :
+                                                          (status == 'USED' ? 'bg-secondary' : 'bg-info')))}"
+                                          th:text="${status}">CONFIRMED</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">확정 일시</th>
+                                <td th:text="${reservation.reservationInfo.confirmedAt != null ? #temporals.format(reservation.reservationInfo.confirmedAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                                    2024-02-01 10:00
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th class="table-light" style="width: 30%">이용 시작</th>
+                                <td th:text="${#temporals.format(reservation.reservationInfo.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">이용 종료</th>
+                                <td th:text="${#temporals.format(reservation.reservationInfo.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">총 결제 금액</th>
+                                <td class="fw-bold text-primary"
+                                    th:text="${#numbers.formatInteger(reservation.reservationInfo.totalAmount, 0, 'COMMA') + '원'}">
+                                    15,000원
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-user me-1"></i>
+                        예약자 정보
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered mb-0">
+                            <tr>
+                                <th class="table-light" style="width: 30%">이름</th>
+                                <td th:text="${reservation.memberInfo.name}">홍길동</td>
+                            </tr>
+                            <tr>
+                                <th class="table-light">이메일</th>
+                                <td th:text="${reservation.memberInfo.email}">test@example.com</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-door-open me-1"></i>
+                        스터디룸 정보
+                    </div>
+                    <div class="card-body d-flex align-items-center">
+                        <div class="me-3" th:if="${reservation.roomInfo.thumbnailUrl != null}">
+                            <img th:src="${reservation.roomInfo.thumbnailUrl}" alt="Room Image"
+                                 class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                        </div>
+                        <div class="flex-grow-1">
+                            <table class="table table-bordered mb-0">
+                                <tr>
+                                    <th class="table-light" style="width: 30%">룸 ID</th>
+                                    <td th:text="${reservation.roomInfo.id}">10</td>
+                                </tr>
+                                <tr>
+                                    <th class="table-light">룸 이름</th>
+                                    <td th:text="${reservation.roomInfo.name}">A룸 (4인실)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" th:if="${reservation.paymentInfo != null}">
+            <div class="card-header">
+                <i class="fas fa-credit-card me-1"></i>
+                결제 정보
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered mb-0">
+                    <tr>
+                        <th class="table-light" style="width: 20%">주문 번호 (Order ID)</th>
+                        <td th:text="${reservation.paymentInfo.successOrderId}">ORD-20240201-0001</td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">승인 일시</th>
+                        <td th:text="${#temporals.format(reservation.paymentInfo.approvedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                            2024-02-01 10:05:00
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="table-light">승인 금액</th>
+                        <td th:text="${#numbers.formatInteger(reservation.paymentInfo.amount, 0, 'COMMA') + '원'}">15,000원</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-5">
+            <a th:href="@{/admin/reservations}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> 목록으로
+            </a>
+
+            <form th:if="${reservation.reservationInfo.status == 'CONFIRMED' or reservation.reservationInfo.status == 'TEMP'}"
+                  th:action="@{/admin/reservations/{id}/cancel(id=${reservation.reservationInfo.id})}"
+                  method="post"
+                  onsubmit="return confirm('정말 이 예약을 강제 취소하시겠습니까?');">
+
+                <button type="submit" class="btn btn-danger"
+                        th:disabled="${!reservation.isReservationCancellable}">
+                    <i class="fas fa-ban me-1"></i> 예약 취소
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</html>
