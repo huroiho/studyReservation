@@ -1,15 +1,23 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
 
+import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import com.example.studyroomreservation.domain.reservation.dto.response
+        .AdminReservationResponse;
+import com.example.studyroomreservation.domain.member.entity.QMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -18,11 +26,14 @@ import java.util.List;
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
+import static com.example.studyroomreservation.domain.member.entity.QMember.member;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
+
 
     @Override
     public boolean existsActiveReservation(Long roomId, LocalDateTime start, LocalDateTime end){
@@ -38,7 +49,6 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         return fetchOne != null;
     }
 
-    // 현재 예약하지 못하는 시간대 조회 -> TODO: 군이 테이블 한 열 조회가 아닌 시간대 조회만으로도 충분하지 않을까? 검토하기 프로젝션으로 하기?
     @Override
     public List<RoomReservedTimeResponse> findActiveReservations(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         return queryFactory
@@ -93,6 +103,26 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .fetch();
     }
 
+
+    @Override
+    public long confirmIfTemp(Long reservationId, LocalDateTime now) {
+        em.flush();
+        long count = queryFactory
+                .update(reservation)
+                .set(reservation.status, CONFIRMED)
+                .set(reservation.confirmedAt, now)
+                .set(reservation.expiresAt, (LocalDateTime) null)
+                .where(
+                        reservation.id.eq(reservationId),
+                        reservation.status.eq(TEMP),
+                        reservation.expiresAt.gt(now.plusMinutes(1))
+                )
+                .execute();
+        em.clear();
+
+        return count;
+    }
+
     private BooleanExpression isActiveStatus(LocalDateTime now) {
         // 확정 + 종료 전
         BooleanExpression isConfirmed = reservation.status.eq(ReservationStatus.CONFIRMED)
@@ -106,6 +136,40 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         return isConfirmed.or(isTemp);
     }
 
+    @Override
+    public Page<AdminReservationResponse> findAllReservationsForAdmin(Pageable pageable) {
+
+        List<AdminReservationResponse> content = queryFactory
+                .select(Projections.constructor(AdminReservationResponse.class,
+                        reservation.id,
+                        member.email,
+                        room.name,
+                        reservation.status,
+                        reservation.startTime,
+                        reservation.endTime,
+                        reservation.totalAmount,
+                        reservation.createdAt
+                ))
+                .from(reservation)
+
+                // ID 기반 조인
+                .leftJoin(member).on(reservation.memberId.eq(member.id))
+                .leftJoin(room).on(reservation.roomId.eq(room.id))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+
+                // 최신 순으로 정렬 고정(검색이나 다른 정렬 필요 시 수정)
+                .orderBy(reservation.id.desc())
+                .fetch();
+
+        // 전체 페이지 파악용 쿼리
+        Long total = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    }
 
     // 마이페이지 예약 히스토리
     @Override

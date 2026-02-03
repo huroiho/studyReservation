@@ -146,10 +146,14 @@ public class Reservation extends BaseAuditableEntity {
         expiresAt = null;
     }
 
-    // TODO : 환불 기능 들어가면 수정 필요
     public void cancel(LocalDateTime now){
         validateTransitionTime(now);
         validateTransitionTo(CANCELED);
+
+        if (!isCancellable(now)) {
+            //TODO: 환불 기능 들어가면 isCancellable 로직에 CONFIRM 상태에서의 취소 가능성 검토하기
+            throw new BusinessException(ErrorCode.RES_CANCEL_PERIOD_EXPIRED);
+        }
 
         this.status = CANCELED;
         this.canceledAt = now;
@@ -190,7 +194,6 @@ public class Reservation extends BaseAuditableEntity {
         }
 
         //TODO: 예약 확정(CONFIRMED) 상태일 때의 취소 로직 추가하기
-
         return false;
     }
     // ===== 검증 메서드 =====

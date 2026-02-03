@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>예약 상세 정보</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-reservation-detail.css}">
+
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='reservations')}"></nav>
+
+<div class="container container-wrapper">
+    <div class="mb-4">
+        <h1>예약 상세 정보</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" style="background: none; padding: 0; margin: 0;">
+                <li class="breadcrumb-item"><a th:href="@{/admin/reservations}" style="text-decoration: none; color: #64748b;">예약 관리</a></li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="'예약 #' + ${reservation.reservationInfo.id}">#1</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="info-card">
+        <div class="card-header-custom">
+            <i class="fas fa-info-circle"></i> 예약 기본 정보
+        </div>
+        <div class="card-body-custom">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="detail-table">
+                        <tr>
+                            <th>예약 ID</th>
+                            <td th:text="${reservation.reservationInfo.id}">1</td>
+                        </tr>
+                        <tr>
+                            <th>현재 상태</th>
+                            <td>
+                                    <span class="status-badge"
+                                          th:with="status=${reservation.reservationInfo.status}"
+                                          th:classappend="${status == 'CONFIRMED' ? 'status-confirmed' :
+                                                          (status == 'CANCELED' ? 'status-canceled' :
+                                                          (status == 'TEMP' ? 'status-temp' :
+                                                          (status == 'EXPIRED' ? 'status-expired' :
+                                                          (status == 'USED' ? 'status-used' : ''))))}"
+                                          th:text="${status}">CONFIRMED</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>확정 일시</th>
+                            <td th:text="${reservation.reservationInfo.confirmedAt != null ? #temporals.format(reservation.reservationInfo.confirmedAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                                2024-02-01 10:00
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="detail-table">
+                        <tr>
+                            <th>이용 시작</th>
+                            <td th:text="${#temporals.format(reservation.reservationInfo.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+                        </tr>
+                        <tr>
+                            <th>이용 종료</th>
+                            <td th:text="${#temporals.format(reservation.reservationInfo.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+                        </tr>
+                        <tr>
+                            <th>총 결제 금액</th>
+                            <td class="text-price"
+                                th:text="${#numbers.formatInteger(reservation.reservationInfo.totalAmount, 0, 'COMMA') + '원'}">
+                                15,000원
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="info-card" style="height: 100%;">
+                <div class="card-header-custom">
+                    <i class="fas fa-user"></i> 예약자 정보
+                </div>
+                <div class="card-body-custom">
+                    <table class="detail-table">
+                        <tr>
+                            <th>이름</th>
+                            <td th:text="${reservation.memberInfo.name}">홍길동</td>
+                        </tr>
+                        <tr>
+                            <th>이메일</th>
+                            <td th:text="${reservation.memberInfo.email}">test@example.com</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="info-card" style="height: 100%;">
+                <div class="card-header-custom">
+                    <i class="fas fa-door-open"></i> 스터디룸 정보
+                </div>
+                <div class="card-body-custom d-flex align-items-center">
+                    <div class="me-4" th:if="${reservation.roomInfo.thumbnailUrl != null}">
+                        <img th:src="${reservation.roomInfo.thumbnailUrl}" alt="Room Image" class="room-thumbnail">
+                    </div>
+                    <div class="flex-grow-1">
+                        <table class="detail-table">
+                            <tr>
+                                <th>룸 ID</th>
+                                <td th:text="${reservation.roomInfo.id}">10</td>
+                            </tr>
+                            <tr>
+                                <th>룸 이름</th>
+                                <td th:text="${reservation.roomInfo.name}">A룸 (4인실)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-card" th:if="${reservation.paymentInfo != null}">
+        <div class="card-header-custom">
+            <i class="fas fa-credit-card"></i> 결제 정보
+        </div>
+        <div class="card-body-custom">
+            <table class="detail-table">
+                <tr>
+                    <th>주문 번호 (Order ID)</th>
+                    <td th:text="${reservation.paymentInfo.successOrderId}">ORD-20240201-0001</td>
+                </tr>
+                <tr>
+                    <th>승인 일시</th>
+                    <td th:text="${#temporals.format(reservation.paymentInfo.approvedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                        2024-02-01 10:05:00
+                    </td>
+                </tr>
+                <tr>
+                    <th>승인 금액</th>
+                    <td th:text="${#numbers.formatInteger(reservation.paymentInfo.amount, 0, 'COMMA') + '원'}">15,000원</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <a th:href="@{/admin/reservations}" class="btn-back">
+            <i class="material-icons btn-icon">arrow_back</i> 목록으로
+        </a>
+
+        <form th:if="${reservation.reservationInfo.status == 'CONFIRMED' or reservation.reservationInfo.status == 'TEMP'}"
+              method="post"
+              onsubmit="alert('관리자 강제 예약 취소 기능은 아직 구현되지 않았습니다.'); return false;">
+
+            <button type="submit" class="btn-cancel" th:disabled="${!reservation.isReservationCancellable}">
+                <i class="material-icons btn-icon">block</i> 예약 취소
+            </button>
+        </form>
+    </div>
+</div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

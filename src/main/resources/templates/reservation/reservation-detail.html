@@ -100,12 +100,12 @@
             <div class="d-flex justify-content-center gap-2 mt-5">
                 <a href="/reservations" class="btn btn-outline-secondary px-4">목록으로</a>
 
-                <button th:if="${reservationDetail.isReservationCancellable}"
-                        type="button"
-                        class="btn btn-danger px-4"
-                        onclick="if(confirm('정말 예약을 취소하시겠습니까?')) alert('취소 기능은 아직 구현되지 않았습니다!');">
-                    예약 취소
-                </button>
+                <form th:if="${reservationDetail.isReservationCancellable}"
+                      th:action="@{/reservations/{id}/cancel(id=${reservationDetail.reservationInfo.id})}"
+                      method="post"
+                      onsubmit="return confirm('정말 예약을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                    <button type="submit" class="btn btn-danger px-4">예약 취소</button>
+                </form>
 
                 <button th:unless="${reservationDetail.isReservationCancellable}"
                         class="btn btn-secondary px-4" disabled>

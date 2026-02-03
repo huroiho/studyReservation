@@ -1,0 +1,160 @@
+
+
+/* 1. 네비게이션 (가로 정렬) */
+.nav-inner .center ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 0;
+    gap: 30px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.nav-inner .center ul li a {
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 1.05rem;
+    transition: color 0.2s;
+}
+
+.nav-inner .center ul li a:hover {
+    color: #0f172a;
+}
+
+.nav-inner .center ul li.active a {
+    color: #0f172a;
+    font-weight: 800;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 4px;
+}
+
+/* 2. 컨텐츠 레이아웃 */
+body {
+    background-color: #f8fafc;
+}
+
+.container-wrapper {
+    min-height: 600px;
+    padding-top: 40px;
+    padding-bottom: 60px;
+
+    /* [수정] 헤더/푸터와 너비를 동일하게 맞춤 */
+    width: min(1200px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+h1 {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+}
+
+/* 3. 테이블 컨테이너 (스크롤 기능) */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+
+    /* 창이 작아지면 가로 스크롤 생성 */
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* 4. 테이블 스타일 */
+.room-table {
+    width: 100%;
+    /* [핵심] fixed로 설정해야 퍼센트(%) 너비가 정확히 먹히고 ... 처리가 됨 */
+    table-layout: fixed;
+
+
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap; /* 줄바꿈 금지 */
+}
+
+.room-table th {
+    background-color: #f8fafc;
+    padding: 16px 12px; /* 좌우 여백 조정 */
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.room-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.95rem;
+    color: #334155;
+    vertical-align: middle;
+
+    /* 셀 내용이 넘치면 ... 처리 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.room-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* 5. 텍스트 스타일 */
+.td-bold { font-weight: 600; color: #0f172a; }
+.td-sub { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; display: block; }
+.price-text { font-weight: 600; color: #0f172a; text-align: right; }
+
+/* 말줄임표(...) 적용을 위한 클래스 - 이제 max-width 제한을 품 */
+.text-ellipsis {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%; /* 부모 셀 너비만큼 꽉 채움 */
+}
+
+/* 6. 상태 배지 */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+.status-confirmed { background-color: #dcfce7; color: #166534; }
+.status-canceled { background-color: #fee2e2; color: #991b1b; }
+.status-temp { background-color: #ffedd5; color: #9a3412; }
+.status-expired { background-color: #f1f5f9; color: #64748b; }
+.status-used { background-color: #e0f2fe; color: #075985; }
+
+/* 7. 버튼 및 페이지네이션 */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border: 1px solid #cbd5e1;
+    background-color: white;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.btn-action:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+.pagination-container {
+    padding: 20px;
+    background-color: white;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: center;
+}
