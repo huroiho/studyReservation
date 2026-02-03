@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>예약 관리</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
 </head>
 <body>
-<div class="container">
-    <h2>마이페이지</h2>
 
-    <nav class="tabs">
-        <a th:href="@{/members/myPage/reservations}" class="tab active">예약 현황</a>
-        <a href="#" class="tab">내 정보</a>
-        <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
-    </nav>
+<Header th:insert="~{fragment/header :: siteHeader}"></Header>
+
+<div class="container">
+    <div class="tabs">
+        <a href="#" class="active">예약 관리</a>
+        <a href="#">내 정보</a>
+        <a href="#">예약 히스토리</a>
+    </div>
 
     <section class="content">
         <div class="section-header">
@@ -47,17 +49,20 @@
             <div class="card-right">
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
-<!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
+                <!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
 
-                <button th:if="${(res.status == 'CONFIRMED' || res.status == 'TEMP')
-                    and res.startTime.isAfter(#temporals.createNow())}"
-                        class="btn-cancel"
-                        th:onclick="'cancelReservation(' + ${res.reservationId} + ')'">
-                    예약 취소
-                </button>
+                <form th:if="${(res.status.name() == 'CONFIRMED' || res.status.name() == 'TEMP')
+                                and res.startTime.isAfter(#temporals.createNow())}"
+                      th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
+                      method="post"
+                      onsubmit="return confirm('정말 예약을 취소하시겠습니까?');">
+
+                    <button type="submit" class="btn-cancel">예약 취소</button>
+                </form>
             </div>
         </div>
     </section>
 </div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>

@@ -1,13 +1,10 @@
 package com.example.studyroomreservation.domain.member.entity;
 
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.global.common.BaseSoftDeletableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -49,5 +46,13 @@ public class Member extends BaseSoftDeletableEntity {
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void changePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
