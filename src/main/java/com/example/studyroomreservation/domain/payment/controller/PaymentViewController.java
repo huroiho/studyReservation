@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import static com.example.studyroomreservation.domain.payment.controller.PaymentControllerConstants.*;
 
 @Controller
-@RequestMapping(PaymentControllerConstants.BASE)
+@RequestMapping(BASE)
 @RequiredArgsConstructor
 public class PaymentViewController {
 
@@ -24,7 +25,7 @@ public class PaymentViewController {
 
 
     //successUrl, failUrl 추가하기
-    @GetMapping(PaymentControllerConstants.CHECK)
+    @GetMapping(CHECK)
     public String checkoutPage(
             @RequestParam Long reservationId,
             Model model
@@ -33,23 +34,23 @@ public class PaymentViewController {
 
         model.addAttribute("payment", response);
 
-        return PaymentControllerConstants.PAYMENT_CHECK;
+        return PAYMENT_CHECK;
     }
 
-    @GetMapping(PaymentControllerConstants.APPROVE)
+    @GetMapping(APPROVE)
     public String approveSuccess(
             @RequestParam(value = "paymentType", required = false) String paymentType,
             @Valid @ModelAttribute PaymentApproveRequest request,
             BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()){
-            return PaymentControllerConstants.PAYMENT_FAIL;
+            return PAYMENT_FAIL;
         }
         paymentService.approveSuccess(paymentType,request);
-        return PaymentControllerConstants.REDIRECT_RESERVATIONS; // TODO : 예약 파트 하면 주소 변경 필요
+        return REDIRECT_RESERVATIONS; // TODO : 예약 파트 하면 주소 변경 필요
     }
 
-    @GetMapping(PaymentControllerConstants.FAIL)
+    @GetMapping(FAIL)
     public String fail(
             @RequestParam(required = false) String orderId,
             @RequestParam(required = false) String code,
@@ -58,6 +59,6 @@ public class PaymentViewController {
         if (orderId != null) {
             paymentAttemptFailService.markFailed(orderId, code, message);
         }
-        return PaymentControllerConstants.REDIRECT_RESERVATIONS;
+        return REDIRECT_RESERVATIONS;
     }
 }
