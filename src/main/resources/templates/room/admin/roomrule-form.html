@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <title>방 예약 규칙 등록</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/room-rule-style.css}">
 </head>
 <body>
 
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='roomrules')}"></nav>
 <div class="container">
     <a th:href="@{/admin/roomrules}" class="back-link">
         <span class="material-icons" style="font-size: 18px;">arrow_back</span> 목록으로
@@ -98,7 +101,7 @@
         </div>
     </form>
 </div>
-
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 <script>
     function updateStatusText(checked) {

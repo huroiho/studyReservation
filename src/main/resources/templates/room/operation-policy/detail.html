@@ -4,21 +4,15 @@
     <meta charset="UTF-8" />
     <title>운영 정책 상세</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/operation-policy.css}" />
 </head>
 
 <body>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='operation-policies')}"></nav>
 <div class="container">
     <h2>운영 정책 상세</h2>
-
-    <div class="info-box">
-        <span class="material-icons icon">info</span>
-        <div>
-            <div>운영 정책은 생성 후 수정할 수 없습니다.</div>
-            <div class="text-muted">필요 시 새로운 정책을 등록하거나 상태를 변경하세요.</div>
-        </div>
-    </div>
-
     <!-- 정책 기본 정보 -->
     <div class="detail-card">
         <h3>정책 기본 정보</h3>
@@ -141,10 +135,6 @@
 
     <!-- 액션 버튼 영역 -->
     <div class="action-buttons">
-        <a th:href="@{/admin/operation-policies}" class="btn-back">
-            <span class="material-icons icon-btn">arrow_back</span>
-            목록으로
-        </a>
 
         <div class="right-buttons">
             <!-- 비활성화 버튼 (활성 상태일 때만 표시) -->
@@ -226,6 +216,7 @@
     </div>
 </div>
 
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 <script th:src="@{/js/operation-policy-detail.js}"></script>
 </body>
 </html>
