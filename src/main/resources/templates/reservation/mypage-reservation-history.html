@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>예약 히스토리</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
 </head>
 <body>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('')}"></nav>
 <div class="container">
     <h2>마이페이지</h2>
 
-    <nav class="tabs">
-        <a th:href="@{/members/myPage/reservations}" class="tab">예약 현황</a>
-        <a href="#" class="tab">내 정보</a>
-        <a th:href="@{/members/myPage/history}" class="tab active">예약 히스토리</a>
-    </nav>
-
     <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/myPage/reservations}" class="tab">예약 현황</a>
+            <a th:href="@{/members/myPage/history}" class="tab active">예약 히스토리</a>
+            <a href="#" class="tab">내 정보</a>
+        </div>
         <div class="section-header">
             <h2>예약 히스토리</h2>
         </div>
@@ -51,23 +53,10 @@
                 </tr>
                 </tbody>
             </table>
-
-            <div class="pagination" th:if="${historyPage != null and historyPage.totalElements > 0}">
-
-                <a th:href="@{/members/myPage/history(page=${historyPage.number - 1})}"
-                   th:classappend="${historyPage.first} ? 'disabled'">&laquo; 이전</a>
-
-                <span th:each="i : ${#numbers.sequence(0, historyPage.totalPages - 1)}">
-                    <a th:href="@{/members/myPage/history(page=${i})}"
-                       th:text="${i + 1}"
-                       th:classappend="${i == historyPage.number} ? 'active'">1</a>
-                </span>
-
-                <a th:href="@{/members/myPage/history(page=${historyPage.number + 1})}"
-                   th:classappend="${historyPage.last} ? 'disabled'">다음 &raquo;</a>
-            </div>
+            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'myPage/history')}"></div>
         </div>
     </section>
 </div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>

@@ -2,49 +2,13 @@
    admin-detail-style.css
    관리자 예약 상세 페이지 전용 스타일
    ========================================= */
-
-/* 1. 네비게이션 (가로 정렬 - 리스트 페이지와 동일) */
-.nav-inner .center ul {
+.layout_row{
     display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 1rem 0;
-    margin: 0;
-    gap: 30px;
-    border-bottom: 1px solid #dee2e6;
+    gap: 20px;
+    align-items: center;
 }
-.nav-inner .center ul li a {
-    text-decoration: none;
-    color: #64748b;
-    font-weight: 500;
-    font-size: 1.05rem;
-    transition: color 0.2s;
-}
-.nav-inner .center ul li a:hover { color: #0f172a; }
-.nav-inner .center ul li.active a {
-    color: #0f172a;
-    font-weight: 800;
-    border-bottom: 2px solid #0f172a;
-    padding-bottom: 4px;
-}
-
-/* 2. 레이아웃 & 공통 */
-body { background-color: #f8fafc; }
-
-.container-wrapper {
-    min-height: 600px;
-    padding-top: 40px;
-    padding-bottom: 60px;
-    width: 95%;
-    max-width: 1200px; /* 상세페이지는 너무 넓으면 보기 힘드므로 적당히 제한 */
-    margin: 0 auto;
-}
-
-h1 {
-    font-weight: 800;
-    color: #0f172a;
-    font-size: 1.75rem;
-    margin-bottom: 10px;
+.layout_row .col-xl-6{
+    flex:1;
 }
 
 /* 3. 카드 스타일 (섹션 구분) */
@@ -135,11 +99,8 @@ h1 {
 /* 7. 하단 버튼 영역 */
 .bottom-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
 }
 
 .btn-back {
