@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+</head>
+<body>
+
+<h1>회원정보 수정</h1>
+
+<form th:action="@{/my/edit}"
+      th:object="${memberUpdateRequest}"
+      method="post">
+
+    <!-- 이름 -->
+    <div>
+        <label>이름</label><br/>
+        <input type="text" th:field="*{name}" />
+        <div th:if="${#fields.hasErrors('name')}"
+             th:errors="*{name}"></div>
+    </div>
+
+    <br/>
+
+    <!-- 전화번호 -->
+    <div>
+        <label>전화번호</label><br/>
+        <input type="text" th:field="*{phoneNumber}" />
+        <div th:if="${#fields.hasErrors('phoneNumber')}"
+             th:errors="*{phoneNumber}"></div>
+    </div>
+
+    <br/>
+
+    <button type="submit">저장</button>
+</form>
+
+<hr/>
+
+<a th:href="@{/my}">취소</a>
+
+</body>
+</html>
