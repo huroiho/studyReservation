@@ -15,10 +15,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import static com.example.studyroomreservation.domain.member.controller.MemberControllerConstants.*;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(MemberControllerConstants.BASE)
+@RequestMapping(BASE)
 public class MyPageController {
 
     private final MemberService memberService;
@@ -43,10 +44,10 @@ public class MyPageController {
         Long memberId = userDetails.getMember().getId();
 
         model.addAttribute("myInfo", memberService.getMyInfo(memberId));
-        return MemberControllerConstants.MEMBER_MYPAGE;
+        return MEMBER_MYPAGE;
     }
 
-    @GetMapping(MemberControllerConstants.EDIT)
+    @GetMapping(EDIT)
     public String editForm(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             Model model
@@ -56,34 +57,34 @@ public class MyPageController {
         MemberInfoResponse myInfo = memberService.getMyInfo(memberId);
 
         model.addAttribute("memberUpdateRequest", new MemberUpdateRequest(myInfo.name(), myInfo.phoneNumber()));
-        return MemberControllerConstants.MEMBER_EDIT;
+        return MEMBER_EDIT;
     }
 
-    @PostMapping(MemberControllerConstants.EDIT)
+    @PostMapping(EDIT)
     public String editSubmit(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute("memberUpdateRequest") MemberUpdateRequest request,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.MEMBER_EDIT;
+            return MEMBER_EDIT;
         }
 
         Long memberId = userDetails.getMember().getId();
         memberService.updateMyProfile(memberId, request);
 
-        return MemberControllerConstants.REDIRECT_MY;
+        return REDIRECT_MY;
     }
 
-    @GetMapping(MemberControllerConstants.PASSWORD)
+    @GetMapping(PASSWORD)
     public String passwordForm(Model model) {
         model.addAttribute(
                 "memberPasswordChangeRequest",
                 new MemberPasswordChangeRequest("", "", ""));
-        return MemberControllerConstants.MEMBER_PASSWORD;
+        return MEMBER_PASSWORD;
     }
 
-    @PostMapping(MemberControllerConstants.PASSWORD)
+    @PostMapping(PASSWORD)
     public String passwordSubmit(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute("memberPasswordChangeRequest")
@@ -91,12 +92,12 @@ public class MyPageController {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.MEMBER_PASSWORD;
+            return MEMBER_PASSWORD;
         }
         memberService.changeMyPassword(
                 userDetails.getMember().getId(),
                 request
         );
-        return MemberControllerConstants.REDIRECT_MY;
+        return REDIRECT_MY;
     }
 }
