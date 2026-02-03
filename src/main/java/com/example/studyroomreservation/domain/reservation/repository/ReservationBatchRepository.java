@@ -47,7 +47,7 @@ public class ReservationBatchRepository {
                 .set(reservation.expiresAt, (LocalDateTime) null)
                 .set(reservation.usedAt, now)
                 .where(reservation.status.eq(ReservationStatus.CONFIRMED)
-                        .and(reservation.endTime.lt(now)))
+                        .and(reservation.startTime.lt(now)))
                 .execute();
 
         em.clear();
