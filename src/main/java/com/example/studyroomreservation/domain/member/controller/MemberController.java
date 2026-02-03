@@ -28,13 +28,13 @@ public class MemberController {
 
     @GetMapping(MemberControllerConstants.LOGIN)
     public String loginPage() {
-        return MemberControllerConstants.VIEW_LOGIN;
+        return MemberControllerConstants.MEMBER_LOGIN;
     }
 
     @GetMapping(MemberControllerConstants.SIGNUP)
     public String signupPage(Model model) {
         model.addAttribute("memberSignupRequest", new MemberSignupRequest("", "", "", ""));
-        return MemberControllerConstants.VIEW_SIGNUP;
+        return MemberControllerConstants.MEMBER_SIGNUP;
     }
 
     @PostMapping(MemberControllerConstants.SIGNUP)
@@ -44,7 +44,7 @@ public class MemberController {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.VIEW_SIGNUP;
+            return MemberControllerConstants.MEMBER_SIGNUP;
         }
         memberService.signup(memberSignupRequest);
         return  MemberControllerConstants.REDIRECT_LOGIN;

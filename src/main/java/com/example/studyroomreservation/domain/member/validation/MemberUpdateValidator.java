@@ -28,17 +28,8 @@ public class MemberUpdateValidator implements Validator {
         Long memberId = getCurrentMemberId();
         if (memberId == null) return;
 
-        validateName(request, errors);
+
         validatePhoneNumberUniqueness(request, memberId, errors);
-    }
-
-    private void validateName(MemberUpdateRequest request, Errors errors) {
-        String name = request.name();
-        if (name == null) return;
-
-        if (name.trim().isEmpty()) {
-            errors.rejectValue("name", "M004", "이름을 입력해주세요.");
-        }
     }
 
     private void validatePhoneNumberUniqueness(MemberUpdateRequest request, Long memberId, Errors errors

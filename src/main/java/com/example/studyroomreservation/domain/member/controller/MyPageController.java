@@ -43,7 +43,7 @@ public class MyPageController {
         Long memberId = userDetails.getMember().getId();
 
         model.addAttribute("myInfo", memberService.getMyInfo(memberId));
-        return MemberControllerConstants.VIEW_MY;
+        return MemberControllerConstants.MEMBER_MYPAGE;
     }
 
     @GetMapping(MemberControllerConstants.EDIT)
@@ -56,7 +56,7 @@ public class MyPageController {
         MemberInfoResponse myInfo = memberService.getMyInfo(memberId);
 
         model.addAttribute("memberUpdateRequest", new MemberUpdateRequest(myInfo.name(), myInfo.phoneNumber()));
-        return MemberControllerConstants.VIEW_EDIT;
+        return MemberControllerConstants.MEMBER_EDIT;
     }
 
     @PostMapping(MemberControllerConstants.EDIT)
@@ -66,7 +66,7 @@ public class MyPageController {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.VIEW_EDIT;
+            return MemberControllerConstants.MEMBER_EDIT;
         }
 
         Long memberId = userDetails.getMember().getId();
@@ -80,7 +80,7 @@ public class MyPageController {
         model.addAttribute(
                 "memberPasswordChangeRequest",
                 new MemberPasswordChangeRequest("", "", ""));
-        return MemberControllerConstants.VIEW_PASSWORD;
+        return MemberControllerConstants.MEMBER_PASSWORD;
     }
 
     @PostMapping(MemberControllerConstants.PASSWORD)
@@ -91,7 +91,7 @@ public class MyPageController {
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MemberControllerConstants.VIEW_PASSWORD;
+            return MemberControllerConstants.MEMBER_PASSWORD;
         }
         memberService.changeMyPassword(
                 userDetails.getMember().getId(),

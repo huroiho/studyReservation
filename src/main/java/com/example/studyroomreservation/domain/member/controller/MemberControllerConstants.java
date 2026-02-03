@@ -13,11 +13,9 @@ public class MemberControllerConstants {
     public static final String REDIRECT_MY = "redirect:" + BASE;
     public static final String REDIRECT_LOGIN = "redirect:" + LOGIN;
 
-    public static final String VIEW_MY = "member/my";
-    public static final String VIEW_EDIT = "member/edit";
-    public static final String VIEW_PASSWORD = "member/password";
-    public static final String VIEW_LOGIN = "member/login";
-    public static final String VIEW_SIGNUP = "member/signup";
-
-
+    public static final String MEMBER_MYPAGE = "member/my";
+    public static final String MEMBER_EDIT = "member/edit";
+    public static final String MEMBER_PASSWORD = "member/password";
+    public static final String MEMBER_LOGIN = "member/login";
+    public static final String MEMBER_SIGNUP = "member/signup";
 }
