@@ -115,8 +115,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .from(reservation)
                 .join(room).on(reservation.roomId.eq(room.id))
                 .where(
-                        reservation.memberId.eq(memberId),
-                        isHistoryStatus(now) // 히스토리
+                        reservation.memberId.eq(memberId)
                 )
                 .orderBy(reservation.startTime.desc())
                 .offset(pageable.getOffset())
@@ -128,17 +127,10 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .select(reservation.count())
                 .from(reservation)
                 .where(
-                        reservation.memberId.eq(memberId),
-                        isHistoryStatus(now)
+                        reservation.memberId.eq(memberId)
                 )
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
-    }
-
-    private BooleanExpression isHistoryStatus(LocalDateTime now) {
-        return reservation.status.eq(ReservationStatus.USED)
-                .or(reservation.status.eq(ReservationStatus.CANCELED))
-                .or(reservation.endTime.loe(now));
     }
 }

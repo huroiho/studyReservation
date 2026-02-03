@@ -34,6 +34,7 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
 
     private final ReservationMapper reservationMapper;
@@ -79,7 +80,6 @@ public class ReservationService {
     }
 
     // RoomService에서 호출
-    @Transactional(readOnly = true)
     public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -99,7 +99,6 @@ public class ReservationService {
     }
 
     //예약 상세 조회
-    @Transactional
     public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
@@ -175,7 +174,6 @@ public class ReservationService {
 
 
     // 마이페이지 예약 현황 조회
-    @Transactional
     public List<ReservationResponse> getMyActiveReservations(Long memberId) {
         List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
         return results.stream()
@@ -188,7 +186,6 @@ public class ReservationService {
     }
 
     // 마이페이지 예약 히스토리 조회
-    @Transactional(readOnly = true)
     public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         Page<Tuple> pageResults = reservationRepository.findMyReservationHistory(memberId, now, pageable);
