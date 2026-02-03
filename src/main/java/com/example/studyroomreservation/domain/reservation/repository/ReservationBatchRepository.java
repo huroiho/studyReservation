@@ -28,7 +28,7 @@ public class ReservationBatchRepository {
                 .set(reservation.status, ReservationStatus.EXPIRED)
                 .set(reservation.expiresAt, (LocalDateTime) null)
                 .where(reservation.status.eq(ReservationStatus.TEMP)
-                        .and(reservation.expiresAt.lt(now.plusMinutes(1))))
+                        .and(reservation.expiresAt.lt(now.minusMinutes(1))))
                 .execute();
 
         em.clear();
@@ -45,7 +45,7 @@ public class ReservationBatchRepository {
                 .update(reservation)
                 .set(reservation.status, ReservationStatus.USED)
                 .set(reservation.expiresAt, (LocalDateTime) null)
-                .set(reservation.startTime, now) // 이용 완료 시각 기록
+                .set(reservation.usedAt, now)
                 .where(reservation.status.eq(ReservationStatus.CONFIRMED)
                         .and(reservation.endTime.lt(now)))
                 .execute();
