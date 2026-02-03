@@ -90,8 +90,6 @@ public class AdminRoomService {
         List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
         List<String> generalPaths = imageStorageService.saveGeneralImages(roomId, validGeneralImages);
 
-        // NOTE : RoomImage는 개별 엔티티로 insert됨 (이미지 N장 → insert N회).
-        // 지금은 10장까지라 괜찮지만, 대량 업로드 시 JDBC batch insert 적용 검토.
         for (int i = 0; i < generalPaths.size(); i++) {
             RoomImage.create(room, generalPaths.get(i), RoomImage.ImageType.GENERAL, i + 1);
         }
@@ -118,7 +116,6 @@ public class AdminRoomService {
                 .toList();
     }
 
-    // TODO : PolicyValidation 컴포넌트(또는 공용 Validator)로 추출 검토.
     // ===== 정책 검증 메서드 =====
 
     private OperationPolicy loadAndValidateOperationPolicy(Long id) {
