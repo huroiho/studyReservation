@@ -21,7 +21,7 @@ import java.util.Set;
 @Controller
 @RequestMapping("/rooms")
 @RequiredArgsConstructor
-public class UserRoomController {
+public class UserRoomViewController {
 
     private static final int MAX_PAGE_SIZE = 48;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "price");

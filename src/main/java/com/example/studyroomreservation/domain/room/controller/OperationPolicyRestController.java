@@ -1,8 +1,6 @@
 package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.RoomSummary;
-import com.example.studyroomreservation.domain.room.entity.Room;
-import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.domain.room.service.OperationPolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +20,7 @@ import static com.example.studyroomreservation.domain.room.controller.OperationP
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(API_BASE_PATH)
-public class OperationPolicyApiController {
+public class OperationPolicyRestController {
 
     private final OperationPolicyService operationPolicyService;
 

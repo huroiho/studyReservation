@@ -25,7 +25,7 @@ import java.util.Set;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/rooms")
-public class AdminRoomController {
+public class AdminRoomViewController {
 
     private static final String FORM = "form";
     private static final String CREATE_VIEW = "room/admin/room-form";
