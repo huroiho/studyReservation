@@ -9,10 +9,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface RefundPolicyRepository extends JpaRepository<RefundPolicy, Long> {
 
     Page<RefundPolicy> findByIsActive(boolean active, Pageable pageable);
     boolean existsByName(String name);
+
+    /**
+     * 활성화된 환불 정책 목록 조회 (룸 생성 폼용)
+     */
+    List<RefundPolicy> findAllByIsActiveTrue();
 
     @Query(
             value = """

@@ -5,13 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface RoomRuleRepository extends JpaRepository<RoomRule, Long> {
 
     // 목록 조회
     Page<RoomRule> findAll(Pageable pageable);
 
-    // 활성화 목록 조회 (룸 등록시 목록)
+    // 활성화 목록 조회 (룸 등록시 목록 - 페이징)
     Page<RoomRule> findAllByIsActiveTrue(Pageable pageable);
+
+    // 활성화 목록 조회 (룸 생성 폼용 - 전체)
+    List<RoomRule> findAllByIsActiveTrue();
 
     // 규칙명 중복 확인 (Validator에서 사용)
     boolean existsByName(String name);
