@@ -2,7 +2,7 @@ package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
-import com.example.studyroomreservation.domain.room.service.RoomService;
+import com.example.studyroomreservation.domain.room.service.UserRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +26,7 @@ public class UserRoomViewController {
     private static final int MAX_PAGE_SIZE = 48;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "price");
 
-    private final RoomService roomService;
+    private final UserRoomService userRoomService;
 
     // TODO : 정렬 기준 enum으로 분리하고 문자열로 들어간 정렬 기준 제거
     @GetMapping
@@ -42,7 +42,7 @@ public class UserRoomViewController {
         Integer safeMinCapacity = (minCapacity != null && minCapacity >= 1) ? minCapacity : null;
 
         Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, Sort.by(Sort.Direction.ASC, safeSort));
-        Page<UserRoomListResponse> roomPage = roomService.getUserList(safeMinCapacity, safePageable);
+        Page<UserRoomListResponse> roomPage = userRoomService.getUserList(safeMinCapacity, safePageable);
 
         model.addAttribute("page", roomPage);
         model.addAttribute("minCapacity", safeMinCapacity);
@@ -53,7 +53,7 @@ public class UserRoomViewController {
 
     @GetMapping("/{roomId}")
     public String detail(@PathVariable Long roomId, Model model) {
-        UserRoomDetailResponse room = roomService.getUserDetail(roomId);
+        UserRoomDetailResponse room = userRoomService.getUserDetail(roomId);
         model.addAttribute("room", room);
 
         return "room/user/detail";

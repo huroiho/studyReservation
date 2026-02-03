@@ -6,7 +6,7 @@ import com.example.studyroomreservation.domain.room.entity.Room.AmenityType;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
 import com.example.studyroomreservation.domain.room.repository.RoomRuleRepository;
 import com.example.studyroomreservation.domain.room.service.AdminRoomService;
-import com.example.studyroomreservation.domain.room.validation.RoomValidator;
+import com.example.studyroomreservation.domain.room.validation.RoomCreateValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class AdminRoomViewController {
     private static final String NEW_FORM_PATH = "/new";
 
     private final AdminRoomService roomService;
-    private final RoomValidator roomValidator;
+    private final RoomCreateValidator roomValidator;
     private final OperationPolicyRepository operationPolicyRepository;
     private final RoomRuleRepository roomRuleRepository;
     private final RefundPolicyRepository refundPolicyRepository;

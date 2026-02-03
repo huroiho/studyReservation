@@ -26,7 +26,7 @@ import java.util.Set;
  */
 @Component
 @RequiredArgsConstructor
-public class RoomValidator implements Validator {
+public class RoomCreateValidator implements Validator {
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final int MAX_DIMENSION = 8000;
