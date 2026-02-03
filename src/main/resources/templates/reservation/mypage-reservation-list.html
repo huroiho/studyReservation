@@ -49,7 +49,7 @@
             <div class="card-right">
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
-<!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
+                <!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
 
                 <form th:if="${(res.status.name() == 'CONFIRMED' || res.status.name() == 'TEMP')
                                 and res.startTime.isAfter(#temporals.createNow())}"

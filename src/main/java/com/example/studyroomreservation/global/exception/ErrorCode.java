@@ -14,6 +14,9 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "해당 회원이 존재하지 않습니다."),
     MEMBER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "M002", "이미 사용 중인 이메일입니다."),
     MEMBER_PHONE_DUPLICATED(HttpStatus.CONFLICT, "M003", "이미 사용 중인 전화번호입니다."),
+    MEMBER_NAME_BLANK(HttpStatus.BAD_REQUEST, "M004", "이름을 입력해주세요."),
+    MEMBER_PASSWORD_CONFIRM_MISMATCH(HttpStatus.BAD_REQUEST, "M005", "새 비밀번호 확인이 일치하지 않습니다."),
+    MEMBER_PASSWORD_INVALID(HttpStatus.BAD_REQUEST, "M006", "현재 비밀번호가 올바르지 않습니다."),
 
     //ROOM
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "RM001","해당 방이 존재하지 않습니다." ),

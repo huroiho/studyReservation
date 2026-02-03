@@ -35,6 +35,7 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReservationService {
 
     private final ReservationMapper reservationMapper;
@@ -81,7 +82,6 @@ public class ReservationService {
     }
 
     // RoomService에서 호출
-    @Transactional(readOnly = true)
     public List<RoomReservedTimeResponse> getReservedTimes(Long roomId, LocalDate date){
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -101,7 +101,6 @@ public class ReservationService {
     }
 
     //예약 상세 조회
-    @Transactional
     public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
@@ -133,7 +132,6 @@ public class ReservationService {
         );
     }
 
-    @Transactional(readOnly = true)
     public ReservationDetailResponse getReservationDetailForAdmin(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
@@ -250,6 +248,23 @@ public class ReservationService {
 
 
 
+    // 마이페이지 예약 현황 조회
+    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
+        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
+        return results.stream()
+                .map(t -> {
+                    Reservation res = t.get(reservation); // 예약 꺼내기
+                    Room rm = t.get(room);               // 룸 꺼내기
+                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
+                })
+                .collect(Collectors.toList());
+    }
 
+    // 마이페이지 예약 히스토리 조회
+    public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+        Page<Tuple> pageResults = reservationRepository.findMyReservationHistory(memberId, now, pageable);
 
+        return pageResults.map(t -> reservationMapper.toResponse(t.get(reservation), t.get(room)));
+    }
 }

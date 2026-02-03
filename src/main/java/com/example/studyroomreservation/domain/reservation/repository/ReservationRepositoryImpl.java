@@ -18,6 +18,7 @@ import com.example.studyroomreservation.domain.member.entity.QMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -170,4 +171,30 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         return new PageImpl<>(content, pageable, total != null ? total : 0);
     }
 
+    // 마이페이지 예약 히스토리
+    @Override
+    public Page<Tuple> findMyReservationHistory(Long memberId, LocalDateTime now, Pageable pageable) {
+        List<Tuple> content = queryFactory
+                .select(reservation, room)
+                .from(reservation)
+                .join(room).on(reservation.roomId.eq(room.id))
+                .where(
+                        reservation.memberId.eq(memberId)
+                )
+                .orderBy(reservation.startTime.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 페이징
+        Long total = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .where(
+                        reservation.memberId.eq(memberId)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
 }
