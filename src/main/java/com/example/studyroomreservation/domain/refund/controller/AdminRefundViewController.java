@@ -21,27 +21,28 @@ import java.util.ArrayList;
 
 @Slf4j
 @Controller
-@RequestMapping("/admin/refund")
+@RequestMapping(AdminRefundControllerConstants.BASE)
 @RequiredArgsConstructor
 public class AdminRefundViewController {
 
     private final RefundPolicyService refundPolicyService;
     private final RefundPolicyValidator refundPolicyValidator;
 
+
     @InitBinder("policyForm")
     protected void initBinder(WebDataBinder binder) {
         binder.addValidators(refundPolicyValidator);
     }
 
-    @GetMapping("/policy/new")
+    @GetMapping(AdminRefundControllerConstants.POLICY_NEW)
     public String createForm(Model model) {
 
         // 폼 초기화해서 오류 방지 rules 리스트를 비어있는 상태로라도 넘겨줘야 함
         model.addAttribute("policyForm", new RefundPolicyRequest(null, new ArrayList<>()));
-        return "refund/admin/policy-form";
+        return AdminRefundControllerConstants.REFUND_POLICY_FORM;
     }
 
-    @PostMapping("/policy/new")
+    @PostMapping(AdminRefundControllerConstants.POLICY_NEW)
     public String register(
             @Valid @ModelAttribute("policyForm") RefundPolicyRequest request,
             BindingResult bindingResult,
@@ -49,17 +50,17 @@ public class AdminRefundViewController {
     ) {
         if (bindingResult.hasErrors()) {
             log.debug("Validation errors: {}", bindingResult.getAllErrors());
-            return "refund/admin/policy-form";
+            return AdminRefundControllerConstants.REFUND_POLICY_FORM;
         }
 
         Long savedId = refundPolicyService.registerPolicy(request);
         log.info("Refund policy created: id={}, name={}", savedId, request.name());
         redirectAttributes.addFlashAttribute("message", "환불 정책이 성공적으로 등록되었습니다.");
 
-        return "redirect:/admin/refund/policy/" + savedId;
+        return AdminRefundControllerConstants.redirectRefundPolicyDetail(savedId);
     }
 
-    @GetMapping("/policy/list")
+    @GetMapping(AdminRefundControllerConstants.POLICY_LIST)
     public String refundPolicyList(
             @RequestParam(required = false) Boolean active,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
@@ -68,18 +69,18 @@ public class AdminRefundViewController {
     ) {
         model.addAttribute("active", active);
         model.addAttribute("page", refundPolicyService.getRefundPolicyPage(active,pageable));
-        return "refund/admin/list";
+        return AdminRefundControllerConstants.REFUND_POLICY_LIST;
     }
 
-    @GetMapping("/policy/{policyId}")
+    @GetMapping(AdminRefundControllerConstants.POLICY_DETAIL)
     public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
         model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
-        return "refund/admin/detail";
+        return AdminRefundControllerConstants.REFUND_POLICY_DETAIL;
     }
 
-    @PostMapping("/policy/{policyId}/active")
+    @PostMapping(AdminRefundControllerConstants.POLICY_ACTIVE)
     public String changePolicyActive(@PathVariable Long policyId, @RequestParam boolean active) {
         refundPolicyService.changePolicyActive(policyId, active);
-        return "redirect:/admin/refund/policy/list";
+        return AdminRefundControllerConstants.REDIRECT_REFUND_POLICY_LIST;
     }
 }
