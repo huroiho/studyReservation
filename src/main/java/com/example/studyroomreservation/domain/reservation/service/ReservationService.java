@@ -247,19 +247,6 @@ public class ReservationService {
 
 
 
-
-    // 마이페이지 예약 현황 조회
-    public List<ReservationResponse> getMyActiveReservations(Long memberId) {
-        List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
-        return results.stream()
-                .map(t -> {
-                    Reservation res = t.get(reservation); // 예약 꺼내기
-                    Room rm = t.get(room);               // 룸 꺼내기
-                    return reservationMapper.toResponse(res, rm); // 룸 + 예약 합쳐 DTO 생성
-                })
-                .collect(Collectors.toList());
-    }
-
     // 마이페이지 예약 히스토리 조회
     public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();

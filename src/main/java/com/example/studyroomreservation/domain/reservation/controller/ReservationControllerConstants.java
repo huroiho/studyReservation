@@ -46,6 +46,7 @@ public class ReservationControllerConstants {
 
     // --- Views ---
     public static final String MY_RES_LIST = "reservation/mypage-reservation-list";
+    public static final String MY_HIS_LIST_VIEW = "reservation/mypage-reservation-history";
 
 
 
