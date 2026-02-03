@@ -8,18 +8,17 @@
 </head>
 <body>
 
-<Header th:insert="~{fragment/header :: siteHeader}"></Header>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('reservations')}"></nav>
 
 <div class="container">
     <h2>마이페이지</h2>
-
-    <nav class="tabs">
-        <a th:href="@{/members/myPage/reservations}" class="tab active">예약 현황</a>
-        <a href="#" class="tab">내 정보</a>
-        <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
-    </nav>
-
     <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/myPage/reservations}" class="tab active">예약 현황</a>
+            <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
+            <a href="#" class="tab">내 정보</a>
+        </div>
         <div class="section-header">
             <h2>현재 예약 <span class="count-badge" th:text="${reservations.size()}">0</span></h2>
         </div>
