@@ -14,14 +14,14 @@ public class MemberContext implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String email;
-    //private String name;
+    private String name; // header 회원이름 노출용 주석제거
     //private String phone;
     private Role role;
 
     public MemberContext(Member member) {
         this.id = member.getId();
         this.email = member.getEmail();
-        //this.name = member.getName();
+        this.name = member.getName();
         //this.phone = member.getPhone();
         this.role = member.getRole();
     }
