@@ -52,13 +52,9 @@ deploy_job:
     - test -n "$DB_URL" && echo "DB_URL OK" || (echo "DB_URL EMPTY" && exit 1)
     - test -n "$DB_USERNAME" && echo "DB_USERNAME OK" || (echo "DB_USERNAME EMPTY" && exit 1)
     - test -n "$DB_PASSWORD" && echo "DB_PASSWORD OK" || (echo "DB_PASSWORD EMPTY" && exit 1)
-    - test -n "$TOSS_CLIENT_KEY" && echo "TOSS_CLIENT_KEY OK" || (echo "TOSS_CLIENT_KEY EMPTY" && exit 1)
-    - test -n "$TOSS_SECRET_KEY" && echo "TOSS_SECRET_KEY OK" || (echo "TOSS_SECRET_KEY EMPTY" && exit 1)
-
-    - sudo pkill -f 'build/libs/.*SNAPSHOT\.jar' || true
+    - sudo pkill -f 'java' || true
     - sleep 5
-
-    - nohup java -Dspring.profiles.active=dev -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
+    - nohup java -Dspring.profiles.active=dev -DDB_PASSWORD="$DB_PASSWORD" -DDB_USERNAME="$DB_USERNAME" -DDB_URL="$DB_URL"  -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
     - echo "배포가 완료되었습니다!"
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
