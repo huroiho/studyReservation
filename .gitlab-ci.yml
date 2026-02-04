@@ -49,6 +49,7 @@ deploy_job:
     - studyroom-deploy
   script:
     - echo "운영 서버 배포를 시작합니다..."
+    - echo "$DB_URL"
     - test -n "$DB_URL" && echo "DB_URL OK" || (echo "DB_URL EMPTY" && exit 1)
     - test -n "$DB_USERNAME" && echo "DB_USERNAME OK" || (echo "DB_USERNAME EMPTY" && exit 1)
     - test -n "$DB_PASSWORD" && echo "DB_PASSWORD OK" || (echo "DB_PASSWORD EMPTY" && exit 1)
