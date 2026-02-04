@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.room.validation;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest.ScheduleRequest;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -12,13 +13,8 @@ import java.time.Duration;
 
 /**
  * 운영 정책 생성 시 비즈니스 검증을 수행하는 Validator
- * <p>
- * 검증 범위 (UI에서 사용자가 실수할 수 있는 항목만):
- * - 정책명 중복 (DB 조회)
- * - 슬롯 정렬 (운영 시간이 슬롯 단위로 나누어 떨어지는지)
- * <p>
- * 검증하지 않음 (UI 구조상 발생 불가):
- * - 요일 중복 (UI가 고정 7행으로 렌더링)
+ * 검증 범위 :정책명 중복 (DB 조회), 슬롯 정렬 (운영 시간이 슬롯 단위로 나누어 떨어지는지)
+ * 검증하지 않음 : 요일 중복 (UI가 고정 7행으로 렌더링)
  */
 @Component
 @RequiredArgsConstructor
@@ -41,7 +37,7 @@ public class OperationPolicyValidator implements Validator {
 
     private void validateNameUniqueness(OperationPolicyCreateRequest request, Errors errors) {
         if (request.name() != null && operationPolicyRepository.existsByName(request.name())) {
-            errors.rejectValue("name", "OP007", "이미 존재하는 정책 이름입니다.");
+            errors.rejectValue("name", ErrorCode.OP_POLICY_NAME_DUPLICATE.getCode(), ErrorCode.OP_POLICY_NAME_DUPLICATE.getMessage());
         }
     }
 
@@ -70,9 +66,9 @@ public class OperationPolicyValidator implements Validator {
 
             if (durationMinutes % unitMinutes != 0) {
                 errors.rejectValue(
-                        "schedules[" + i + "].closeTime",
-                        "OS006",
-                        "운영 시간(" + durationMinutes + "분)이 슬롯 단위(" + unitMinutes + "분)로 나누어 떨어지지 않습니다."
+                        "schedules[" + i + "]",
+                        ErrorCode.OS_NOT_ALIGNED_TO_SLOT.getCode(),
+                        ErrorCode.OS_NOT_ALIGNED_TO_SLOT.getMessage()
                 );
             }
         }
