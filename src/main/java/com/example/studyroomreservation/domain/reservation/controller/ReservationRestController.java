@@ -6,6 +6,7 @@ import com.example.studyroomreservation.global.common.ApiResponse;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.example.studyroomreservation.global.security.auth.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +31,7 @@ public class ReservationRestController {
     // API 전송 및 도메인 반영은 정책 결정 후 진행 예정
     @PostMapping
     public ApiResponse<Long> createReservation(
-            @RequestBody ReservationCreateRequest request,
+            @Valid @RequestBody ReservationCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         Long memberId = userDetails.getMember().getId();

@@ -60,8 +60,9 @@ public enum ErrorCode {
     RES_CROSS_DAY_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RS013", "예약은 하루 단위로만 가능합니다."),
     RES_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "RS014", "예약은 하루 단위로만 가능합니다."),
     RES_PAST_TIME_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "RS015", "과거 시간은 예약할 수 없습니다."),
-    RES_CANCEL_PERIOD_EXPIRED(HttpStatus.CONFLICT,"R016","취소 가능한 상태나 시간이 아닙니다."),
-    RES_EXPIRED(HttpStatus.BAD_REQUEST, "RS015", "해당 예약은 만료되었습니다"),
+    RES_CONCURRENT_ACCESS(HttpStatus.CONFLICT, "RS016", "동시에 많은 요청이 들어와 예약에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    RES_CANCEL_PERIOD_EXPIRED(HttpStatus.CONFLICT,"R017","취소 가능한 상태나 시간이 아닙니다."),
+    RES_EXPIRED(HttpStatus.BAD_REQUEST, "RS018", "해당 예약은 만료되었습니다"),
 
     //PAYMENT
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
