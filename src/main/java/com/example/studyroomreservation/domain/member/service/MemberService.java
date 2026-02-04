@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.member.service;
 import com.example.studyroomreservation.domain.member.dto.request.MemberPasswordChangeRequest;
 import com.example.studyroomreservation.domain.member.dto.request.MemberSignupRequest;
 import com.example.studyroomreservation.domain.member.dto.request.MemberUpdateRequest;
+import com.example.studyroomreservation.domain.member.dto.response.MemberAdminResponse;
 import com.example.studyroomreservation.domain.member.dto.response.MemberInfoResponse;
 import com.example.studyroomreservation.domain.member.entity.Member;
 import com.example.studyroomreservation.domain.member.mapper.MemberMapper;
@@ -10,6 +11,8 @@ import com.example.studyroomreservation.domain.member.repository.MemberRepositor
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,5 +71,15 @@ public class MemberService {
 
         String encoded = passwordEncoder.encode(request.newPassword());
         member.changePassword(encoded);
+    }
+
+    public Page<MemberAdminResponse> getMembersForAdmin(String keyword, Pageable pageable) {
+        if (keyword != null && !keyword.isBlank()) {
+            // 이름 또는 이메일로 검색 (Repository에 정의 필요)
+            return memberRepository.findByNameContainingOrEmailContaining(keyword, keyword, pageable)
+                    .map(memberMapper::toMemberAdminResponse); // 엔티티를 DTO로 변환
+        }
+        return memberRepository.findAll(pageable)
+                .map(memberMapper::toMemberAdminResponse);
     }
 }

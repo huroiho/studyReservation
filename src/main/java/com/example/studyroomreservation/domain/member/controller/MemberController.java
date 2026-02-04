@@ -1,18 +1,20 @@
 package com.example.studyroomreservation.domain.member.controller;
 
 import com.example.studyroomreservation.domain.member.dto.request.MemberSignupRequest;
+import com.example.studyroomreservation.domain.member.dto.response.MemberAdminResponse;
 import com.example.studyroomreservation.domain.member.service.MemberService;
 import com.example.studyroomreservation.domain.member.validation.MemberSignupValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
 import static com.example.studyroomreservation.domain.member.controller.MemberControllerConstants.*;
 
 @Controller
@@ -49,5 +51,21 @@ public class MemberController {
         }
         memberService.signup(memberSignupRequest);
         return  REDIRECT_LOGIN;
+    }
+
+
+    // 회원목록 관리
+    @GetMapping(ADMIN_MEMBER_LIST_VIEW)
+    public String getAllMembers(
+            @RequestParam(required = false) String keyword, // 추가
+            @PageableDefault(size = 10) Pageable pageable,
+            Model model
+    ){
+        Page<MemberAdminResponse> memberPage = memberService.getMembersForAdmin(keyword,pageable);
+
+        model.addAttribute("page", memberPage);
+        model.addAttribute("members", memberPage.getContent());
+        model.addAttribute("keyword", keyword);
+        return ADMIN_MEMBER_LIST;
     }
 }
