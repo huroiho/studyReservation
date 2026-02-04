@@ -5,48 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>환불 정책 상세</title>
 
-    <!-- 목록과 같은 css 사용 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/refund-admin-list.css}" />
     <link rel="stylesheet" th:href="@{/css/refund-admin-detail.css}" />
 </head>
 <body>
-
-<header class="topbar">
-    <div class="topbar__inner">
-        <div class="brand">
-            <div class="brand__icon">🏢</div>
-            <div class="brand__name">스터디룸</div>
-        </div>
-
-        <nav class="gnb">
-            <a class="gnb__item" href="#">스터디룸</a>
-            <a class="gnb__item" href="#">내 예약</a>
-            <a class="gnb__item gnb__item--active" href="#">관리자</a>
-        </nav>
-
-        <a class="btn btn--primary btn--sm" href="#">로그아웃</a>
-    </div>
-
-    <div class="subnav">
-        <div class="subnav__inner">
-            <div class="subnav__title">Refund Policy Management UI</div>
-            <div class="subnav__menu">
-                <a class="subnav__item" href="#">룸 관리</a>
-                <a class="subnav__item" href="#">운영정책</a>
-                <a class="subnav__item subnav__item--active" href="#">예약관리</a>
-                <a class="subnav__item" href="#">회원조회</a>
-            </div>
-        </div>
-    </div>
-</header>
-
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='refund/policy')}"></nav>
 <main class="container">
-
-    <a class="back-link" th:href="@{list}">
-        ← 목록으로
+    <a th:href="@{list}" class="back-link">
+        <span class="material-icons" style="font-size: 18px;">arrow_back</span> 목록으로
     </a>
 
-    <h1 class="detail-title">환불 정책 상세</h1>
+    <h2>환불 정책 상세</h2>
 
     <!-- 정책 기본 정보 -->
     <section class="card">
@@ -140,36 +112,6 @@
 
 </main>
 
-<footer class="footer">
-    <div class="footer__inner">
-        <div class="footer__brand">
-            <div class="footer__logo">🏢</div>
-            <div>
-                <div class="footer__title">스터디룸</div>
-                <div class="footer__desc">최고의 스터디 공간을 제공하는<br/>프리미엄 예약 플랫폼</div>
-            </div>
-        </div>
-
-        <div class="footer__cols">
-            <div class="footer__col">
-                <div class="footer__col-title">바로가기</div>
-                <a href="#">스터디룸 찾기</a>
-                <a href="#">내 예약</a>
-                <a href="#">이용약관</a>
-                <a href="#">개인정보처리방침</a>
-            </div>
-
-            <div class="footer__col">
-                <div class="footer__col-title">문의</div>
-                <div class="footer__item">support@studyroom.com</div>
-                <div class="footer__item">02-1234-5678</div>
-                <div class="footer__item">서울시 강남구 테헤란로 123</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer__bottom">© 2026 스터디룸. All rights reserved.</div>
-</footer>
-
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>

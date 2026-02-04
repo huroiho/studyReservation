@@ -5,56 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>환불 정책 목록</title>
 
-    <!-- css 연결 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/refund-admin-list.css}" />
 </head>
 <body>
 
-<!-- 상단 헤더/네비 (이미지 느낌용 더미) -->
-<header class="topbar">
-    <div class="topbar__inner">
-        <div class="brand">
-            <div class="brand__icon">🏢</div>
-            <div class="brand__name">스터디룸</div>
-        </div>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='refund/policy')}"></nav>
 
-        <nav class="gnb">
-            <a class="gnb__item" href="#">스터디룸</a>
-            <a class="gnb__item" href="#">내 예약</a>
-            <a class="gnb__item gnb__item--active" href="#">관리자</a>
-        </nav>
-
-        <a class="btn btn--primary btn--sm" href="#">로그아웃</a>
-    </div>
-
-    <div class="subnav">
-        <div class="subnav__inner">
-            <div class="subnav__title">Refund Policy Management UI</div>
-            <div class="subnav__menu">
-                <a class="subnav__item" href="#">룸 관리</a>
-                <a class="subnav__item" href="#">운영정책</a>
-                <a class="subnav__item subnav__item--active" href="#">예약관리</a>
-                <a class="subnav__item" href="#">회원조회</a>
-            </div>
-        </div>
-    </div>
-</header>
-
-<main class="container">
-
-    <section class="page-head">
-        <div>
-            <h1 class="page-title">환불 정책</h1>
-            <p class="page-desc">환불 정책은 수정할 수 없으며, 새로운 정책을 등록하여 관리합니다.</p>
-        </div>
-
-        <!-- 등록은 나중에 연결: 일단 링크만 -->
-        <a class="btn btn--primary" th:href="@{/admin/refund/create}">
-            + 환불 정책 등록
+<div class="container">
+    <h2>환불 정책</h2>
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/admin/refund/policy/new}" class="btn-register">
+            <span class="material-icons" style="font-size: 18px;">add</span> 환불 정책 등록
         </a>
-    </section>
+    </div>
 
-    <section class="panel">
+    <section class="panel" style="margin-bottom: 20px;">
         <div class="panel__tools">
             <div class="filters">
                 <a class="pill"
@@ -70,7 +38,9 @@
                    th:href="@{/admin/refund/policy/list(active=false, page=0, size=${page.size})}">비활성</a>
             </div>
         </div>
+    </section>
 
+    <section class="panel">
         <!-- 정책 0개면 빈 상태 -->
         <div class="empty" th:if="${page.totalElements == 0}">
             <div class="empty__title">등록된 환불 정책이 없습니다.</div>
@@ -130,53 +100,12 @@
                 </tr>
                 </tbody>
             </table>
-
-            <!-- 페이징 (간단) -->
-            <div class="pagination">
-                <a class="page-btn" th:if="${page.hasPrevious()}"
-                   th:href="@{/admin/refund/policy/list(page=${page.number - 1}, size=${page.size}, active=${active})}">이전</a>
-
-                <span class="page-info">
-                    <b th:text="${page.number + 1}">1</b> / <span th:text="${page.totalPages}">1</span>
-                </span>
-
-                <a class="page-btn" th:if="${page.hasNext()}"
-                       th:href="@{/admin/refund/policy/list(page=${page.number + 1}, size=${page.size}, active=${active})}">다음</a>
-            </div>
         </div>
     </section>
-</main>
+        <div th:replace="~{fragment/pagination :: sitePagination(${page}, 'refund/policy')}"></div>
 
-<footer class="footer">
-    <div class="footer__inner">
-        <div class="footer__brand">
-            <div class="footer__logo">🏢</div>
-            <div>
-                <div class="footer__title">스터디룸</div>
-                <div class="footer__desc">최고의 스터디 공간을 제공하는<br/>프리미엄 예약 플랫폼</div>
-            </div>
-        </div>
+</div>
 
-        <div class="footer__cols">
-            <div class="footer__col">
-                <div class="footer__col-title">바로가기</div>
-                <a href="#">스터디룸 찾기</a>
-                <a href="#">내 예약</a>
-                <a href="#">이용약관</a>
-                <a href="#">개인정보처리방침</a>
-            </div>
-
-            <div class="footer__col">
-                <div class="footer__col-title">문의</div>
-                <div class="footer__item">support@studyroom.com</div>
-                <div class="footer__item">02-1234-5678</div>
-                <div class="footer__item">서울시 강남구 테헤란로 123</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer__bottom">© 2026 스터디룸. All rights reserved.</div>
-</footer>
-
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>

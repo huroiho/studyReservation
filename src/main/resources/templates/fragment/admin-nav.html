@@ -16,6 +16,11 @@
                     <a th:href="@{/admin/operation-policies}">운영 정책</a>
                 </li>
 
+                <li th:classappend="${activeLink == 'refund/policy'} ? 'active'">
+                    <a th:href="@{/admin/refund/policy/list}">환불 정책</a>
+                </li>
+
+
                 <li th:classappend="${activeLink == 'reservations'} ? 'active'">
                     <a th:href="@{/admin/reservations}">예약관리</a>
                 </li>
