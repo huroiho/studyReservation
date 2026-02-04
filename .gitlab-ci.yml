@@ -22,7 +22,6 @@ build_job:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
-    - if: $CI_COMMIT_BRANCH == "ci/env-test"
 test_job:
   stage: test
   tags:
@@ -41,7 +40,6 @@ test_job:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
-    - if: $CI_COMMIT_BRANCH == "ci/env-test"
 deploy_job:
   stage: deploy
   needs:
@@ -64,7 +62,6 @@ deploy_job:
     - echo "배포가 완료되었습니다!"
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
-    - if: $CI_COMMIT_BRANCH == "ci/env-test"
 ######################################
 # 학습용으로 실제로는 다른 방식으로 할 것!
 ######################################
