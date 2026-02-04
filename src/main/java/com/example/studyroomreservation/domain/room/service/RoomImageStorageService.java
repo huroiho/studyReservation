@@ -34,7 +34,7 @@ public class RoomImageStorageService {
     // 생성자 -> 루트 디렉토리 지정(application.yml에서 값 주입. 없으면 ./uploads)
     // 현재 룸에서만 이미지 업로드를 해서 룸 이미지 서비스에 있음.
     public RoomImageStorageService(
-            @Value("${app.upload.base-path:./uploads}") String basePathStr
+            @Value("${file.upload.base-path:./uploads}") String basePathStr
     ) {
         // 문자열을 Path 객체로 변환 -> 절대 경로로 변환 -> 정규화
         this.basePath = Paths.get(basePathStr).toAbsolutePath().normalize();

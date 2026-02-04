@@ -25,3 +25,7 @@ spring:
     multipart:
       max-file-size: 5MB # 단일 파일 최대
       max-request-size: 50MB # 여러 파일 합계
+file:
+  upload:
+    base-path: ${UPLOAD_BASE_PATH:./uploads}
+    rooms-path: rooms
