@@ -267,7 +267,7 @@ body {
 }
 
 .btn-reserve {
-    background: #28a745;
+    background: #4a6cf7;
     color: #fff;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
@@ -276,7 +276,7 @@ body {
 }
 
 .btn-reserve:hover:not(:disabled) {
-    background: #218838;
+    background: #4a6cf7;
 }
 
 .btn-reserve:disabled {
