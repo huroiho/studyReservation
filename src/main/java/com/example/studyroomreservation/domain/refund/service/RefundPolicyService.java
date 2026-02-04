@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.refund.service;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyPickItemResponse;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.mapper.RefundMapper;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
@@ -56,6 +57,11 @@ public class RefundPolicyService {
         //FIXME: 검증 추가 필요, 공통화 하기
 
         policy.changeActive(active);
+    }
+
+    // 룸 등록시 정책 목록 조회용
+    public List<RefundPolicyPickItemResponse> getActivePickItems() {
+        return refundPolicyRepository.findActivePickItems();
     }
 }
 

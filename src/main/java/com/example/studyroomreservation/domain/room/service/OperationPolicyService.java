@@ -4,6 +4,8 @@ import com.example.studyroomreservation.domain.reservation.repository.Reservatio
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickDetailResponse;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickItemResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
@@ -54,6 +56,20 @@ public class OperationPolicyService {
 
         return operationPolicyMapper.toDetailResponse(policy, connectedRooms, hasReservationReference);
     }
+
+    // 룸 등록시 보여줄 상세 조회
+    public OperationPolicyPickDetailResponse getPickDetail(Long id) {
+        OperationPolicy policy = operationPolicyRepository.findByIdWithSchedules(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OP_POLICY_NOT_FOUND));
+
+        if (!policy.isActive()) {
+            throw new BusinessException(ErrorCode.OP_POLICY_INACTIVE,
+                    "비활성화된 운영 정책: id=" + id);
+        }
+
+        return operationPolicyMapper.toPickDetailResponse(policy);
+    }
+
 
     /**
      * 정책 상태 변경 및 삭제는 추후 다른 policy에서도 동일하게 작성될 가능성이 높음
@@ -107,5 +123,10 @@ public class OperationPolicyService {
         if (reservationRepository.existsByAppliedOperationPolicyId(policyId)) {
             throw new BusinessException(ErrorCode.OP_POLICY_IN_USE_BY_RESERVATION);
         }
+    }
+
+    // 룸 등록시 정책 목록 조회용
+    public List<OperationPolicyPickItemResponse> getActivePickItems() {
+        return operationPolicyRepository.findActivePickItems();
     }
 }

@@ -114,7 +114,7 @@
             showModal(modal);
 
             // Fetch room data from API
-            fetch('/api/operation-policies/' + policyId + '/rooms')
+            fetch('/api/admin/operation-policies/' + policyId + '/rooms')
                 .then(function (response) {
                     if (!response.ok) throw new Error('Failed to fetch rooms');
                     return response.json();
