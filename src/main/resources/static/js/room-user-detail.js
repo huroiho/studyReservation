@@ -8,7 +8,7 @@
     const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토'];
 
     // ========== DOM Elements ==========
-    const container = document.querySelector('.page-container');
+    const container = document.querySelector('.container');
     if (!container) return;
 
     const roomId = parseInt(container.dataset.roomId, 10);
