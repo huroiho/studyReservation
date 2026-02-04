@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스터디룸 등록</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/room-admin-create.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='rooms')}"></nav>
+
+<div class="container">
+    <a th:href="@{/admin/rooms}" class="back-link">
+        <span class="material-icons">arrow_back</span> 목록으로
+    </a>
+
+    <h2>스터디룸 등록</h2>
+
+    <div class="info-box">
+        <span class="material-icons icon">info</span>
+        <div>
+            <div class="warning-text">운영 정책, 예약 규칙, 환불 정책은 필수로 선택해야 합니다.</div>
+            <div class="text-muted">각 항목의 '선택' 버튼을 클릭하여 정책을 지정해 주세요.</div>
+        </div>
+    </div>
+
+    <!-- Error Message Display -->
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <form id="roomCreateForm" class="form-section">
+        <!-- Basic Info -->
+        <div class="form-card">
+            <h3 class="card-title">기본 정보</h3>
+
+            <div class="form-group">
+                <div class="label-group">
+                    <label for="name">룸 이름</label><span class="required">*</span>
+                </div>
+                <input type="text" id="name" name="name" class="form-control"
+                       placeholder="예: 스터디룸 A" maxlength="100" required>
+                <div class="input-hint">2~100자 이내로 입력해주세요.</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="label-group">
+                        <label for="maxCapacity">최대 수용 인원</label><span class="required">*</span>
+                    </div>
+                    <input type="number" id="maxCapacity" name="maxCapacity" class="form-control"
+                           placeholder="예: 4" min="1" required>
+                    <div class="input-hint">1명 이상 입력해주세요.</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="label-group">
+                        <label for="price">시간당 가격 (원)</label><span class="required">*</span>
+                    </div>
+                    <input type="number" id="price" name="price" class="form-control"
+                           placeholder="예: 10000" min="0" required>
+                    <div class="input-hint">0원 이상 입력해주세요.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Selection -->
+        <div class="form-card">
+            <h3 class="card-title">정책 설정</h3>
+
+            <!-- Operation Policy -->
+            <div class="policy-section">
+                <div class="policy-header">
+                    <div class="label-group">
+                        <label>운영 정책</label><span class="required">*</span>
+                    </div>
+                    <button type="button" class="btn-select" onclick="openPolicyModal('operationPolicy')">
+                        <span class="material-icons">search</span> 선택
+                    </button>
+                </div>
+                <input type="hidden" id="operationPolicyId" name="operationPolicyId">
+                <div id="operationPolicySummary" class="policy-summary empty">
+                    <span class="placeholder">운영 정책을 선택해주세요.</span>
+                </div>
+            </div>
+
+            <!-- Room Rule -->
+            <div class="policy-section">
+                <div class="policy-header">
+                    <div class="label-group">
+                        <label>예약 규칙</label><span class="required">*</span>
+                    </div>
+                    <button type="button" class="btn-select" onclick="openPolicyModal('roomRule')">
+                        <span class="material-icons">search</span> 선택
+                    </button>
+                </div>
+                <input type="hidden" id="roomRuleId" name="roomRuleId">
+                <div id="roomRuleSummary" class="policy-summary empty">
+                    <span class="placeholder">예약 규칙을 선택해주세요.</span>
+                </div>
+            </div>
+
+            <!-- Refund Policy -->
+            <div class="policy-section">
+                <div class="policy-header">
+                    <div class="label-group">
+                        <label>환불 정책</label><span class="required">*</span>
+                    </div>
+                    <button type="button" class="btn-select" onclick="openPolicyModal('refundPolicy')">
+                        <span class="material-icons">search</span> 선택
+                    </button>
+                </div>
+                <input type="hidden" id="refundPolicyId" name="refundPolicyId">
+                <div id="refundPolicySummary" class="policy-summary empty">
+                    <span class="placeholder">환불 정책을 선택해주세요.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Amenities -->
+        <div class="form-card">
+            <h3 class="card-title">편의시설</h3>
+            <div class="amenities-grid">
+                <th:block th:each="amenity : ${amenityTypes}">
+                    <label class="amenity-item">
+                        <input type="checkbox" name="amenities" th:value="${amenity}">
+                        <span class="amenity-label" th:text="${amenity.name()}">WIFI</span>
+                    </label>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- Images -->
+        <div class="form-card">
+            <h3 class="card-title">이미지</h3>
+
+            <div class="form-group">
+                <div class="label-group">
+                    <label for="mainImage">대표 이미지</label><span class="required">*</span>
+                </div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="mainImage" name="mainImage" accept="image/jpeg,image/png,image/webp" required>
+                    <div class="file-input-label">
+                        <span class="material-icons">cloud_upload</span>
+                        <span>이미지를 선택하세요</span>
+                    </div>
+                </div>
+                <div id="mainImagePreview" class="image-preview"></div>
+                <div class="input-hint">jpg, png, webp 형식, 최대 5MB</div>
+            </div>
+
+            <div class="form-group">
+                <div class="label-group">
+                    <label for="generalImages">추가 이미지</label>
+                    <span class="optional">(선택)</span>
+                </div>
+                <div class="file-input-wrapper">
+                    <input type="file" id="generalImages" name="generalImages" accept="image/jpeg,image/png,image/webp" multiple>
+                    <div class="file-input-label">
+                        <span class="material-icons">collections</span>
+                        <span>이미지를 선택하세요 (최대 10장)</span>
+                    </div>
+                </div>
+                <div id="generalImagesPreview" class="image-preview-grid"></div>
+                <div class="input-hint">jpg, png, webp 형식, 각 최대 5MB, 최대 10장</div>
+            </div>
+        </div>
+
+        <!-- Submit Actions -->
+        <div class="footer-actions">
+            <a th:href="@{/admin/rooms}" class="btn btn-cancel">취소</a>
+            <button type="submit" class="btn btn-save" id="submitBtn">
+                <span class="btn-text">등록</span>
+                <span class="btn-loading" style="display: none;">
+                    <span class="material-icons spinning">sync</span> 처리중...
+                </span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<footer th:insert="~{fragment/footer :: siteFooter}"></footer>
+
+<!-- Policy Selection Modal -->
+<div id="policyModal" class="modal" style="display: none;">
+    <div class="modal-backdrop" onclick="closePolicyModal()"></div>
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">정책 선택</h3>
+            <button type="button" class="modal-close" onclick="closePolicyModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-split">
+                <!-- Left: Policy List -->
+                <div class="modal-list-section">
+                    <h4>정책 목록</h4>
+                    <div id="policyListLoading" class="loading-state">
+                        <span class="material-icons spinning">sync</span> 불러오는 중...
+                    </div>
+                    <div id="policyListError" class="error-state" style="display: none;"></div>
+                    <ul id="policyList" class="policy-list"></ul>
+                </div>
+
+                <!-- Right: Policy Detail -->
+                <div class="modal-detail-section">
+                    <h4>상세 정보</h4>
+                    <div id="policyDetailPlaceholder" class="detail-placeholder">
+                        <span class="material-icons">touch_app</span>
+                        <span>왼쪽 목록에서 정책을 클릭하세요.</span>
+                    </div>
+                    <div id="policyDetailLoading" class="loading-state" style="display: none;">
+                        <span class="material-icons spinning">sync</span> 불러오는 중...
+                    </div>
+                    <div id="policyDetailError" class="error-state" style="display: none;"></div>
+                    <div id="policyDetailContent" class="detail-content" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closePolicyModal()">취소</button>
+            <button type="button" class="btn btn-primary" id="selectPolicyBtn" onclick="confirmPolicySelection()" disabled>
+                선택 완료
+            </button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/room-admin-create.js}" defer></script>
+</body>
+</html>

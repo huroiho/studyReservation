@@ -4,29 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>회원가입 | StudyRoom</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
   <link rel="stylesheet" th:href="@{/css/login.css}" />
 </head>
-<body>
+<body class="has_bg">
 
-<header class="site-header">
-  <div class="container header-inner">
-    <a class="brand" th:href="@{/}">
-      <span class="brand-mark">SR</span>
-      <span class="brand-text">StudyRoom</span>
-    </a>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
 
-    <nav class="nav">
-      <a class="nav-link" th:href="@{/}">홈</a>
-      <a class="nav-link" th:href="@{/rooms}">룸</a>
-      <a class="nav-link" th:href="@{/reservations}">예약</a>
-      <a class="nav-link" th:href="@{/login}">로그인</a>
-      <a class="nav-link is-active" th:href="@{/signup}">회원가입</a>
-    </nav>
-  </div>
-</header>
-
-<main class="page">
-  <div class="container">
+<main class="page container">
     <div class="auth-layout">
 
       <!-- 왼쪽 소개 영역 -->
@@ -152,27 +137,9 @@
         </form>
       </section>
     </div>
-  </div>
 </main>
 
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <div class="footer-left">
-      <div class="footer-brand">
-        <span class="brand-mark small">SR</span>
-        <span>StudyRoom</span>
-      </div>
-      <p class="footer-desc">
-        정책 기반 예약 시스템 · 운영시간/룰/환불정책을 일관되게 관리합니다.
-      </p>
-    </div>
-
-    <div class="footer-right">
-      <a class="footer-link" th:href="@{/swagger-ui/index.html}">API Docs</a>
-      <a class="footer-link" th:href="@{/}">Home</a>
-    </div>
-  </div>
-</footer>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 
 </body>
 </html>

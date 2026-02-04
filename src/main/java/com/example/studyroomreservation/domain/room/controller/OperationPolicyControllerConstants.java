@@ -4,7 +4,7 @@ public final class OperationPolicyControllerConstants {
     private OperationPolicyControllerConstants() {}
 
     // ===== API Controller =====
-    public static final String API_BASE_PATH = "/api/operation-policies";
+    public static final String API_BASE_PATH = "/api/admin/operation-policies";
     public static final String ROOMS_BY_POLICY = "/{policyId}/rooms";
 
 

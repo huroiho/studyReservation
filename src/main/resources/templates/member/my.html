@@ -3,27 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>My Page</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
 </head>
 <body>
 
-<h1>마이페이지</h1>
-
-<div>
-    <p><strong>이름:</strong> <span th:text="${myInfo.name()}">이름</span></p>
-    <p><strong>이메일:</strong> <span th:text="${myInfo.email()}">이메일</span></p>
-    <p><strong>전화번호:</strong> <span th:text="${myInfo.phoneNumber()}">전화번호</span></p>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('')}"></nav>
+<div class="container">
+    <h1>마이페이지</h1>
+    <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/myPage/reservations}" class="tab">예약 현황</a>
+            <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
+            <a href="#" class="tab active">내 정보</a>
+        </div>
+        <div class="my_page_container">
+            <ul>
+                <li>
+                    <strong>이름:</strong> <span th:text="${myInfo.name()}">이름</span>
+                </li>
+                <li>
+                    <strong>이메일:</strong> <span th:text="${myInfo.email()}">이메일</span>
+                </li>
+                <li>
+                    <strong>전화번호:</strong> <span th:text="${myInfo.phoneNumber()}">전화번호</span>
+                </li>
+            </ul>
+        </div>
+        <div class="my_page_footer">
+            <a th:href="@{/my/edit}">정보 수정</a>
+            <a th:href="@{/my/password}">비밀번호 변경</a>
+        </div>
+    </section>
 </div>
-
-<hr/>
-<div>
-    <a th:href="@{/my/edit}">정보 수정</a>
-    <br/>
-    <a th:href="@{/my/password}">비밀번호 변경</a>
-</div>
-
-<hr/>
-<br/>
-<a th:href="@{/login?logout}">로그아웃</a>
-
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 </body>
 </html>

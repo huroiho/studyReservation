@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.response.RoomRulePickItemResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.mapper.RoomRuleMapper;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -76,4 +79,8 @@ public class RoomRuleService {
         roomRule.toggleActiveStatus(active);
     }
 
+    // 룸 등록시 정책 목록 조회용
+    public List<RoomRulePickItemResponse> getActivePickItems() {
+        return roomRuleRepository.findActivePickItems();
+    }
 }

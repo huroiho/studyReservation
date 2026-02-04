@@ -8,16 +8,17 @@
 </head>
 <body>
 
-<Header th:insert="~{fragment/header :: siteHeader}"></Header>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('reservations')}"></nav>
 
 <div class="container">
-    <div class="tabs">
-        <a href="#" class="active">예약 관리</a>
-        <a href="#">내 정보</a>
-        <a href="#">예약 히스토리</a>
-    </div>
-
+    <h2>마이페이지</h2>
     <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/myPage/reservations}" class="tab active">예약 현황</a>
+            <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
+            <a href="#" class="tab">내 정보</a>
+        </div>
         <div class="section-header">
             <h2>현재 예약 <span class="count-badge" th:text="${reservations.size()}">0</span></h2>
         </div>
@@ -49,7 +50,7 @@
             <div class="card-right">
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
-                <!--                <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
+                <!-- <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
 
                 <form th:if="${(res.status.name() == 'CONFIRMED' || res.status.name() == 'TEMP')
                                 and res.startTime.isAfter(#temporals.createNow())}"

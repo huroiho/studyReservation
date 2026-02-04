@@ -23,5 +23,11 @@
         <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
             <a class="page-link" th:href="@{${targetUrl}(page=${paging.number + 1}, minCapacity=${minCapacity ?: null}, sort=${sort ?: null})}">다음</a>
         </li>
+
+        <li class="page-item" th:classappend="${paging.last} ? 'disabled'">
+            <a class="page-link" th:href="@{${targetUrl}(page=${paging.totalPages - 1}, minCapacity=${minCapacity ?: null}, sort=${sort ?: null})}">
+                <span class="material-icons" style="font-size: 14px;">last_page</span>
+            </a>
+        </li>
     </ul>
 </div>
