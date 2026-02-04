@@ -12,6 +12,7 @@ import com.example.studyroomreservation.domain.payment.repository.PaymentReposit
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
+import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.config.TossPaymentConfig;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -49,7 +51,7 @@ public class PaymentService {
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
     private final TossPaymentConfig tossPaymentConfig;
-    //private final ReservationService reservationService; // TODO : 예약 파트 하면 주석 제거
+    private final ReservationService reservationService;
     private static final int RESERVATION_EXPIRE_EXTENSION_MINUTES = 3;
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
     @Transactional
@@ -58,8 +60,8 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findByIdWithLock(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if (reservation.getStatus() != ReservationStatus.TEMP) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        if (reservation.getStatus() != ReservationStatus.TEMP || reservation.isTempExpiredAt(LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
         }
 
         boolean isFirstPaymentAttempt = !paymentAttemptRepository.existsByReservationId(reservationId);
@@ -119,12 +121,20 @@ public class PaymentService {
         PaymentAttempt attempt = paymentAttemptRepository.findByOrderId(request.orderId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_ATTEMPT_NOT_FOUND));
 
-        if (attempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(java.time.LocalDateTime.now())) {
+        if (attempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(LocalDateTime.now())) {
             failService.markFailed(request.orderId(), "PAYMENT_EXPIRED", "payment attempt expired");
             throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
         }
 
         Long reservationId = attempt.getReservationId();
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (reservation.getStatus() != ReservationStatus.TEMP || reservation.isTempExpiredAt(LocalDateTime.now())) {
+            failService.markFailed(request.orderId(), "RESERVATION_EXPIRED", "Reservation was expired.");
+            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
+        }
 
         //멱등성
         if (attempt.getPaymentAttemptStatus() == PaymentAttemptStatus.SUCCESS) {
@@ -163,7 +173,7 @@ public class PaymentService {
 
             Long lockedReservationId = lockedAttempt.getReservationId();
 
-            if (lockedAttempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(java.time.LocalDateTime.now())) {
+            if (lockedAttempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(LocalDateTime.now())) {
                 failService.markFailed(request.orderId(), "PAYMENT_EXPIRED", "payment attempt expired");
                 throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
             }
@@ -203,7 +213,7 @@ public class PaymentService {
             return null;
         }
 
-        //reservationService.updateReservationStatus(lockedReservationId, ReservationStatus.PAID); // TODO : 예약 도메인 생성시 주석 제거
+        reservationService.confirmReservation(lockedReservationId);
             return null;
         });
     }
