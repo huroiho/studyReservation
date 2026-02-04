@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>스터디룸 관리</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-room-list.css}">
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='rooms')}"></nav>
+
+<div class="container">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>스터디룸 관리</h2>
+        <a th:href="@{/admin/rooms/new}" class="btn btn-primary">
+            <span class="material-icons">add</span>
+            새 룸 추가
+        </a>
+    </div>
+
+    <div class="form-card">
+        <table class="room-table">
+            <!-- ⭐ 컬럼 폭 고정의 핵심 -->
+            <colgroup>
+                <col class="col-thumb">
+                <col class="col-name">
+                <col class="col-capacity">
+                <col class="col-price">
+                <col class="col-status">
+                <col class="col-actions">
+            </colgroup>
+
+            <thead>
+            <tr>
+                <th>썸네일</th>
+                <th>룸 이름</th>
+                <th class="center">수용 인원</th>
+                <th>가격</th>
+                <th class="center">상태</th>
+                <th class="center">관리</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="room : ${rooms}">
+                <!-- Thumbnail -->
+                <td class="thumb-cell">
+                    <img th:if="${room.thumbnailUrl != null}"
+                         th:src="${room.thumbnailUrl}" alt="thumbnail">
+                    <div th:if="${room.thumbnailUrl == null}" class="no-image">
+                        NO IMAGE
+                    </div>
+                </td>
+
+                <!-- Name -->
+                <td class="room-name" th:text="${room.name}">
+                    브레인스토름 T (8인)
+                </td>
+
+                <!-- Capacity -->
+                <td class="center" th:text="${room.maxCapacity + '명'}">8명</td>
+
+                <!-- Price -->
+                <td th:text="${#numbers.formatInteger(room.price, 3, 'COMMA') + '원 / 시간'}">
+                    35,000원 / 시간
+                </td>
+
+                <!-- Status -->
+                <td class="center">
+                    <form th:action="@{|/admin/rooms/${room.id}/toggle|}"
+                          method="post"
+                          class="inline-form">
+                        <button type="submit"
+                                class="toggle-btn"
+                                th:classappend="${room.status.name() == 'ACTIVE' ? 'on' : 'off'}">
+                            <span class="toggle-knob"></span>
+                        </button>
+                    </form>
+                </td>
+
+                <!-- Actions -->
+                <td class="center">
+                    <div class="action-cell">
+                        <a th:href="@{|/admin/rooms/${room.id}/edit|}"
+                           class="icon-btn">
+                            <span class="material-icons">edit</span>
+                        </a>
+
+                        <form th:action="@{|/admin/rooms/${room.id}/delete|}"
+                              method="post"
+                              class="inline-form"
+                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                            <button type="submit" class="icon-btn">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(rooms)}">
+                <td colspan="6" class="empty-row">
+                    등록된 스터디룸이 없습니다.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <a th:if="${page.hasPrevious()}"
+           th:href="@{/admin/rooms(page=${page.number - 1})}"
+           class="page-btn">
+            <span class="material-icons">chevron_left</span>
+        </a>
+
+        <span class="page-info">
+            <span th:text="${page.number + 1}">1</span>
+            /
+            <span th:text="${page.totalPages}">1</span>
+        </span>
+
+        <a th:if="${page.hasNext()}"
+           th:href="@{/admin/rooms(page=${page.number + 1})}"
+           class="page-btn">
+            <span class="material-icons">chevron_right</span>
+        </a>
+    </div>
+
+</div>
+
+<footer th:insert="~{fragment/footer :: siteFooter}"></footer>
+
+</body>
+</html>
