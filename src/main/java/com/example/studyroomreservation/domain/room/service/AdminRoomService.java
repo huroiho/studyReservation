@@ -10,15 +10,12 @@ import com.example.studyroomreservation.domain.room.entity.RoomImage;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
-import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.domain.room.repository.RoomRuleRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -160,4 +157,26 @@ public class AdminRoomService {
     public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
         return roomRepository.findAdminRoomList(pageable);
     }
+
+    @Transactional
+    public void toggleRoomStatus(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getStatus() == Room.RoomStatus.ACTIVE) {
+            room.inactivate();
+        } else {
+            room.activate();
+        }
+    }
+
+    @Transactional
+    public void deleteRoom(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        room.softDelete();
+    }
+
+
 }

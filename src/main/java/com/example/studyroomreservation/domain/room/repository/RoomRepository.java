@@ -57,16 +57,18 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query(
         value = """
         SELECT new com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse(
-            r.id, r.name, r.price, r.maxCapacity, r.status, i.imageUrl
+            r.id, r.name, r.maxCapacity, r.price, r.status, i.imageUrl
         )
         FROM Room r
         LEFT JOIN RoomImage i
             ON i.room = r AND i.type = 'THUMBNAIL'
+        WHERE r.deletedAt IS NULL
         ORDER BY r.id DESC
     """,
     countQuery = """
         SELECT COUNT(r)
         FROM Room r
+        WHERE r.deletedAt IS NULL
     """)
     Page<AdminRoomListResponse> findAdminRoomList(Pageable pageable);
 }
