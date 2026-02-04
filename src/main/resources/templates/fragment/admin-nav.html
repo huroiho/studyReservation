@@ -13,16 +13,19 @@
                 </li>
 
                 <li th:classappend="${activeLink == 'operation-policies'} ? 'active'">
-                    <a th:href="@{/admin/operation-policies}">운영 정책</a>
+                    <a th:href="@{/admin/operation-policies}">운영 정책 관리</a>
                 </li>
 
                 <li th:classappend="${activeLink == 'refund/policy'} ? 'active'">
-                    <a th:href="@{/admin/refund/policy/list}">환불 정책</a>
+                    <a th:href="@{/admin/refund/policy/list}">환불 정책 관리</a>
                 </li>
 
-
                 <li th:classappend="${activeLink == 'reservations'} ? 'active'">
-                    <a th:href="@{/admin/reservations}">예약관리</a>
+                    <a th:href="@{/admin/reservations}">예약 관리</a>
+                </li>
+
+                <li th:classappend="${activeLink == 'member'} ? 'active'">
+                    <a th:href="@{/admin/members}">회원 관리</a>
                 </li>
             </ul>
         </div>

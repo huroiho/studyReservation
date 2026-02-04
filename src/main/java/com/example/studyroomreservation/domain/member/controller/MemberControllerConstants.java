@@ -18,4 +18,8 @@ public class MemberControllerConstants {
     public static final String MEMBER_PASSWORD = "member/password";
     public static final String MEMBER_LOGIN = "member/login";
     public static final String MEMBER_SIGNUP = "member/signup";
+
+    // 관리자
+    public static final String ADMIN_MEMBER_LIST_VIEW = "/admin/members";
+    public static final String ADMIN_MEMBER_LIST = "member/admin/list";
 }
