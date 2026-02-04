@@ -20,7 +20,7 @@ import static com.example.studyroomreservation.domain.room.controller.OperationP
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(BASE_PATH)
-public class OperationPolicyController {
+public class OperationPolicyViewController {
 
     private final OperationPolicyService operationPolicyService;
     private final OperationPolicyFormFactory formFactory;

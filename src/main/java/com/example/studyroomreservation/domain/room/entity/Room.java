@@ -64,16 +64,17 @@ public class Room extends BaseSoftDeletableEntity {
                  String name,
                  Integer maxCapacity,
                  Integer price,
-                 Set<AmenityType> amenities){
+                 Set<AmenityType> amenities,
+                 RoomStatus status
+    ){
         this.operationPolicy = operationPolicy;
         this.roomRule = roomRule;
         this.refundPolicyId = refundPolicyId;
         this.name = name;
         this.maxCapacity = maxCapacity;
         this.price = price;
-        this.amenities = (amenities != null) ? amenities : new HashSet<>();
-
-        this.status = RoomStatus.ACTIVE;
+        this.amenities = (amenities != null) ? new HashSet<>(amenities) : new HashSet<>();
+        this.status = status;
     }
 
     // --- 정적 팩토리 메서드 ----
@@ -85,7 +86,7 @@ public class Room extends BaseSoftDeletableEntity {
                               Integer price,
                               Set<AmenityType> amenities) {
 
-        return new Room(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price, amenities);
+        return new Room(operationPolicy, roomRule, refundPolicyId, name, maxCapacity, price, amenities, RoomStatus.ACTIVE);
     }
 
     public void addImage(RoomImage image) {

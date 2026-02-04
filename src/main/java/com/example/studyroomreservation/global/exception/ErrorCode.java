@@ -23,6 +23,14 @@ public enum ErrorCode {
     ROOM_NOT_AVAILABLE(HttpStatus.NOT_FOUND, "RM002", "해당 방은 현재 이용할 수 없습니다."),
     ROOM_INVALID_PAST_DATE(HttpStatus.BAD_REQUEST, "RM003", "과거 날짜는 조회할 수 없습니다."),
 
+    ROOM_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "RM004", "메인 이미지는 필수입니다."),
+    ROOM_IMAGE_TYPE_INVALID(HttpStatus.BAD_REQUEST, "RM005", "이미지는 jpg, png, webp 형식만 가능합니다."),
+    ROOM_IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "RM006", "이미지 크기는 5MB를 초과할 수 없습니다."),
+    ROOM_IMAGE_DIMENSION_EXCEEDED(HttpStatus.BAD_REQUEST, "RM007", "이미지 크기는 8000x8000 픽셀을 초과할 수 없습니다."),
+    ROOM_GENERAL_IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "RM008", "일반 이미지는 최대 10개까지 등록 가능합니다."),
+    ROOM_IMAGE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RM009", "이미지 저장에 실패했습니다."),
+    ROOM_THUMBNAIL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RM010", "썸네일 생성에 실패했습니다."),
+
     // REFUND
     REF_POLICY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "RF001", "정책 이름은 필수입니다."),
     REF_RULE_REQUIRED(HttpStatus.BAD_REQUEST, "RF002", "최소 하나의 환불 규칙이 필요합니다."),
@@ -33,6 +41,7 @@ public enum ErrorCode {
     REF_AMOUNT_INVALID(HttpStatus.BAD_REQUEST, "RF007", "환불 금액은 0원보다 커야 합니다."),
     REF_POLICY_NAME_DUPLICATE(HttpStatus.CONFLICT, "RF008", "이미 존재하는 정책 이름입니다."),
     REF_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "RF009", "환불 정책이 존재하지 않습니다."),
+    REF_POLICY_INACTIVE(HttpStatus.BAD_REQUEST, "RF010","비활성화된 환불 정책입니다"),
 
     // RESERVATION
     RES_REQUIRED_VALUE_MISSING(HttpStatus.BAD_REQUEST, "RS001", "필수 값이 누락되었습니다."),
@@ -75,7 +84,7 @@ public enum ErrorCode {
     OP_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "OP008", "운영 정책이 존재하지 않습니다."),
     OP_POLICY_IN_USE_BY_ROOM(HttpStatus.CONFLICT, "OP009", "이 정책을 사용 중인 룸이 있어 삭제할 수 없습니다."),
     OP_POLICY_IN_USE_BY_RESERVATION(HttpStatus.CONFLICT, "OP010", "이 정책이 적용된 예약이 있어 삭제할 수 없습니다."),
-
+    OP_POLICY_INACTIVE(HttpStatus.BAD_REQUEST, "OP011","비활성화된 운영 정책입니다"),
 
     // OPERATION SCHEDULE
     OS_POLICY_REQUIRED(HttpStatus.BAD_REQUEST, "OS001", "운영 스케줄은 운영 정책에 속해야 합니다."),
@@ -92,7 +101,10 @@ public enum ErrorCode {
     RR_NAME_DUPLICATE(HttpStatus.CONFLICT, "RR001", "이미 존재하는 규칙 이름입니다."),
     RR_VALUES_DUPLICATE(HttpStatus.CONFLICT, "RR002", "동일한 설정을 가진 예약 규칙이 이미 존재합니다."),
     RR_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "RR003", "최소 1개의 이용 규칙은 활성화되어 있어야 합니다."),
-    RR_IN_USE(HttpStatus.BAD_REQUEST, "RR004", "현재 객실에서 사용 중인 규칙은 비활성화할 수 없습니다.");
+    RR_IN_USE(HttpStatus.BAD_REQUEST, "RR004", "현재 객실에서 사용 중인 규칙은 비활성화할 수 없습니다."),
+    RR_NOT_FOUND(HttpStatus.NOT_FOUND, "RR005", "예약 규칙이 존재하지 않습니다."),
+    RR_INACTIVE(HttpStatus.BAD_REQUEST, "RR006","비활성화된 예약 규칙입니다");
+
     private final HttpStatus status;
     private final String code;
     private final String message;

@@ -1,8 +1,11 @@
 package com.example.studyroomreservation.domain.room.mapper;
 
+import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
+import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
+import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import org.mapstruct.Mapper;
 
 import java.util.Comparator;
@@ -78,4 +81,22 @@ public interface RoomMapper {
                 .filter(img -> img.getType() == type)
                 .min(Comparator.comparing(RoomImage::getSortOrder));
     }
+
+    // ============ admin ================
+    default Room toEntity(
+            RoomCreateRequest request,
+            OperationPolicy operationPolicy,
+            RoomRule roomRule
+    ) {
+        return Room.create(
+                operationPolicy,
+                roomRule,
+                request.refundPolicyId(),
+                request.name(),
+                request.maxCapacity(),
+                request.price(),
+                request.amenities()
+        );
+    }
+
 }
