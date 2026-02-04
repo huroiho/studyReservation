@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.room.service;
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
@@ -15,6 +16,8 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -150,4 +153,30 @@ public class AdminRoomService {
         }
         // refundPolicyId는 Room에 id로 저장됨.
     }
+
+    public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
+        return roomRepository.findAdminRoomList(pageable);
+    }
+
+    @Transactional
+    public void toggleRoomStatus(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getStatus() == Room.RoomStatus.ACTIVE) {
+            room.inactivate();
+        } else {
+            room.activate();
+        }
+    }
+
+    @Transactional
+    public void deleteRoom(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        room.softDelete();
+    }
+
+
 }

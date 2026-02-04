@@ -1,14 +1,14 @@
 package com.example.studyroomreservation.domain.room.repository;
 
+import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.Room;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,4 +53,22 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             "LEFT JOIN FETCH op.schedules " +
             "WHERE r.id = :id AND r.deletedAt IS NULL")
     Optional<Room> findWithOperationPolicyById(@Param("id") Long id);
+
+    @Query(
+        value = """
+        SELECT new com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse(
+            r.id, r.name, r.maxCapacity, r.price, r.status, i.imageUrl
+        )
+        FROM Room r
+        LEFT JOIN RoomImage i
+            ON i.room = r AND i.type = 'THUMBNAIL'
+        WHERE r.deletedAt IS NULL
+        ORDER BY r.id DESC
+    """,
+    countQuery = """
+        SELECT COUNT(r)
+        FROM Room r
+        WHERE r.deletedAt IS NULL
+    """)
+    Page<AdminRoomListResponse> findAdminRoomList(Pageable pageable);
 }
