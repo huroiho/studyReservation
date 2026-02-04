@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
 </head>
 <body>
-<Header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></Header>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='reservations')}"></Header>
 <nav th:insert="~{fragment/admin-nav :: siteNav('')}"></nav>
 <div class="container">
     <h2>마이페이지</h2>
@@ -16,7 +16,7 @@
         <div class="tabs">
             <a th:href="@{/members/myPage/reservations}" class="tab">예약 현황</a>
             <a th:href="@{/members/myPage/history}" class="tab active">예약 히스토리</a>
-            <a href="#" class="tab">내 정보</a>
+            <a th:href="@{/my}" class="tab">내 정보</a>
         </div>
         <div class="section-header">
             <h2>예약 히스토리</h2>
