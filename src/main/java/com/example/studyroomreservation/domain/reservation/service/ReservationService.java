@@ -194,7 +194,7 @@ public class ReservationService {
         long result = reservationRepository.confirmIfTemp(reservationId, LocalDateTime.now());
 
         if (result == 0) {
-            throw new BusinessException(ErrorCode.RES_EXPIRED);
+            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
         }
     }
 
