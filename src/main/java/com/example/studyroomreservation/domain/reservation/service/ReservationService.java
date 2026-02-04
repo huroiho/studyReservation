@@ -20,14 +20,18 @@ import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.querydsl.core.Tuple;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
@@ -39,21 +43,48 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 public class ReservationService {
 
     private final ReservationMapper reservationMapper;
-
+    private final RedissonClient redissonClient;
     private final RoomRepository roomRepository;
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
+    private final TransactionTemplate transactionTemplate;
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
-    //TODO: 락 걸기
-    @Transactional
+
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
+        // 과거 시간 예약 차단
         if(request.startTime().isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
 
+        // 방번호 + 날짜까지 포함해서 락
+        String lockKey = String.format("lock:reservation:room:%d:%s",
+                request.roomId(), request.startTime().toLocalDate().toString());
+        RLock lock = redissonClient.getLock(lockKey);
+
+        try {
+            boolean available = lock.tryLock(3, 2, TimeUnit.SECONDS);
+            if (!available) {
+                throw new BusinessException(ErrorCode.RES_CONCURRENT_ACCESS);
+            }
+
+            return transactionTemplate.execute(status -> {
+                return createReservationLogic(request, memberId);
+            });
+
+        } catch (InterruptedException e) {
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
+    @Transactional
+    public Long createReservationLogic(ReservationCreateRequest request, Long memberId) {
         Room room = roomRepository.findById(request.roomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
