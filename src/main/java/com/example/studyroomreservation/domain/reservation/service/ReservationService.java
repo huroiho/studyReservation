@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.*;
 import java.util.List;
@@ -47,25 +48,31 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
+    private final TransactionTemplate transactionTemplate;
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
+
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
+        // 과거 시간 예약 차단
         if(request.startTime().isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
 
+        // 방번호 + 날짜까지 포함해서 락
         String lockKey = String.format("lock:reservation:room:%d:%s",
                 request.roomId(), request.startTime().toLocalDate().toString());
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
-            boolean available = lock.tryLock(5, 3, TimeUnit.SECONDS);
+            boolean available = lock.tryLock(3, 2, TimeUnit.SECONDS);
             if (!available) {
                 throw new BusinessException(ErrorCode.RES_CONCURRENT_ACCESS);
             }
 
-            return createReservationLogic(request, memberId);
+            return transactionTemplate.execute(status -> {
+                return createReservationLogic(request, memberId);
+            });
 
         } catch (InterruptedException e) {
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
