@@ -61,6 +61,7 @@ public enum ErrorCode {
     RES_NOT_ENDED_YET(HttpStatus.CONFLICT, "RS014", "아직 이용 종료 시간이 지나지 않았습니다."),
     RES_ALREADY_RESERVED(HttpStatus.CONFLICT, "RS015", "이미 예약된 시간입니다."),
     RES_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT,"R016","취소 가능한 상태나 시간이 아닙니다."),
+    RES_CONCURRENT_ACCESS(HttpStatus.CONFLICT, "RS017", "동시에 많은 요청이 들어와 예약에 실패했습니다. 잠시 후 다시 시도해주세요."),
 
     //PAYMENT
     PAYMENT_STATUS_INVALID_TRANSITION(HttpStatus.CONFLICT,"P001", "결제 상태를 변경할 수 없습니다."),
