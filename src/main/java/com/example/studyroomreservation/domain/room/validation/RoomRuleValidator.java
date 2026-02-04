@@ -10,9 +10,7 @@ import org.springframework.validation.Validator;
 
 /**
  * 방 예약 규칙 생성 시 비즈니스 검증을 수행하는 Validator
- * <p>
- * 검증 범위:
- * - 규칙명 중복 (DB 조회)
+ * 검증 범위: 규칙명 중복 (DB 조회)
  */
 @Component
 @RequiredArgsConstructor
@@ -35,7 +33,6 @@ public class RoomRuleValidator implements Validator {
     }
     private void validateNameUniqueness(RoomRuleCreateRequest request, Errors errors) {
         if (request.name() != null && roomRuleRepository.existsByName(request.name())) {
-//            errors.rejectValue("name", "RR001", "이미 존재하는 규칙 이름입니다.");
             errors.rejectValue("name",
                     ErrorCode.RR_NAME_DUPLICATE.getCode(),
                     ErrorCode.RR_NAME_DUPLICATE.getMessage());
