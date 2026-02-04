@@ -1,0 +1,117 @@
+/* ===== Admin Room List ===== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* Table */
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.room-table th,
+.room-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.room-table th {
+    color: #64748b;
+    font-weight: 600;
+    background: #f9fafb;
+}
+
+/* Thumbnail */
+.thumb-cell img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.no-image {
+    width: 80px;
+    height: 60px;
+    background: #f1f5f9;
+    color: #9ca3af;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+/* Status */
+.status-active {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.status-inactive {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+/* Actions */
+.action-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.icon-btn:hover {
+    color: #0f172a;
+}
+
+/* Empty */
+.empty-row {
+    text-align: center;
+    padding: 30px;
+    color: #9ca3af;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    color: #374151;
+    background: #f9fafb;
+}
+
+.page-btn:hover {
+    background: #e5e7eb;
+}
+
+.page-info {
+    font-size: 0.9rem;
+    color: #374151;
+}
