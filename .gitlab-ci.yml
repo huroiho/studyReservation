@@ -1,11 +1,12 @@
+######################################
+# 학습용으로 실제로는 다른 방식으로 할 것!
+######################################
 variables:
-  DEPLOY_BRANCH: "develop"
-
+  TARGET_BRANCH: "develop"
 stages:
   - build
   - test
   - deploy
-
 build_job:
   stage: build
   tags:
@@ -19,8 +20,8 @@ build_job:
       - build/libs/*.jar
     expire_in: 1 day
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
 test_job:
   stage: test
   tags:
@@ -29,29 +30,34 @@ test_job:
     - echo "코드 테스트를 수행합니다..."
     - chmod +x ./gradlew
     - ./gradlew test
+  artifacts:
+    when: always
+    paths:
+      - build/reports/tests/test/
+      - build/reports/problems/
+      - build/test-results/test/
+    expire_in: 1 week
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
 deploy_job:
   stage: deploy
-  tags:
-    - studyroom-deploy
   needs:
     - build_job
     - test_job
+  tags:
+    - studyroom-deploy
   script:
-    - echo "배포를 시작합니다..."
+    - echo "운영 서버 배포를 시작합니다..."
     - test -n "$DB_URL" && echo "DB_URL OK" || (echo "DB_URL EMPTY" && exit 1)
     - test -n "$DB_USERNAME" && echo "DB_USERNAME OK" || (echo "DB_USERNAME EMPTY" && exit 1)
     - test -n "$DB_PASSWORD" && echo "DB_PASSWORD OK" || (echo "DB_PASSWORD EMPTY" && exit 1)
-    - sudo fuser -k 8080/tcp || true
-    - sleep 2
-    - JAR="$(ls -1t build/libs/*SNAPSHOT.jar | head -n 1)"
-    - echo "Using JAR: $JAR"
-    - nohup java -Dspring.profiles.active=dev -jar "$JAR" > app.log 2>&1 &
-    - sleep 2
-    - ss -ltnp | grep 8080
-    - tail -n 50 app.log || true
-    - echo "배포 완료"
+    - sudo pkill -f 'java' || true
+    - sleep 5
+    - nohup java -Dspring.profiles.active=dev -DDB_PASSWORD="$DB_PASSWORD" -DDB_USERNAME="$DB_USERNAME" -DDB_URL="$DB_URL"  -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
+    - echo "배포가 완료되었습니다!"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
+    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+######################################
+# 학습용으로 실제로는 다른 방식으로 할 것!
+######################################
