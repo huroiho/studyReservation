@@ -3,8 +3,9 @@ package com.example.studyroomreservation.domain.room.mapper;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.DeleteBlockInfo;
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.ScheduleDetail;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.RoomSummary;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickDetailResponse;
+import com.example.studyroomreservation.domain.room.dto.response.OperationScheduleResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -37,9 +38,9 @@ public interface OperationPolicyMapper {
     }
 
     @Mapping(target = "closed", source = "closed")
-    ScheduleDetail toScheduleDetail(OperationSchedule schedule);
+    OperationScheduleResponse toScheduleDetail(OperationSchedule schedule);
 
-    default List<ScheduleDetail> toScheduleDetails(List<OperationSchedule> schedules) {
+    default List<OperationScheduleResponse> toScheduleDetails(List<OperationSchedule> schedules) {
         if (schedules == null) return List.of();
 
         // 요일순 정렬 (MONDAY=1 ... SUNDAY=7)
@@ -66,7 +67,7 @@ public interface OperationPolicyMapper {
     ) {
         if (policy == null) return null;
 
-        List<ScheduleDetail> schedules = toScheduleDetails(policy.getSchedules());
+        List<OperationScheduleResponse> schedules = toScheduleDetails(policy.getSchedules());
         List<RoomSummary> rooms = toRoomSummaries(connectedRooms);
 
         int connectedRoomCount = rooms.size();
@@ -85,4 +86,26 @@ public interface OperationPolicyMapper {
                 deleteInfo
         );
     }
+
+    // pick-detail 응답 조립
+    default OperationPolicyPickDetailResponse toPickDetailResponse(OperationPolicy policy) {
+        if (policy == null) return null;
+
+        List<OperationScheduleResponse> schedules =
+                policy.getSchedules() == null ? List.of()
+                        : policy.getSchedules().stream()
+                        .sorted(Comparator.comparingInt(s -> s.getDayOfWeek().getValue()))
+                        .map(this::toScheduleDetail)
+                        .toList();
+
+        return new OperationPolicyPickDetailResponse(
+                policy.getId(),
+                policy.getName(),
+                policy.getSlotUnit(),
+                policy.isActive(),
+                policy.getCreatedAt(),
+                schedules
+        );
+    }
 }
+

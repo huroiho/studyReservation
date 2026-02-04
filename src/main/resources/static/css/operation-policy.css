@@ -83,17 +83,6 @@
     padding: 0;
     box-sizing: border-box;
 }
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: var(--font-size-base);
-    line-height: 1.5;
-    color: var(--color-foreground);
-    background-color: var(--color-gray-50);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 /* ========================================
    Layout (Shared)
    ======================================== */
@@ -104,12 +93,6 @@ body {
 .content-wrapper {
     max-width: 80rem;
     margin: 0 auto;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
 }
 
 /* ========================================
@@ -563,8 +546,10 @@ td.text-primary {
    Action Buttons (Table & Detail)
    ======================================== */
 .action-buttons {
+    margin-top: 20px;
     display: flex;
     align-items: center;
+    justify-content: end;
     gap: var(--spacing-2);
 }
 
@@ -624,7 +609,7 @@ td.text-primary {
     padding: 0.5rem 1rem;
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
-    border-radius: var(--border-radius-lg);
+    border-radius: 6px;
     border: none;
     cursor: pointer;
     text-decoration: none;
@@ -1080,7 +1065,7 @@ td.text-primary {
 
 /* Card Container */
 .operation-policy-create .card {
-    max-width: 720px;
+    /*max-width: 720px;*/
     margin: 40px auto;
     padding: 40px;
     background: var(--color-background);
@@ -1117,6 +1102,7 @@ td.text-primary {
 
 /* Form Group */
 .operation-policy-create .form-group {
+    max-width: 720px;
     margin-bottom: 24px;
 }
 
@@ -1196,6 +1182,7 @@ td.text-primary {
 
 /* Schedule Table */
 .operation-policy-create .schedule-table {
+    max-width: 720px;
     display: flex;
     flex-direction: column;
     gap: 0;

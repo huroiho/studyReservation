@@ -1,67 +1,10 @@
-
-
-/* 1. 네비게이션 (가로 정렬) */
-.nav-inner .center ul {
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 1rem 0;
-    margin: 0;
-    gap: 30px;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.nav-inner .center ul li a {
-    text-decoration: none;
-    color: #64748b;
-    font-weight: 500;
-    font-size: 1.05rem;
-    transition: color 0.2s;
-}
-
-.nav-inner .center ul li a:hover {
-    color: #0f172a;
-}
-
-.nav-inner .center ul li.active a {
-    color: #0f172a;
-    font-weight: 800;
-    border-bottom: 2px solid #0f172a;
-    padding-bottom: 4px;
-}
-
-/* 2. 컨텐츠 레이아웃 */
-body {
-    background-color: #f8fafc;
-}
-
-.container-wrapper {
-    min-height: 600px;
-    padding-top: 40px;
-    padding-bottom: 60px;
-
-    /* [수정] 헤더/푸터와 너비를 동일하게 맞춤 */
-    width: min(1200px, calc(100% - 40px));
-    margin: 0 auto;
-}
-
-h1 {
-    font-weight: 800;
-    color: #0f172a;
-    font-size: 1.75rem;
-    margin-bottom: 20px;
-}
-
 /* 3. 테이블 컨테이너 (스크롤 기능) */
 .table-container {
+    margin-top: 30px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e2e8f0;
-
-    /* 창이 작아지면 가로 스크롤 생성 */
-    overflow-x: auto;
-    width: 100%;
 }
 
 /* 4. 테이블 스타일 */
@@ -69,8 +12,6 @@ h1 {
     width: 100%;
     /* [핵심] fixed로 설정해야 퍼센트(%) 너비가 정확히 먹히고 ... 처리가 됨 */
     table-layout: fixed;
-
-
     border-collapse: collapse;
     text-align: left;
     white-space: nowrap; /* 줄바꿈 금지 */

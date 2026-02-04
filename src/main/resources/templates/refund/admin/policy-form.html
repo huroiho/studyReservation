@@ -3,86 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>환불 정책 등록</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; color: #333; }
-        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px; }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #555; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; transition: border-color 0.2s; }
-        input:focus { border-color: #008CBA; outline: none; }
-
-        .error { color: #dc3545; font-size: 0.85em; margin-top: 5px; display: block; }
-        .help-text { font-size: 0.85em; color: #888; margin-top: 4px; }
-
-        /* 규칙 리스트 그리드 레이아웃 개선 */
-        .rule-item {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 15px;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 15px;
-            align-items: start;
-        }
-
-        .btn { padding: 10px 20px; cursor: pointer; border: none; border-radius: 4px; font-weight: 600; transition: background 0.2s; }
-        .btn-add { background-color: #4CAF50; color: white; width: 100%; margin-top: 10px; }
-        .btn-add:hover { background-color: #45a049; }
-
-        /* 삭제 버튼 높이 및 위치 정렬 보정 */
-        .btn-del { background-color: #ff4d4d; color: white; height: 42px; margin-top: 29px; }
-        .btn-del:hover { background-color: #ff3333; }
-
-        .btn-submit { background-color: #008CBA; color: white; font-size: 1.1em; margin-top: 30px; width: 100%; }
-        .btn-submit:hover { background-color: #00779d; }
-
-        /* 라벨 숨김 처리 (첫 번째 행 제외하고 사용) */
-        .visually-hidden { display: none; }
-    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/refund-admin-detail.css}" />
 </head>
 <body>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='refund/policy')}"></nav>
 
-<h2>환불 정책 등록</h2>
-
-<form th:action="@{/admin/refund/policy/new}" th:object="${policyForm}" method="post" id="policyForm">
-
-    <div class="form-group">
-        <label for="policyName">정책 이름</label>
-        <input type="text" id="policyName" th:field="*{name}" placeholder="예: 기본 환불 정책" required>
-        <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
-    </div>
-
-    <label style="margin-top: 30px; display: block;">환불 규칙 목록</label>
-    <div id="rule-list">
-        <div class="rule-item" th:each="rule, stat : *{rules}">
-            <div>
-                <label th:for="${'ruleName-' + stat.index}">규칙명</label>
-                <input type="text" th:id="${'ruleName-' + stat.index}" th:field="*{rules[__${stat.index}__].name}" placeholder="예: 7일전" required>
-                <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].name')}" th:errors="*{rules[__${stat.index}__].name}"></span>
-            </div>
-            <div>
-                <label th:for="${'ruleTime-' + stat.index}">기준 시간(분)</label>
-                <input type="number" th:id="${'ruleTime-' + stat.index}" th:field="*{rules[__${stat.index}__].refundBaseMinutes}" placeholder="10080" required>
-                <div class="help-text">예: 60 (1시간 전)</div>
-                <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].refundBaseMinutes')}" th:errors="*{rules[__${stat.index}__].refundBaseMinutes}"></span>
-            </div>
-            <div>
-                <label th:for="${'ruleRate-' + stat.index}">환불율(%)</label>
-                <input type="number" th:id="${'ruleRate-' + stat.index}" th:field="*{rules[__${stat.index}__].refundRate}" placeholder="100" min="0" max="100" required>
-                <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].refundRate')}" th:errors="*{rules[__${stat.index}__].refundRate}"></span>
-            </div>
-            <button type="button" class="btn btn-del" onclick="removeRule(this)">삭제</button>
+<div class="container">
+    <a th:href="@{list}" class="back-link">
+        <span class="material-icons" style="font-size: 18px;">arrow_back</span> 목록으로
+    </a>
+    <h2>환불 정책 등록</h2>
+    <div class="info-box">
+        <span class="material-icons icon">error_outline</span>
+        <div>
+            <div class="warning-text">환불 정책은 생성 후 내용 수정이 불가능합니다.</div>
+            <div class="sub-text">필요 시 새로운 정책을 등록하거나 상태를 변경하세요.</div>
         </div>
     </div>
+    <form th:action="@{/admin/refund/policy/new}" th:object="${policyForm}" method="post" id="policyForm">
 
-    <button type="button" class="btn btn-add" onclick="addRule()">+ 규칙 추가하기</button>
-    <button type="submit" class="btn btn-submit">저장하기</button>
-</form>
+        <div class="form-group">
+            <label for="policyName">정책 이름</label>
+            <input type="text" id="policyName" th:field="*{name}" placeholder="예: 기본 환불 정책" required>
+            <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </div>
 
-<template id="ruleTemplate">
+        <label style="margin-top: 30px; display: block;">환불 규칙 목록</label>
+        <div id="rule-list">
+            <div class="rule-item" th:each="rule, stat : *{rules}">
+                <div>
+                    <label th:for="${'ruleName-' + stat.index}">규칙명</label>
+                    <input type="text" th:id="${'ruleName-' + stat.index}" th:field="*{rules[__${stat.index}__].name}" placeholder="예: 7일전" required>
+                    <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].name')}" th:errors="*{rules[__${stat.index}__].name}"></span>
+                </div>
+                <div>
+                    <label th:for="${'ruleTime-' + stat.index}">기준 시간(분)</label>
+                    <input type="number" th:id="${'ruleTime-' + stat.index}" th:field="*{rules[__${stat.index}__].refundBaseMinutes}" placeholder="10080" required>
+                    <div class="help-text">예: 60 (1시간 전)</div>
+                    <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].refundBaseMinutes')}" th:errors="*{rules[__${stat.index}__].refundBaseMinutes}"></span>
+                </div>
+                <div>
+                    <label th:for="${'ruleRate-' + stat.index}">환불율(%)</label>
+                    <input type="number" th:id="${'ruleRate-' + stat.index}" th:field="*{rules[__${stat.index}__].refundRate}" placeholder="100" min="0" max="100" required>
+                    <span class="error" th:if="${#fields.hasErrors('rules[__${stat.index}__].refundRate')}" th:errors="*{rules[__${stat.index}__].refundRate}"></span>
+                </div>
+                <button type="button" class="btn btn-del" onclick="removeRule(this)">삭제</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-add" onclick="addRule()">+ 규칙 추가하기</button>
+        <button type="submit" class="btn btn-submit">저장하기</button>
+    </form>
+
+    <template id="ruleTemplate">
     <div class="rule-item">
         <div>
             <label>규칙명</label>
@@ -100,7 +76,8 @@
         <button type="button" class="btn btn-del" onclick="removeRule(this)">삭제</button>
     </div>
 </template>
-
+</div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
 <script>
     // 페이지 로드 시 규칙이 하나도 없으면 기본 추가
     document.addEventListener("DOMContentLoaded", function() {

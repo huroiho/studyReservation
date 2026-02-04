@@ -2,20 +2,21 @@
      xmlns:th="http://www.thymeleaf.org"
      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div class="prefix">
-        <a class="brand" th:href="@{/}">
+        <a class="brand" th:href="@{/rooms}">
             <span class="brand-mark">SR</span>
             <span class="brand-text">StudyRoom</span>
         </a>
     </div>
 
     <div class="nav">
-        <a class="nav-link" th:href="@{/}"
-           th:classappend="${activeLink == 'home'} ? 'is-active'">홈</a>
+<!--        <a class="nav-link" th:href="@{/}"-->
+<!--           th:classappend="${activeLink == 'home'} ? 'is-active'">홈</a>-->
 
         <a class="nav-link" th:href="@{/rooms}"
            th:classappend="${activeLink == 'rooms'} ? 'is-active'">룸</a>
 
-        <a class="nav-link" th:href="@{/reservations}"
+        <a sec:authorize="hasRole('USER')"
+           class="nav-link" th:href="@{/members/myPage/reservations}"
            th:classappend="${activeLink == 'reservations'} ? 'is-active'">내 예약</a>
     </div>
 
