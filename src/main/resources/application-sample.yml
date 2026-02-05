@@ -4,18 +4,38 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 로컬은 SSL 불필요, 개발 편의성 옵션 추가
     url: jdbc:mysql://localhost:3306/studyRoom?createDatabaseIfNotExist=true&useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   # --- Local JPA  ---
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: false
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
+  sql:
+    init:
+      mode: always
+  # --- [추가] Redis 설정 (Docker: localhost:6380) ---
+  data:
+    redis:
+      host: localhost
+      port: 6380
+
+  session:
+    store-type: redis        # 세션을 레디스에 저장
+    redis:
+      namespace: spring:session
+      flush-mode: on_save # Redis Key 접두사
+    timeout: 20d
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
 
   # --- Local Thymeleaf (즉시 반영) ---
   thymeleaf:
@@ -29,8 +49,6 @@ app:
       type: local # 로컬 디스크에 저장
       local-path: ${LOCAL_FILE_PATH:C:/shop/images/}
       s3-bucket: ${S3_BUCKET_NAME:dummy-bucket} # 로컬에선 안쓰지만 플레이스홀더
-
-
 
 # ==========================================
 # [개발 전용] 로깅 & 디버깅 (P6Spy)
@@ -49,3 +67,7 @@ logging:
     com.mall.project: DEBUG # 내 코드는 자세히 보기
     p6spy: INFO            # 쿼리 로그 보기
     org.hibernate.SQL: INFO
+
+toss:
+  client-key: ${TOSS_CLIENT_KEY}
+  secret-key: ${TOSS_SECRET_KEY}

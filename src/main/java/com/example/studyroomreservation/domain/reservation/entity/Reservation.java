@@ -152,7 +152,7 @@ public class Reservation extends BaseAuditableEntity {
 
         if (!isCancellable(now)) {
             //TODO: 환불 기능 들어가면 isCancellable 로직에 CONFIRM 상태에서의 취소 가능성 검토하기
-            throw new BusinessException(ErrorCode.RES_CANCEL_PERIOD_EXPIRED);
+            throw new BusinessException(ErrorCode.RES_CANCEL_NOT_ALLOWED);
         }
 
         this.status = CANCELED;
