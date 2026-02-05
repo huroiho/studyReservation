@@ -30,7 +30,7 @@ public class TossPaymentsClient {
                                     ))
                     )
                     .bodyToMono(TossConfirmResponse.class)
-                    .block();
+                    .block(); //FIXME: 제품에서는 절때 쓰면 안되고, deeper를 써야한다.
 
         } catch (BusinessException e) {
             throw e;
