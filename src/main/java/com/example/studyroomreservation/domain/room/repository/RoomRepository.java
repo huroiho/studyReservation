@@ -34,10 +34,11 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
         """)
     List<UserRoomListResponse> findUserListResponsesByIds(@Param("ids") List<Long> ids);
 
-    // 룸 상세 조회용
+    //룸 상세 조회 공용(admin 수정 화면, user 상세 화면) - images, operationPolicy, roomRule을 함께 fetch
+    // 추후 화면 요구사항에 따라 분리 가능
     @EntityGraph(attributePaths = {"images", "operationPolicy", "roomRule"})
     @Query("SELECT r FROM Room r WHERE r.id = :id AND r.deletedAt IS NULL")
-    Optional<Room> findUserDetailById(@Param("id") Long id);
+    Optional<Room> findDetailById(@Param("id") Long id);
 
     // 운영 정책을 사용 중인 룸 목록 조회
     @Query("SELECT r FROM Room r WHERE r.operationPolicy.id = :policyId AND r.deletedAt IS NULL")

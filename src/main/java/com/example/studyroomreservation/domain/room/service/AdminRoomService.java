@@ -2,8 +2,11 @@ package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.request.RoomUpdateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
@@ -32,11 +35,11 @@ public class AdminRoomService {
 
     private final RoomMapper roomMapper;
     private final RoomRepository roomRepository;
-    private final RoomImageStorageService imageStorageService;
-
     private final OperationPolicyRepository operationPolicyRepository;
     private final RoomRuleRepository roomRuleRepository;
-    private final RefundPolicyRepository refundPolicyRepository;
+
+    private final RoomImageStorageService imageStorageService;
+    private final RefundPolicyService refundPolicyService;
 
     @Transactional
     public Long createRoom(
@@ -47,10 +50,10 @@ public class AdminRoomService {
         // 정책 조회 및 검증(존재 + 활성 상태)
         OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
         RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
-        validateRefundPolicy(request.refundPolicyId());
+        Long refundPolicyId  = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
 
         // Room 엔티티 생성 및 저장
-        Room newRoom = roomMapper.toEntity(request, operationPolicy, roomRule);
+        Room newRoom = roomMapper.toEntity(request, operationPolicy, roomRule, refundPolicyId);
         roomRepository.saveAndFlush(newRoom); // GenerationType.IDENTITY라 id를 얻기 위해
         Long roomId = newRoom.getId();
 
@@ -143,15 +146,92 @@ public class AdminRoomService {
         return rule;
     }
 
-    private void validateRefundPolicy(Long id) {
-        RefundPolicy policy = refundPolicyRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
 
-        if (!policy.isActive()) {
-            throw new BusinessException(ErrorCode.REF_POLICY_INACTIVE,
-                    "비활성화된 환불 정책: id=" + id);
+    // ===== Room 수정 =====
+
+    @Transactional
+    public void updateRoom(
+            Long roomId,
+            RoomUpdateRequest request,
+            MultipartFile mainImage,
+            List<MultipartFile> generalImages
+    ) {
+        // 1. 기존 Room 조회 (deletedAt IS NULL, images/operationPolicy/roomRule 함께 fetch)
+        Room room = roomRepository.findDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        // 2. 정책 조회 및 검증
+        OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
+        RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
+        Long refundPolicyId = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
+
+        // 3. 기본 필드 + 정책 업데이트 (dirty checking)
+        room.updateRoom(
+                request.name(), request.price(), request.maxCapacity(),
+                operationPolicy, roomRule, refundPolicyId, request.amenities()
+        );
+
+        // 4. 메인 이미지 교체 (제공된 경우에만)
+        boolean hasNewMainImage = mainImage != null && !mainImage.isEmpty();
+        if (hasNewMainImage) {
+            replaceMainImages(room, mainImage);
         }
-        // refundPolicyId는 Room에 id로 저장됨.
+
+        // 5. 일반 이미지 추가 (기존 GENERAL은 유지)
+        List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
+        if (!validGeneralImages.isEmpty()) {
+            appendGeneralImages(room, validGeneralImages);
+        }
+
+        log.info("Room 수정 완료: id={}, name={}, mainImageReplaced={}, newGeneralImages={}",
+                roomId, request.name(), hasNewMainImage, validGeneralImages.size());
+    }
+
+    private void replaceMainImages(Room room, MultipartFile newMainImage) {
+        Long roomId = room.getId();
+
+        // 기존 MAIN/THUMBNAIL 파일 삭제
+        room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.MAIN
+                        || img.getType() == RoomImage.ImageType.THUMBNAIL)
+                .map(RoomImage::getImageUrl)
+                .forEach(imageStorageService::deleteImageFile);
+
+        // 기존 MAIN/THUMBNAIL 엔티티 제거 (orphanRemoval → DB 삭제)
+        room.removeImagesByType(RoomImage.ImageType.MAIN);
+        room.removeImagesByType(RoomImage.ImageType.THUMBNAIL);
+
+        // 새 메인 이미지 저장
+        String mainImagePath = imageStorageService.saveMainImage(roomId, newMainImage);
+        RoomImage.create(room, mainImagePath, RoomImage.ImageType.MAIN, 0);
+
+        // 새 썸네일 생성
+        String thumbnailPath = imageStorageService.generateThumbnail(roomId, mainImagePath);
+        RoomImage.create(room, thumbnailPath, RoomImage.ImageType.THUMBNAIL, 0);
+    }
+
+    private void appendGeneralImages(Room room, List<MultipartFile> newGeneralImages) {
+        Long roomId = room.getId();
+
+        // 기존 GENERAL 이미지의 최대 sortOrder
+        int maxSortOrder = room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
+                .mapToInt(RoomImage::getSortOrder)
+                .max()
+                .orElse(0);
+
+        List<String> paths = imageStorageService.saveGeneralImages(roomId, newGeneralImages);
+        for (int i = 0; i < paths.size(); i++) {
+            RoomImage.create(room, paths.get(i), RoomImage.ImageType.GENERAL, maxSortOrder + i + 1);
+        }
+    }
+
+    public RoomUpdateResponse getRoomForEdit(Long roomId) {
+        Room room = roomRepository.findDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        String refundPolicyName = refundPolicyService.getRefundPolicyName(room.getRefundPolicyId());
+
+        return roomMapper.toRoomUpdateResponse(room, refundPolicyName);
     }
 
     public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {

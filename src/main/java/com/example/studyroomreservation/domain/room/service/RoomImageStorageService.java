@@ -140,6 +140,26 @@ public class RoomImageStorageService {
         }
     }
 
+    /**
+     * 개별 이미지 파일 삭제
+     * @param relativePath DB에 저장된 상대 경로 (예: /rooms/15/main_uuid.jpg)
+     */
+    public void deleteImageFile(String relativePath) {
+        if (relativePath == null || relativePath.isBlank()) {
+            return;
+        }
+
+        String normalized = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+        Path filePath = basePath.resolve(normalized);
+
+        try {
+            Files.deleteIfExists(filePath);
+            log.debug("이미지 파일 삭제: {}", filePath);
+        } catch (IOException e) {
+            log.warn("이미지 파일 삭제 실패: {}", filePath, e);
+        }
+    }
+
     // Room 디렉토리 삭제
     public void deleteRoomDirectory(Long roomId) {
         Path roomDir = getRoomDirectoryPath(roomId);

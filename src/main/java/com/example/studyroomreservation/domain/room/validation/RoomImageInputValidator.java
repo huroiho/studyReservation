@@ -23,11 +23,22 @@ public class RoomImageInputValidator {
             Set.of("image/jpeg", "image/png", "image/webp");
 
     /**
-     * 메인 이미지 + 일반 이미지 입력 검증
+     * 메인 이미지 + 일반 이미지 입력 검증 (생성 시)
      * @throws BusinessException 검증 실패 시
      */
     public void validate(MultipartFile mainImage, List<MultipartFile> generalImages) {
         validateMainImage(mainImage);
+        validateGeneralImages(generalImages);
+    }
+
+    /**
+     * 수정 시 이미지 검증: mainImage가 없으면 기존 이미지를 유지
+     * @throws BusinessException 검증 실패 시
+     */
+    public void validateForUpdate(MultipartFile mainImage, List<MultipartFile> generalImages) {
+        if (mainImage != null && !mainImage.isEmpty()) {
+            validateSingleImage(mainImage);
+        }
         validateGeneralImages(generalImages);
     }
 
