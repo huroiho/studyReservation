@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 public class DistributedLockAop {
 
     private final RedissonClient redissonClient;
-    private final AopForTransaction aopForTransaction;
 
     @Around("@annotation(com.example.studyroomreservation.global.aop.DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -55,9 +54,7 @@ public class DistributedLockAop {
                 throw new BusinessException(ErrorCode.RES_CONCURRENT_ACCESS);
             }
 
-            // 락 획득 성공 -> 트랜잭션 시작 (별도 클래스 위임)
-            return aopForTransaction.proceed(joinPoint);
-
+            return false;
         } catch (InterruptedException e) {
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         } finally {
