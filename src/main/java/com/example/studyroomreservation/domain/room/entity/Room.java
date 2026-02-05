@@ -104,10 +104,20 @@ public class Room extends BaseSoftDeletableEntity {
         this.status = RoomStatus.ACTIVE;
     }
 
-    public void updateRoom(String name, Integer price, Integer maxCapacity) {
+    public void updateRoom(String name, Integer price, Integer maxCapacity,
+                           OperationPolicy operationPolicy, RoomRule roomRule,
+                           Long refundPolicyId, Set<AmenityType> amenities) {
         this.name = name;
         this.price = price;
         this.maxCapacity = maxCapacity;
+        this.operationPolicy = operationPolicy;
+        this.roomRule = roomRule;
+        this.refundPolicyId = refundPolicyId;
+        this.amenities = (amenities != null) ? new HashSet<>(amenities) : new HashSet<>();
+    }
+
+    public void removeImagesByType(RoomImage.ImageType type) {
+        this.images.removeIf(img -> img.getType() == type);
     }
 
     public String getThumbnailUrl() {

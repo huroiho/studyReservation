@@ -3,6 +3,7 @@
  *
  * API Endpoints:
  * - POST /api/admin/rooms (multipart/form-data)
+ * - PUT /api/admin/rooms/{id} (multipart/form-data)
  * - GET /api/admin/operation-policies/pick-items
  * - GET /api/admin/operation-policies/{id}
  * - GET /api/admin/room-rules/pick-items
@@ -378,6 +379,10 @@ async function handleFormSubmit(event) {
     const submitBtn = document.getElementById('submitBtn');
     const errorMessageEl = document.getElementById('errorMessage');
 
+    const mode = form.dataset.mode || 'create';
+    const roomId = form.dataset.roomId;
+    const isEdit = mode === 'edit';
+
     // Validate policies are selected
     const operationPolicyId = document.getElementById('operationPolicyId').value;
     const roomRuleId = document.getElementById('roomRuleId').value;
@@ -390,7 +395,8 @@ async function handleFormSubmit(event) {
 
     // Validate main image
     const mainImageInput = document.getElementById('mainImage');
-    if (!mainImageInput.files || mainImageInput.files.length === 0) {
+    const hasMainImage = mainImageInput.files && mainImageInput.files.length > 0;
+    if (!isEdit && !hasMainImage) {
         showError('대표 이미지를 선택해주세요.');
         return;
     }
@@ -410,11 +416,14 @@ async function handleFormSubmit(event) {
     });
 
     // Main image
-    formData.append('mainImage', mainImageInput.files[0]);
+    if (hasMainImage) {
+        formData.append('mainImage', mainImageInput.files[0]);
+    }
 
     // General images
     const generalImagesInput = document.getElementById('generalImages');
-    if (generalImagesInput.files) {
+    const hasGeneralImages = generalImagesInput.files && generalImagesInput.files.length > 0;
+    if (hasGeneralImages) {
         Array.from(generalImagesInput.files).slice(0, 10).forEach(file => {
             formData.append('generalImages', file);
         });
@@ -427,8 +436,11 @@ async function handleFormSubmit(event) {
     errorMessageEl.style.display = 'none';
 
     try {
-        const response = await fetch('/api/admin/rooms', {
-            method: 'POST',
+        const url = isEdit ? `/api/admin/rooms/${roomId}` : '/api/admin/rooms';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
             headers: {
                 ...(csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {})
             },
@@ -438,7 +450,7 @@ async function handleFormSubmit(event) {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.message || '룸 등록에 실패했습니다.');
+            throw new Error(result.message || (isEdit ? '룸 수정에 실패했습니다.' : '룸 등록에 실패했습니다.'));
         }
 
         // Success - redirect to room list
