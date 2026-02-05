@@ -11,6 +11,7 @@ import com.example.studyroomreservation.domain.member.repository.MemberRepositor
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,11 @@ public class MemberService {
                 normalizedPhoneNumber
         );
 
-        memberRepository.save(member);
+        try {
+            memberRepository.saveAndFlush(member);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(ErrorCode.MEMBER_EMAIL_DUPLICATED);
+        }
     }
 
     public MemberInfoResponse getMyInfo(Long memberId) {
