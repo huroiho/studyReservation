@@ -94,7 +94,10 @@ public class PaymentService {
      * Flow: [Lock 획득] -> [1차 검증] -> [Toss 호출] -> [DB 저장(Appender)] -> [Lock 해제]
      * 검증: request 는 결제 서비스에서 토스에서 온 response는 저장 컴포넌트에서 처리
      */
-    @DistributedLock(key = "'payment:approval:' + #request.orderId")
+    @DistributedLock(
+            key = "'payment:approval:' + #request.orderId",
+            leaseTime = -1
+    )
     public void approveSuccess(String paymentType, PaymentApproveRequest request) {
 
         // 조회 및 검증 (Toss 호출 전 방어)
