@@ -96,7 +96,7 @@ public class RoomImageStorageService {
 
             String uuid = UUID.randomUUID().toString();
             String extension = extensionFromMimeType(mimeType);
-            String filename = "general_" + sortOrder + "_" + uuid + "." + extension;
+            String filename = "general_" + "_" + uuid + "." + extension;
 
             savedPaths.add(saveBytes(roomId, bytes, filename));
             sortOrder++;

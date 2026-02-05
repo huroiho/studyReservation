@@ -35,8 +35,8 @@ public class AdminRoomRestController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Long>> createRoom(
             @Valid @ModelAttribute RoomCreateRequest request,
-            @RequestParam("mainImage") MultipartFile mainImage,
-            @RequestParam(value = "generalImages", required = false) List<MultipartFile> generalImages
+            @RequestPart("mainImage") MultipartFile mainImage,
+            @RequestPart(value = "generalImages", required = false) List<MultipartFile> generalImages
     ) {
         imageInputValidator.validate(mainImage, generalImages);
 
@@ -53,8 +53,8 @@ public class AdminRoomRestController {
     public ResponseEntity<ApiResponse<Long>> updateRoom(
             @PathVariable Long id,
             @Valid @ModelAttribute RoomUpdateRequest request,
-            @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
-            @RequestPart(value = "generalImages", required = false) List<MultipartFile> generalImages
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestParam(value = "generalImages", required = false) List<MultipartFile> generalImages
     ) {
         imageInputValidator.validateForUpdate(mainImage, generalImages);
 
