@@ -23,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -40,6 +42,8 @@ public class AdminRoomService {
 
     private final RoomImageStorageService imageStorageService;
     private final RefundPolicyService refundPolicyService;
+
+    private static final int MAX_GENERAL_IMAGES = 10;
 
     @Transactional
     public Long createRoom(
@@ -189,28 +193,63 @@ public class AdminRoomService {
     private void replaceMainImages(Room room, MultipartFile newMainImage) {
         Long roomId = room.getId();
 
-        // 기존 MAIN/THUMBNAIL 파일 삭제
-        room.getImages().stream()
+        // 1) old 파일 경로 수집(삭제는 나중)
+        List<String> oldFilePaths = room.getImages().stream()
                 .filter(img -> img.getType() == RoomImage.ImageType.MAIN
                         || img.getType() == RoomImage.ImageType.THUMBNAIL)
                 .map(RoomImage::getImageUrl)
-                .forEach(imageStorageService::deleteImageFile);
+                .toList();
 
-        // 기존 MAIN/THUMBNAIL 엔티티 제거 (orphanRemoval → DB 삭제)
+        String newMainPath = null;
+        String newThumbPath = null;
+
+        try {
+            // 2) 새 파일 먼저 생성
+            newMainPath = imageStorageService.saveMainImage(roomId, newMainImage);
+            newThumbPath = imageStorageService.generateThumbnail(roomId, newMainPath);
+        } catch (Exception e) {
+            // 3) 부분 실패 보상: 새로 만든 것 정리
+            try {
+                if (newThumbPath != null) imageStorageService.deleteImageFile(newThumbPath);
+            } catch (Exception ex) {
+                log.warn("Failed to cleanup thumbnail on failure: {}", newThumbPath, ex);
+            }
+            try {
+                if (newMainPath != null) imageStorageService.deleteImageFile(newMainPath);
+            } catch (Exception ex) {
+                log.warn("Failed to cleanup main image on failure: {}", newMainPath, ex);
+            }
+            throw e; //  BusinessException으로 감싸기
+        }
+
+        // 4) 엔티티 교체(orphanRemoval로 DB 삭제)
         room.removeImagesByType(RoomImage.ImageType.MAIN);
         room.removeImagesByType(RoomImage.ImageType.THUMBNAIL);
+        RoomImage.create(room, newMainPath, RoomImage.ImageType.MAIN, 0);
+        RoomImage.create(room, newThumbPath, RoomImage.ImageType.THUMBNAIL, 0);
 
-        // 새 메인 이미지 저장
-        String mainImagePath = imageStorageService.saveMainImage(roomId, newMainImage);
-        RoomImage.create(room, mainImagePath, RoomImage.ImageType.MAIN, 0);
-
-        // 새 썸네일 생성
-        String thumbnailPath = imageStorageService.generateThumbnail(roomId, mainImagePath);
-        RoomImage.create(room, thumbnailPath, RoomImage.ImageType.THUMBNAIL, 0);
+        // 5) old 파일 삭제는 커밋 이후
+        deleteFilesAfterCommit(oldFilePaths);
     }
-
     private void appendGeneralImages(Room room, List<MultipartFile> newGeneralImages) {
+        if (newGeneralImages == null || newGeneralImages.isEmpty()) return;
+
         Long roomId = room.getId();
+
+        // 1) 기존 GENERAL 개수
+        long existingGeneralCount = room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
+                .count();
+
+        // 2) 신규 업로드 후보 개수 (빈 파일 제외)
+        long incomingCount = newGeneralImages.stream()
+                .filter(f -> f != null && !f.isEmpty())
+                .count();
+
+        // 3) 1차 합산 제한 체크 (저장/검증 전에 빠르게 컷)
+        if (existingGeneralCount + incomingCount > MAX_GENERAL_IMAGES) {
+            throw new BusinessException(ErrorCode.ROOM_GENERAL_IMAGE_LIMIT_EXCEEDED);
+        }
 
         // 기존 GENERAL 이미지의 최대 sortOrder
         int maxSortOrder = room.getImages().stream()
@@ -220,6 +259,12 @@ public class AdminRoomService {
                 .orElse(0);
 
         List<String> paths = imageStorageService.saveGeneralImages(roomId, newGeneralImages);
+
+        if (existingGeneralCount + paths.size() > MAX_GENERAL_IMAGES) {
+            imageStorageService.deleteImages(paths);
+            throw new BusinessException(ErrorCode.ROOM_GENERAL_IMAGE_LIMIT_EXCEEDED);
+        }
+
         for (int i = 0; i < paths.size(); i++) {
             RoomImage.create(room, paths.get(i), RoomImage.ImageType.GENERAL, maxSortOrder + i + 1);
         }
@@ -258,5 +303,26 @@ public class AdminRoomService {
         room.softDelete();
     }
 
+    private void deleteFilesAfterCommit(List<String> paths) {
+        if (paths == null || paths.isEmpty()) return;
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    paths.forEach(p -> {
+                        try {
+                            imageStorageService.deleteImageFile(p);
+                        } catch (Exception e) {
+                            log.warn("Failed to delete old image after commit: {}", p, e);
+                        }
+                    });
+                }
+            });
+        } else {
+            // 트랜잭션 밖이면 즉시 삭제(방어)
+            paths.forEach(imageStorageService::deleteImageFile);
+        }
+    }
 
 }
