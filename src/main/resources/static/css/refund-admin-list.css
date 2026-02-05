@@ -83,17 +83,19 @@
 /* Panel */
 .panel {
     background: var(--card);
-    border: 1px solid var(--line);
     border-radius: var(--radius);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);;
-    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+.panel.filter_box{
+    padding: 20px;
+    border:0;
 }
 .panel__tools {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 14px;
     flex-wrap: wrap;
 }
 
@@ -131,21 +133,21 @@
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
-    border: 1px solid var(--line);
     border-radius: 12px;
 }
 .table thead th {
-    background: #f9fafb;
-    color: #6b7280;
-    font-size: 12px;
-    text-align: left;
-    padding: 12px 12px;
-    border-bottom: 1px solid var(--line);
+    background-color: #f8fafc;
+    padding: 16px 12px; /* 좌우 여백 조정 */
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
 }
 .table tbody td {
-    padding: 14px 12px;
+    padding: 15px;
     border-bottom: 1px solid var(--line);
     font-size: 14px;
+    text-align: center;
 }
 .table tbody tr:last-child td { border-bottom: 0; }
 
@@ -155,7 +157,9 @@
 
 /* Toggle UI only */
 .toggle {
-    width: 44px; height: 24px;
+    width: 34px;
+    height: 20px;
+    border:0;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
@@ -164,15 +168,15 @@
     position: relative;
 }
 .toggle__dot {
-    width: 18px; height: 18px;
+    width: 14px; height: 14px;
     background: #fff;
     border-radius: 999px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     transform: translateX(0);
     transition: transform 0.15s ease;
 }
-.toggle--on { background: var(--primary); }
-.toggle--on .toggle__dot { transform: translateX(20px); }
+.toggle--on { background: #22c55e; }
+.toggle--on .toggle__dot { transform: translateX(15px); }
 .toggle--off { background: #e5e7eb; }
 
 /* Pagination */

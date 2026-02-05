@@ -1,15 +1,21 @@
-.page-header {
-    display: flex;
-    justify-content: space-between;
+.page-header a {
+    margin-bottom: 20px;
+    background-color: #0f172a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 25px;
+    gap: 8px;
 }
 
-.page-header h2 {
-    font-weight: 800;
-    color: #0f172a;
+.form-card{
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
 }
-
 /* Table */
 .room-table {
     width: 100%;
@@ -19,7 +25,7 @@
 
 .room-table th,
 .room-table td {
-    padding: 16px 12px;
+    padding: 8px 12px;
     border-bottom: 1px solid #e5e7eb;
     font-size: 0.95rem;
     vertical-align: middle;
@@ -27,9 +33,12 @@
 }
 
 .room-table th {
-    background: #f9fafb;
+    background-color: #f8fafc;
+    padding: 16px 12px; /* 좌우 여백 조정 */
+    font-size: 0.85rem;
+    font-weight: 700;
     color: #64748b;
-    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 /* Column widths */
@@ -99,8 +108,8 @@
 /* Toggle */
 .toggle-btn {
     position: relative;
-    width: 44px;
-    height: 24px;
+    width: 34px;
+    height: 20px;
     border: none;
     border-radius: 999px;
     background: #e5e7eb;
@@ -117,8 +126,8 @@
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     background: #fff;
     border-radius: 50%;
     box-shadow: 0 1px 2px rgba(0,0,0,.15);
@@ -126,7 +135,7 @@
 }
 
 .toggle-btn.on .toggle-knob {
-    transform: translateX(20px);
+    transform: translateX(15px);
 }
 
 /* Empty */

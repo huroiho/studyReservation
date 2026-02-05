@@ -66,10 +66,7 @@ body {
 
 .main-image-wrapper {
     aspect-ratio: 16/10;
-    border-radius: 8px;
     overflow: hidden;
-    background: #f0f0f0;
-    margin-bottom: 0.75rem;
 }
 
 .main-image {
@@ -140,7 +137,7 @@ body {
     font-size: 1.75rem;
     font-weight: 700;
     color: #222;
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
 }
 
 .room-meta {
@@ -151,13 +148,11 @@ body {
 }
 
 .room-capacity,
-.room-price {
-    font-size: 1rem;
-    color: #555;
-}
+.room-price {display: flex;}
 
 .meta-icon {
     margin-right: 0.5rem;
+    line-height: 20px;
 }
 
 .room-amenities h3 {
@@ -175,11 +170,12 @@ body {
 }
 
 .amenities-list li {
-    background: #e9ecef;
     padding: 0.25rem 0.75rem;
     border-radius: 16px;
     font-size: 0.85rem;
-    color: #495057;
+    font-weight: 500;
+    color: #4a6cf7;
+    border: 1px solid #4a6cf7;
 }
 
 /* Right Column */
@@ -212,7 +208,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 2rem;
     flex-wrap: wrap;
 }
 
@@ -220,13 +216,14 @@ body {
     font-weight: 500;
     color: #444;
     flex-shrink: 0;
+    width: 100%;
 }
 
 .date-input {
     flex: 1;
     min-width: 140px;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid #919191;
     border-radius: 6px;
     font-size: 0.95rem;
 }

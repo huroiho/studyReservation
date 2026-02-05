@@ -7,9 +7,7 @@
 .back-link {
     display: inline-block;
     margin: 6px 0 14px;
-    text-decoration: none;
     color: var(--muted);
-    font-weight: 800;
 }
 .back-link:hover { color: var(--primary); }
 
@@ -19,15 +17,14 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 16px;
+    padding: 20px;
     margin-bottom: 16px;
 }
 .card--p0 { padding: 0; }
 
 .card__header {
-    font-weight: 900;
-    margin-bottom: 12px;
-    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 /* 정책 기본정보 grid */
@@ -37,14 +34,11 @@
     gap: 18px 28px;
 }
 .info-label {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted);
-    font-weight: 800;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
 }
 .info-value {
-    font-size: 14px;
-    font-weight: 900;
     color: var(--text);
 }
 
@@ -71,9 +65,8 @@
 
 /* 섹션 타이틀 */
 .section-title {
-    font-weight: 900;
-    margin: 8px 0 10px;
-    font-size: 15px;
+    font-weight: 600;
+    margin: 26px 0 14px;
 }
 
 /* table 모서리/정렬 보정 */
@@ -114,9 +107,7 @@
     background: #dbeafe;
 }
 .notice__text {
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.45;
+    line-height: 1.6;
 }
 
 /* --- 등록 ----*/
