@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,27 +38,47 @@ public class UserRoomService {
     private final RoomMapper roomMapper;
     private final ReservationService reservationService;
 
-    public Page<UserRoomListResponse> getUserList(Integer minCapacity, Pageable pageable) {
+    public Page<UserRoomListResponse> getUserList(Integer minCapacity, String sort, List<String> amenityStrings, Pageable pageable) {
 
-        // ID 기준으로 페이징/정렬 먼저
-        Page<Long> idPage = roomRepository.findActiveRoomIds(minCapacity, pageable);
+        // 정렬 조건이 포함된 모든 ID 조회
+        List<Long> allIds = roomRepository.findAllActiveIdsByCapacity(minCapacity, sort);
 
-        if (idPage.isEmpty()) {
+        if (allIds.isEmpty()) {
             return Page.empty(pageable);
         }
 
         // 현재 페이지에 해당하는 ID 목록으로 목록용 DTO 조회
-        List<Long> ids = idPage.getContent();
-        List<UserRoomListResponse> responses = roomRepository.findUserListResponsesByIds(ids);
+        List<UserRoomListResponse> responses = roomRepository.findUserListResponsesByIds(allIds);
 
-        // IN 조회 결과 순서 보정
+        // 순서 보정 Map 생성
         Map<Long, UserRoomListResponse> responseMap = responses.stream()
                 .collect(Collectors.toMap(UserRoomListResponse::id, Function.identity()));
-        List<UserRoomListResponse> items = ids.stream()
-                .map(responseMap::get)
+
+        // 순서 보정 + 편의시설 필터
+        // 정렬된 ID 리스트(allIds) 기준
+        List<UserRoomListResponse> filteredAndSortedAll = allIds.stream()
+                .map(responseMap::get) // ID 순서대로 DTO 추출
+                //.filter(java.util.Objects::nonNull)
+                .filter(res -> { // 편의시설 필터
+                    if (amenityStrings == null || amenityStrings.isEmpty()) return true;
+                    Set<Room.AmenityType> selectedEnums = amenityStrings.stream()
+                            .map(Room.AmenityType::valueOf)
+                            .collect(Collectors.toSet());
+                    return res.amenities() != null && res.amenities().containsAll(selectedEnums);
+                })
                 .toList();
 
-        return new PageImpl<>(items, pageable, idPage.getTotalElements());
+        // 필터링 결과 페이징
+        int totalCount = filteredAndSortedAll.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), totalCount);
+
+        List<UserRoomListResponse> pagedItems = new ArrayList<>();
+        if (start < totalCount) {
+            pagedItems = filteredAndSortedAll.subList(start, end);
+        }
+
+        return new PageImpl<>(pagedItems, pageable, totalCount);
     }
 
     public UserRoomDetailResponse getUserDetail(Long roomId) {
