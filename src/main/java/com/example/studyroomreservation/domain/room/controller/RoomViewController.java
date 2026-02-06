@@ -20,17 +20,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Set;
 
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
+
 @Controller
-@RequestMapping("/rooms")
+@RequestMapping(VIEW_ROOM_BASE)
 @RequiredArgsConstructor
-public class UserRoomViewController {
+public class RoomViewController {
 
     private static final int MAX_PAGE_SIZE = 48;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "price");
 
     private final RoomService roomService;
 
-    // TODO : 정렬 기준 enum으로 분리하고 문자열로 들어간 정렬 기준 제거
     @GetMapping
     public String list(
             @RequestParam(required = false) Integer minCapacity,
@@ -53,14 +54,14 @@ public class UserRoomViewController {
         model.addAttribute("amenityStrings", amenityStrings); //체크상태유지
         model.addAttribute("amenityTypes", Room.AmenityType.values());
 
-        return "room/user/list";
+        return TMPL_ROOM_LIST;
     }
 
-    @GetMapping("/{roomId}")
+    @GetMapping(VIEW_ROOM_DETAIL)
     public String detail(@PathVariable Long roomId, Model model) {
         UserRoomDetailResponse room = roomService.getUserDetail(roomId);
         model.addAttribute("room", room);
 
-        return "room/user/detail";
+        return TMPL_ROOM_DETAIL;
     }
 }

@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserRoomService {
+public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
