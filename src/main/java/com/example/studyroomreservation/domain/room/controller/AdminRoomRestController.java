@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.request.RoomUpdateRequest;
 import com.example.studyroomreservation.domain.room.service.AdminRoomService;
 import com.example.studyroomreservation.domain.room.validation.RoomImageInputValidator;
 import com.example.studyroomreservation.global.common.ApiResponse;
@@ -46,5 +47,21 @@ public class AdminRoomRestController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(roomId));
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Long>> updateRoom(
+            @PathVariable Long id,
+            @Valid @ModelAttribute RoomUpdateRequest request,
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestParam(value = "generalImages", required = false) List<MultipartFile> generalImages
+    ) {
+        imageInputValidator.validateForUpdate(mainImage, generalImages);
+
+        adminRoomService.updateRoom(id, request, mainImage, generalImages);
+
+        log.info("Room 수정 성공 REST API: id={}, name={}", id, request.name());
+
+        return ResponseEntity.ok(ApiResponse.success(id));
     }
 }

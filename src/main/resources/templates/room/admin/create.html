@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스터디룸 등록</title>
+    <title th:text="${mode == 'edit' ? '스터디룸 수정' : '스터디룸 등록'}">스터디룸 등록</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/room-admin-create.css}">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
 <nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='rooms')}"></nav>
 
 <div class="container">
@@ -20,7 +20,7 @@
         <span class="material-icons">arrow_back</span> 목록으로
     </a>
 
-    <h2>스터디룸 등록</h2>
+    <h2 th:text="${mode == 'edit' ? '스터디룸 수정' : '스터디룸 등록'}">스터디룸 등록</h2>
 
     <div class="info-box">
         <span class="material-icons icon">info</span>
@@ -33,7 +33,8 @@
     <!-- Error Message Display -->
     <div id="errorMessage" class="error-message" style="display: none;"></div>
 
-    <form id="roomCreateForm" class="form-section">
+    <form id="roomCreateForm" class="form-section"
+          th:data-mode="${mode ?: 'create'}" th:data-room-id="${roomId}">
         <!-- Basic Info -->
         <div class="form-card">
             <h3 class="card-title">기본 정보</h3>
@@ -43,7 +44,8 @@
                     <label for="name">룸 이름</label><span class="required">*</span>
                 </div>
                 <input type="text" id="name" name="name" class="form-control"
-                       placeholder="예: 스터디룸 A" maxlength="100" required>
+                       placeholder="예: 스터디룸 A" maxlength="100" required
+                       th:value="${room?.name}">
                 <div class="input-hint">2~100자 이내로 입력해주세요.</div>
             </div>
 
@@ -53,7 +55,8 @@
                         <label for="maxCapacity">최대 수용 인원</label><span class="required">*</span>
                     </div>
                     <input type="number" id="maxCapacity" name="maxCapacity" class="form-control"
-                           placeholder="예: 4" min="1" required>
+                           placeholder="예: 4" min="1" required
+                           th:value="${room?.maxCapacity}">
                     <div class="input-hint">1명 이상 입력해주세요.</div>
                 </div>
 
@@ -62,7 +65,8 @@
                         <label for="price">시간당 가격 (원)</label><span class="required">*</span>
                     </div>
                     <input type="number" id="price" name="price" class="form-control"
-                           placeholder="예: 10000" min="0" required>
+                           placeholder="예: 10000" min="0" required
+                           th:value="${room?.price}">
                     <div class="input-hint">0원 이상 입력해주세요.</div>
                 </div>
             </div>
@@ -82,9 +86,15 @@
                         <span class="material-icons">search</span> 선택
                     </button>
                 </div>
-                <input type="hidden" id="operationPolicyId" name="operationPolicyId">
-                <div id="operationPolicySummary" class="policy-summary empty">
-                    <span class="placeholder">운영 정책을 선택해주세요.</span>
+                <input type="hidden" id="operationPolicyId" name="operationPolicyId"
+                       th:value="${room?.operationPolicyId}">
+                <div id="operationPolicySummary" class="policy-summary"
+                     th:classappend="${mode != 'edit' or room == null ? 'empty' : ''}">
+                    <span class="placeholder" th:if="${mode != 'edit' or room == null}">운영 정책을 선택해주세요.</span>
+                    <span class="selected-badge" th:if="${mode == 'edit' and room != null}">
+                        <span class="selected-id" th:text="'#' + ${room.operationPolicyId}"></span>
+                        <span class="selected-name" th:text="${room.operationPolicyName}"></span>
+                    </span>
                 </div>
             </div>
 
@@ -98,9 +108,15 @@
                         <span class="material-icons">search</span> 선택
                     </button>
                 </div>
-                <input type="hidden" id="roomRuleId" name="roomRuleId">
-                <div id="roomRuleSummary" class="policy-summary empty">
-                    <span class="placeholder">예약 규칙을 선택해주세요.</span>
+                <input type="hidden" id="roomRuleId" name="roomRuleId"
+                       th:value="${room?.roomRuleId}">
+                <div id="roomRuleSummary" class="policy-summary"
+                     th:classappend="${mode != 'edit' or room == null ? 'empty' : ''}">
+                    <span class="placeholder" th:if="${mode != 'edit' or room == null}">예약 규칙을 선택해주세요.</span>
+                    <span class="selected-badge" th:if="${mode == 'edit' and room != null}">
+                        <span class="selected-id" th:text="'#' + ${room.roomRuleId}"></span>
+                        <span class="selected-name" th:text="${room.roomRuleName}"></span>
+                    </span>
                 </div>
             </div>
 
@@ -114,9 +130,16 @@
                         <span class="material-icons">search</span> 선택
                     </button>
                 </div>
-                <input type="hidden" id="refundPolicyId" name="refundPolicyId">
-                <div id="refundPolicySummary" class="policy-summary empty">
-                    <span class="placeholder">환불 정책을 선택해주세요.</span>
+                <input type="hidden" id="refundPolicyId" name="refundPolicyId"
+                       th:value="${room?.refundPolicyId}">
+                <div id="refundPolicySummary" class="policy-summary"
+                     th:classappend="${mode != 'edit' or room == null or room.refundPolicyName == null ? 'empty' : ''}">
+                    <span class="placeholder"
+                          th:if="${mode != 'edit' or room == null or room.refundPolicyName == null}">환불 정책을 선택해주세요.</span>
+                    <span class="selected-badge" th:if="${mode == 'edit' and room.refundPolicyName != null}">
+                        <span class="selected-id" th:text="'#' + ${room.refundPolicyId}"></span>
+                        <span class="selected-name" th:text="${room.refundPolicyName}"></span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -127,7 +150,8 @@
             <div class="amenities-grid">
                 <th:block th:each="amenity : ${amenityTypes}">
                     <label class="amenity-item">
-                        <input type="checkbox" name="amenities" th:value="${amenity}">
+                        <input type="checkbox" name="amenities" th:value="${amenity}"
+                               th:checked="${room != null and room.amenities != null and room.amenities.contains(amenity)}">
                         <span class="amenity-label" th:text="${amenity.name()}">WIFI</span>
                     </label>
                 </th:block>
@@ -138,12 +162,32 @@
         <div class="form-card">
             <h3 class="card-title">이미지</h3>
 
+            <!-- Existing Images (edit mode only) -->
+            <div class="form-group" th:if="${mode == 'edit' and room != null and room.images != null and !room.images.isEmpty()}">
+                <div class="label-group">
+                    <label>현재 등록된 이미지</label>
+                </div>
+                <div class="image-preview-grid">
+                    <th:block th:each="image : ${room.images}">
+                        <div class="preview-item">
+                            <img th:src="${image.imageUrl}"
+                                 th:alt="${(image.type.name() == 'THUMBNAIL' ? '대표' : (image.type.name() == 'MAIN' ? '메인' : '추가')) + ' 이미지'}">
+                            <span class="preview-name"
+                                  th:text="${(image.type.name() == 'THUMBNAIL' ? '대표' : (image.type.name() == 'MAIN' ? '메인' : '추가')) + ' #' + image.sortOrder}"></span>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
             <div class="form-group">
                 <div class="label-group">
-                    <label for="mainImage">대표 이미지</label><span class="required">*</span>
+                    <label for="mainImage">대표 이미지</label>
+                    <span class="required" th:if="${mode != 'edit'}">*</span>
+                    <span class="optional" th:if="${mode == 'edit'}">(변경 시 선택)</span>
                 </div>
                 <div class="file-input-wrapper">
-                    <input type="file" id="mainImage" name="mainImage" accept="image/jpeg,image/png,image/webp" required>
+                    <input type="file" id="mainImage" name="mainImage" accept="image/jpeg,image/png,image/webp"
+                           th:required="${mode != 'edit'}">
                     <div class="file-input-label">
                         <span class="material-icons">cloud_upload</span>
                         <span>이미지를 선택하세요</span>
@@ -174,7 +218,7 @@
         <div class="footer-actions">
             <a th:href="@{/admin/rooms}" class="btn btn-cancel">취소</a>
             <button type="submit" class="btn btn-save" id="submitBtn">
-                <span class="btn-text">등록</span>
+                <span class="btn-text" th:text="${mode == 'edit' ? '수정' : '등록'}">등록</span>
                 <span class="btn-loading" style="display: none;">
                     <span class="material-icons spinning">sync</span> 처리중...
                 </span>

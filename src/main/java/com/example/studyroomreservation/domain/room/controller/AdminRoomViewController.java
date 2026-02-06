@@ -1,6 +1,8 @@
 package com.example.studyroomreservation.domain.room.controller;
 
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room.AmenityType;
 import com.example.studyroomreservation.domain.room.service.AdminRoomService;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,25 @@ import java.util.List;
 public class AdminRoomViewController {
 
     private final AdminRoomService adminRoomService;
+    private final RefundPolicyService refundPolicyService;
+
     private static final String CREATE_VIEW = "room/admin/create";
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("amenityTypes", List.of(AmenityType.values()));
+        model.addAttribute("mode", "create");
+        return CREATE_VIEW;
+    }
+
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        RoomUpdateResponse room = adminRoomService.getRoomForEdit(id);
+
+        model.addAttribute("room", room);
+        model.addAttribute("roomId", id);
+        model.addAttribute("amenityTypes", List.of(AmenityType.values()));
+        model.addAttribute("mode", "edit");
         return CREATE_VIEW;
     }
 

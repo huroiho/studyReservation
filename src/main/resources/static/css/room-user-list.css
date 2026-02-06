@@ -21,27 +21,33 @@ body {
     background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
-    padding: 1rem;
+    padding: 1.2rem;
     margin-bottom: 2rem;
 }
 .filter-row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
-.filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
-.filter-group label { font-size: 0.875rem; color: #374151; font-weight: 500; }
+.filter-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+}
+.filter-group label { font-weight: 500; }
 .filter-select {
-    padding: 0.5rem 1rem;
+    flex: 1;
+    padding: 0.7rem 1rem;
     border: 1px solid #d1d5db;
     border-radius: 0.375rem;
-    font-size: 0.875rem;
     min-width: 120px;
 }
 .btn-filter {
-    padding: 0.5rem 1.5rem;
+    padding: 0.55rem 1.5rem;
     background: #111827;
     color: #fff;
     border: none;
     border-radius: 0.375rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
     cursor: pointer;
+    font-weight: 600;
 }
 .btn-filter:hover { background: #1f2937; }
 
@@ -59,7 +65,7 @@ body {
 /* Room Grid */
 .room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 1.5rem;
 }
 
@@ -75,8 +81,6 @@ body {
     box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
     transform: translateY(-2px);
 }
-.room-link { text-decoration: none; color: inherit; display: block; }
-
 .room-image-wrapper { aspect-ratio: 16/10; background: #f3f4f6; overflow: hidden; }
 .room-image { width: 100%; height: 100%; object-fit: cover; }
 .room-image-placeholder {
@@ -87,9 +91,9 @@ body {
 .room-image-placeholder svg { width: 3rem; height: 3rem; }
 
 .room-info { padding: 1rem; }
-.room-name { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; }
-.room-capacity { font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem; }
-.capacity-icon { margin-right: 0.25rem; }
+.room-name { margin-bottom: 0.15rem;}
+.room-capacity { display: flex; font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; }
+.capacity-icon { margin-right: 0.25rem; line-height: 16px;}
 
 .room-amenities { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem; }
 .amenity-tag {
@@ -100,8 +104,7 @@ body {
     border-radius: 9999px;
 }
 
-.room-price { font-size: 1rem; }
-.price-value { font-weight: 700; color: #111827; }
+.price-value { font-weight: 700;}
 .price-unit { color: #6b7280; font-size: 0.875rem; }
 
 /* Pagination */

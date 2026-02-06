@@ -83,7 +83,6 @@ public class RoomImageStorageService {
         }
 
         List<String> savedPaths = new ArrayList<>();
-        int sortOrder = 1;
 
         // 이미지 하나씩 상대 경로 생성
         for (MultipartFile file : files) {
@@ -96,10 +95,9 @@ public class RoomImageStorageService {
 
             String uuid = UUID.randomUUID().toString();
             String extension = extensionFromMimeType(mimeType);
-            String filename = "general_" + sortOrder + "_" + uuid + "." + extension;
+            String filename = "general_" + uuid + "." + extension;
 
             savedPaths.add(saveBytes(roomId, bytes, filename));
-            sortOrder++;
         }
 
         return savedPaths;
@@ -137,6 +135,38 @@ public class RoomImageStorageService {
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.ROOM_THUMBNAIL_FAILED,
                     "썸네일 생성 실패: " + mainImageRelativePath, e);
+        }
+    }
+
+    public void deleteImages(List<String> paths) {
+        if (paths == null || paths.isEmpty()) return;
+
+        for (String path : paths) {
+            try {
+                deleteImageFile(path); // 이미 있는 단건 삭제 메서드
+            } catch (Exception e) {
+                log.warn("Failed to delete image during cleanup: {}", path, e);
+            }
+        }
+    }
+
+    /**
+     * 개별 이미지 파일 삭제
+     * @param relativePath DB에 저장된 상대 경로 (예: /rooms/15/main_uuid.jpg)
+     */
+    public void deleteImageFile(String relativePath) {
+        if (relativePath == null || relativePath.isBlank()) {
+            return;
+        }
+
+        String normalized = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+        Path filePath = basePath.resolve(normalized);
+
+        try {
+            Files.deleteIfExists(filePath);
+            log.debug("이미지 파일 삭제: {}", filePath);
+        } catch (IOException e) {
+            log.warn("이미지 파일 삭제 실패: {}", filePath, e);
         }
     }
 
