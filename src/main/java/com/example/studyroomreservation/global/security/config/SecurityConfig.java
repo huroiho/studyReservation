@@ -27,7 +27,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/rooms/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").permitAll()
@@ -38,7 +39,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login-process")
-                        .defaultSuccessUrl("/", true)
+                        //TODO: 추후 로그인 페이지 오기 전 페이지로 리다이렉트 및 정보 유지 기능 추가하기
+                        .defaultSuccessUrl("/rooms", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
