@@ -16,6 +16,8 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class TossPaymentsClient {
 
+    private final int TIMEOUT_SECONDS = 10;
+
     private final WebClient tossWebClient;
 
     public TossConfirmResponse confirm(TossConfirmRequest request) {
@@ -32,7 +34,7 @@ public class TossPaymentsClient {
                                     ))
                     )
                     .bodyToMono(TossConfirmResponse.class)
-                    .block(Duration.ofSeconds(10)); // 10초 타임아웃
+                    .block(Duration.ofSeconds(TIMEOUT_SECONDS)); // 10초 타임아웃
 
         } catch (BusinessException e) {
             throw e;
