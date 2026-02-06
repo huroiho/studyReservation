@@ -34,7 +34,8 @@ public class SecurityConfig {
                         // 룸 정보 조회 API는 GET 요청에 대해 모두 허용
                         .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/reservations/**").authenticated() // 예약 생성 API는 인증 요구
+                        .requestMatchers("/api/reservations/**").authenticated()
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/user/**").hasRole("USER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

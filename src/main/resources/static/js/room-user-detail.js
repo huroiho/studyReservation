@@ -338,6 +338,12 @@
         }
     }
 
+    function preparePaymentAndRedirect(reservationId) {
+        // 결제 체크아웃 페이지로 이동
+        window.location.href =
+            '/payments/check?reservationId=' + encodeURIComponent(reservationId);
+    }
+
     async function createReservation() {
         if (selectedIndices.length < requiredSlots || !selectedDate) {
             showError('시간을 선택해주세요.');
@@ -395,6 +401,10 @@
                 fetchSlots();
                 return;
             }
+
+            var reservationId = result.data;
+            await preparePaymentAndRedirect(reservationId);
+            return;
 
             showSuccess('예약이 완료되었습니다. (예약번호: ' + result.data + ') 10분 내에 결제를 완료해주세요.');
             clearSelection();
