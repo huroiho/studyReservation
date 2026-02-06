@@ -43,8 +43,8 @@
 }
 
 /* 5. 텍스트 스타일 */
-.td-bold { font-weight: 600; color: #0f172a; }
-.td-sub { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; display: block; }
+.td-bold {}
+.td-sub { font-size: 0.85rem; color: #94a3b8; margin-left: 10px; }
 .price-text { font-weight: 600; color: #0f172a; text-align: right; }
 
 /* 말줄임표(...) 적용을 위한 클래스 - 이제 max-width 제한을 품 */
@@ -61,10 +61,6 @@
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 700;
-    display: inline-block;
-    min-width: 80px;
-    text-align: center;
 }
 .status-confirmed { background-color: #dcfce7; color: #166534; }
 .status-canceled { background-color: #fee2e2; color: #991b1b; }

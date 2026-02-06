@@ -74,15 +74,6 @@
     --transition-colors: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
     --transition-all: all 0.15s ease;
 }
-
-/* ========================================
-   Base Styles
-   ======================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 /* ========================================
    Layout (Shared)
    ======================================== */
@@ -179,10 +170,10 @@ h3 {
    ======================================== */
 .search-section {
     background-color: var(--color-background);
-    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: var(--spacing-4);
+    padding: 20px;
     margin-bottom: var(--spacing-6);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .search-row {
@@ -267,11 +258,11 @@ h3 {
    ======================================== */
 .table-container {
     background-color: var(--color-background);
-    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     margin-bottom: var(--spacing-6);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
 }
 
 .table-container h3 {
@@ -312,15 +303,12 @@ thead {
 
 .data-table th,
 th {
-    padding: 0.75rem 1.5rem;
-    text-align: left;
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-gray-600);
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-    background-color: var(--color-gray-50);
-    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    padding: 16px 12px; /* 좌우 여백 조정 */
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .data-table tbody tr,
@@ -341,10 +329,11 @@ tbody tr:hover {
 
 .data-table td,
 td {
-    padding: 1rem 1.5rem;
+    padding: 15px;
     font-size: var(--font-size-sm);
     color: var(--color-gray-600);
     vertical-align: middle;
+    text-align: center;
 }
 
 .data-table td.text-primary,
@@ -369,8 +358,8 @@ td.text-primary {
     position: relative;
     display: inline-flex;
     align-items: center;
-    height: 1.5rem;
-    width: 2.75rem;
+    height: 20px;
+    width: 34px;
     border-radius: var(--border-radius-full);
     background-color: var(--color-gray-300);
     border: none;
@@ -398,7 +387,7 @@ td.text-primary {
 }
 
 .toggle-switch.active .toggle-slider {
-    transform: translateX(1.5rem);
+    transform: translateX(10px);
 }
 
 .status-text {
@@ -546,10 +535,9 @@ td.text-primary {
    Action Buttons (Table & Detail)
    ======================================== */
 .action-buttons {
-    margin-top: 20px;
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: center;
     gap: var(--spacing-2);
 }
 
@@ -570,7 +558,7 @@ td.text-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-2);
+    padding: 1px;
     border-radius: var(--border-radius-lg);
     border: none;
     background: none;
