@@ -10,9 +10,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Component
 @RequiredArgsConstructor
 public class TossPaymentsClient {
+
+    private final int TIMEOUT_SECONDS = 10;
 
     private final WebClient tossWebClient;
 
@@ -30,7 +34,7 @@ public class TossPaymentsClient {
                                     ))
                     )
                     .bodyToMono(TossConfirmResponse.class)
-                    .block();
+                    .block(Duration.ofSeconds(TIMEOUT_SECONDS)); // 10초 타임아웃
 
         } catch (BusinessException e) {
             throw e;
