@@ -17,6 +17,14 @@ public class AdminRoomRuleApiController {
 
     private final RoomRuleService roomRuleService;
 
+    // 상태변경
+    @PatchMapping("/{id}/status")
+    @ResponseBody
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
+        roomRuleService.updateStatus(id, active);
+        return ResponseEntity.ok().build();
+    }
+
     // Room 생성 시 활성화 된 목록 조회용
     @GetMapping("/pick-items")
     public ResponseEntity<ApiResponse<List<RoomRulePickItemResponse>>> pickItems() {
