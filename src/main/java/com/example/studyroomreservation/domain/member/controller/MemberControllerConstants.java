@@ -1,6 +1,6 @@
 package com.example.studyroomreservation.domain.member.controller;
 
-public class MemberControllerConstants {
+public final class MemberControllerConstants {
     private MemberControllerConstants() {}
 
     public static final String BASE = "/my";
