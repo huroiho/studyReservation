@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
+import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.service.UserRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -32,6 +34,7 @@ public class UserRoomViewController {
     @GetMapping
     public String list(
             @RequestParam(required = false) Integer minCapacity,
+            @RequestParam(required = false) List<String> amenityStrings,
             @RequestParam(defaultValue = "name") String sort,
             @PageableDefault(size = 12) Pageable pageable,
             Model model
@@ -42,11 +45,13 @@ public class UserRoomViewController {
         Integer safeMinCapacity = (minCapacity != null && minCapacity >= 1) ? minCapacity : null;
 
         Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, Sort.by(Sort.Direction.ASC, safeSort));
-        Page<UserRoomListResponse> roomPage = userRoomService.getUserList(safeMinCapacity, safePageable);
+        Page<UserRoomListResponse> roomPage = userRoomService.getUserList(safeMinCapacity, safeSort, amenityStrings, safePageable);
 
         model.addAttribute("page", roomPage);
         model.addAttribute("minCapacity", safeMinCapacity);
         model.addAttribute("sort", safeSort);
+        model.addAttribute("amenityStrings", amenityStrings); //체크상태유지
+        model.addAttribute("amenityTypes", Room.AmenityType.values());
 
         return "room/user/list";
     }
