@@ -61,7 +61,7 @@ public class UserRoomService {
     }
 
     public UserRoomDetailResponse getUserDetail(Long roomId) {
-        Room room = roomRepository.findUserDetailById(roomId)
+        Room room = roomRepository.findDetailById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
         if (room.getStatus() != Room.RoomStatus.ACTIVE) {

@@ -2,8 +2,11 @@ package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.refund.entity.RefundPolicy;
 import com.example.studyroomreservation.domain.refund.repository.RefundPolicyRepository;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.request.RoomUpdateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
@@ -20,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,11 +37,13 @@ public class AdminRoomService {
 
     private final RoomMapper roomMapper;
     private final RoomRepository roomRepository;
-    private final RoomImageStorageService imageStorageService;
-
     private final OperationPolicyRepository operationPolicyRepository;
     private final RoomRuleRepository roomRuleRepository;
-    private final RefundPolicyRepository refundPolicyRepository;
+
+    private final RoomImageStorageService imageStorageService;
+    private final RefundPolicyService refundPolicyService;
+
+    private static final int MAX_GENERAL_IMAGES = 10;
 
     @Transactional
     public Long createRoom(
@@ -47,10 +54,10 @@ public class AdminRoomService {
         // 정책 조회 및 검증(존재 + 활성 상태)
         OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
         RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
-        validateRefundPolicy(request.refundPolicyId());
+        Long refundPolicyId  = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
 
         // Room 엔티티 생성 및 저장
-        Room newRoom = roomMapper.toEntity(request, operationPolicy, roomRule);
+        Room newRoom = roomMapper.toEntity(request, operationPolicy, roomRule, refundPolicyId);
         roomRepository.saveAndFlush(newRoom); // GenerationType.IDENTITY라 id를 얻기 위해
         Long roomId = newRoom.getId();
 
@@ -143,15 +150,133 @@ public class AdminRoomService {
         return rule;
     }
 
-    private void validateRefundPolicy(Long id) {
-        RefundPolicy policy = refundPolicyRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
 
-        if (!policy.isActive()) {
-            throw new BusinessException(ErrorCode.REF_POLICY_INACTIVE,
-                    "비활성화된 환불 정책: id=" + id);
+    // ===== Room 수정 =====
+
+    @Transactional
+    public void updateRoom(
+            Long roomId,
+            RoomUpdateRequest request,
+            MultipartFile mainImage,
+            List<MultipartFile> generalImages
+    ) {
+        // 1. 기존 Room 조회 (deletedAt IS NULL, images/operationPolicy/roomRule 함께 fetch)
+        Room room = roomRepository.findDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        // 2. 정책 조회 및 검증
+        OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
+        RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
+        Long refundPolicyId = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
+
+        // 3. 기본 필드 + 정책 업데이트 (dirty checking)
+        room.updateRoom(
+                request.name(), request.price(), request.maxCapacity(),
+                operationPolicy, roomRule, refundPolicyId, request.amenities()
+        );
+
+        // 4. 메인 이미지 교체 (제공된 경우에만)
+        boolean hasNewMainImage = mainImage != null && !mainImage.isEmpty();
+        if (hasNewMainImage) {
+            replaceMainImages(room, mainImage);
         }
-        // refundPolicyId는 Room에 id로 저장됨.
+
+        // 5. 일반 이미지 추가 (기존 GENERAL은 유지)
+        List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
+        if (!validGeneralImages.isEmpty()) {
+            appendGeneralImages(room, validGeneralImages);
+        }
+
+        log.info("Room 수정 완료: id={}, name={}, mainImageReplaced={}, newGeneralImages={}",
+                roomId, request.name(), hasNewMainImage, validGeneralImages.size());
+    }
+
+    private void replaceMainImages(Room room, MultipartFile newMainImage) {
+        Long roomId = room.getId();
+
+        // 1) old 파일 경로 수집(삭제는 나중)
+        List<String> oldFilePaths = room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.MAIN
+                        || img.getType() == RoomImage.ImageType.THUMBNAIL)
+                .map(RoomImage::getImageUrl)
+                .toList();
+
+        String newMainPath = null;
+        String newThumbPath = null;
+
+        try {
+            // 2) 새 파일 먼저 생성
+            newMainPath = imageStorageService.saveMainImage(roomId, newMainImage);
+            newThumbPath = imageStorageService.generateThumbnail(roomId, newMainPath);
+        } catch (Exception e) {
+            // 3) 부분 실패 보상: 새로 만든 것 정리
+            try {
+                if (newThumbPath != null) imageStorageService.deleteImageFile(newThumbPath);
+            } catch (Exception ex) {
+                log.warn("Failed to cleanup thumbnail on failure: {}", newThumbPath, ex);
+            }
+            try {
+                if (newMainPath != null) imageStorageService.deleteImageFile(newMainPath);
+            } catch (Exception ex) {
+                log.warn("Failed to cleanup main image on failure: {}", newMainPath, ex);
+            }
+            throw e; //  BusinessException으로 감싸기
+        }
+
+        // 4) 엔티티 교체(orphanRemoval로 DB 삭제)
+        room.removeImagesByType(RoomImage.ImageType.MAIN);
+        room.removeImagesByType(RoomImage.ImageType.THUMBNAIL);
+        RoomImage.create(room, newMainPath, RoomImage.ImageType.MAIN, 0);
+        RoomImage.create(room, newThumbPath, RoomImage.ImageType.THUMBNAIL, 0);
+
+        // 5) old 파일 삭제는 커밋 이후
+        deleteFilesAfterCommit(oldFilePaths);
+    }
+    private void appendGeneralImages(Room room, List<MultipartFile> newGeneralImages) {
+        if (newGeneralImages == null || newGeneralImages.isEmpty()) return;
+
+        Long roomId = room.getId();
+
+        // 1) 기존 GENERAL 개수
+        long existingGeneralCount = room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
+                .count();
+
+        // 2) 신규 업로드 후보 개수 (빈 파일 제외)
+        long incomingCount = newGeneralImages.stream()
+                .filter(f -> f != null && !f.isEmpty())
+                .count();
+
+        // 3) 1차 합산 제한 체크 (저장/검증 전에 빠르게 컷)
+        if (existingGeneralCount + incomingCount > MAX_GENERAL_IMAGES) {
+            throw new BusinessException(ErrorCode.ROOM_GENERAL_IMAGE_LIMIT_EXCEEDED);
+        }
+
+        // 기존 GENERAL 이미지의 최대 sortOrder
+        int maxSortOrder = room.getImages().stream()
+                .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
+                .mapToInt(RoomImage::getSortOrder)
+                .max()
+                .orElse(0);
+
+        List<String> paths = imageStorageService.saveGeneralImages(roomId, newGeneralImages);
+
+        if (existingGeneralCount + paths.size() > MAX_GENERAL_IMAGES) {
+            imageStorageService.deleteImages(paths);
+            throw new BusinessException(ErrorCode.ROOM_GENERAL_IMAGE_LIMIT_EXCEEDED);
+        }
+
+        for (int i = 0; i < paths.size(); i++) {
+            RoomImage.create(room, paths.get(i), RoomImage.ImageType.GENERAL, maxSortOrder + i + 1);
+        }
+    }
+
+    public RoomUpdateResponse getRoomForEdit(Long roomId) {
+        Room room = roomRepository.findDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        String refundPolicyName = refundPolicyService.getRefundPolicyName(room.getRefundPolicyId());
+
+        return roomMapper.toRoomUpdateResponse(room, refundPolicyName);
     }
 
     public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
@@ -178,5 +303,26 @@ public class AdminRoomService {
         room.softDelete();
     }
 
+    private void deleteFilesAfterCommit(List<String> paths) {
+        if (paths == null || paths.isEmpty()) return;
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    paths.forEach(p -> {
+                        try {
+                            imageStorageService.deleteImageFile(p);
+                        } catch (Exception e) {
+                            log.warn("Failed to delete old image after commit: {}", p, e);
+                        }
+                    });
+                }
+            });
+        } else {
+            // 트랜잭션 밖이면 즉시 삭제(방어)
+            paths.forEach(imageStorageService::deleteImageFile);
+        }
+    }
 
 }
