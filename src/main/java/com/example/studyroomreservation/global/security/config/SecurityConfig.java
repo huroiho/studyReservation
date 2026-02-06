@@ -3,6 +3,7 @@ package com.example.studyroomreservation.global.security.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,8 +28,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/rooms/**"
                         ).permitAll()
+                        // 룸 정보 조회 API는 GET 요청에 대해 모두 허용
+                        .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/reservations/**").authenticated()
                         .requestMatchers("/api/**").permitAll()
@@ -39,7 +43,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login-process")
-                        .defaultSuccessUrl("/", true)
+                        //TODO: 추후 로그인 페이지 오기 전 페이지로 리다이렉트 및 정보 유지 기능 추가하기
+                        .defaultSuccessUrl("/rooms", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

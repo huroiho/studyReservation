@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -164,7 +164,8 @@
                                 <label for="reserverCompany">회사/소속 (선택)</label>
                                 <input type="text" id="reserverCompany" class="form-input" placeholder="회사명">
                             </div>
-                            <button type="button" id="reserveBtn" class="btn btn-reserve" disabled>예약하기</button>
+                            <button type="button" id="reserveBtn" class="btn btn-reserve" disabled
+                                    th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}">예약하기</button>
                         </div>
 
                         <!-- Success Message -->

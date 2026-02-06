@@ -424,7 +424,16 @@
     checkBtn.addEventListener('click', fetchSlots);
     dateInput.addEventListener('change', fetchSlots);
     clearSelectionBtn.addEventListener('click', clearSelection);
-    reserveBtn.addEventListener('click', createReservation);
+    
+    reserveBtn.addEventListener('click', function() {
+        const isAuthenticated = this.dataset.isAuthenticated === 'true';
+        if (isAuthenticated) {
+            createReservation();
+        } else {
+            alert('로그인이 필요한 서비스입니다.');
+            window.location.href = '/login';
+        }
+    });
 
     document.getElementById('reserverName').addEventListener('input', validateForm);
     document.getElementById('reserverPhone').addEventListener('input', validateForm);
