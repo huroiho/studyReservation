@@ -17,21 +17,18 @@ import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
+import com.example.studyroomreservation.global.aop.DistributedLock;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.querydsl.core.Tuple;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
@@ -43,48 +40,32 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 public class ReservationService {
 
     private final ReservationMapper reservationMapper;
-    private final RedissonClient redissonClient;
     private final RoomRepository roomRepository;
     private final ReservationRepository reservationRepository;
     private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
-    private final TransactionTemplate transactionTemplate;
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
+/*
+    예약 생성 lock:reservation:room: - 네임스페이스(문자열, 키 값의 유일성을 위해 삽입)
+    #request.roomId() 변수에서 방 번호 추출
+    #request.startTime() 변수에서 시작 시간 추출
+    ':' - 구분자 역할 추후 이 키값을 다시 코드에서 읽어들일 때 유용함
+*/
 
+    @DistributedLock(
+            key = "'lock:reservation:room:' + #request.roomId() + ':' + #request.startTime().toLocalDate()",
+            waitTime = 5L,
+            leaseTime = -1 //와치독 활성화
+    )
+    //TODO: FACADE 패턴 적용해서 락 이후의 트랜잭션 로직 최소화 하기
+    @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
 
-        // 과거 시간 예약 차단
         if(request.startTime().isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
 
-        // 방번호 + 날짜까지 포함해서 락
-        String lockKey = String.format("lock:reservation:room:%d:%s",
-                request.roomId(), request.startTime().toLocalDate().toString());
-        RLock lock = redissonClient.getLock(lockKey);
-
-        try {
-            boolean available = lock.tryLock(3, 2, TimeUnit.SECONDS);
-            if (!available) {
-                throw new BusinessException(ErrorCode.RES_CONCURRENT_ACCESS);
-            }
-
-            return transactionTemplate.execute(status -> {
-                return createReservationLogic(request, memberId);
-            });
-
-        } catch (InterruptedException e) {
-            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
-    }
-
-    @Transactional
-    public Long createReservationLogic(ReservationCreateRequest request, Long memberId) {
         Room room = roomRepository.findById(request.roomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
@@ -188,7 +169,6 @@ public class ReservationService {
     }
 
     // 마이페이지 예약 현황 조회
-    @Transactional
     public List<ReservationResponse> getMyActiveReservations(Long memberId) {
         List<Tuple> results = reservationRepository.findMyActiveReservationsWithRoom(memberId, LocalDateTime.now());
         return results.stream()
