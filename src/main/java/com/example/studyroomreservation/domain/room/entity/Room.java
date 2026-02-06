@@ -46,8 +46,8 @@ public class Room extends BaseSoftDeletableEntity {
     @Column(nullable = false, length = 20)
     private RoomStatus status;
 
-    @BatchSize(size = 100)
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@BatchSize(size = 100)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RoomImage> images = new ArrayList<>();
 
     public enum RoomStatus{
