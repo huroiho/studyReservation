@@ -56,6 +56,13 @@
             </div>
 
             <form class="form" th:action="@{/login-process}" method="post">
+                <p class="hint">
+                    테스트 계정:
+                    <span class="pill">user@test.com / 1234</span>
+                    <span class="pill">admin@test.com / 1234</span>
+                </p>
+                <p class="muted">
+                </p>
                 <!-- CSRF (Spring Security 켜져있으면 넣는게 안전) -->
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
@@ -100,18 +107,7 @@
                 <div class="card-foot">
                     <p class="muted">
                         아직 계정이 없으신가요?
-                        <a th:href="@{/signup}">회원가입</a>
-                    </p>
-                </div>
-
-                <div class="card-foot">
-                    <p class="hint">
-                        테스트 계정:
-                        <span class="pill">user@test.com / 1234</span>
-                        <span class="pill">admin@test.com / 1234</span>
-                    </p>
-                    <p class="muted">
-                        회원가입은 MVP 이후에 제공될 수 있어요.
+                        <a th:href="@{/signup}" class="signup-link"><strong>회원가입</strong></a>
                     </p>
                 </div>
             </form>

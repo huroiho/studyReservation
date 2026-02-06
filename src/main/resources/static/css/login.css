@@ -473,3 +473,8 @@ body.has_bg{
     background: white;
     border-radius: 6px;
 }
+
+.signup-link {
+    font-size: 1.05rem;   /* 살짝 크게 */
+    font-weight: 700;     /* bold */
+}

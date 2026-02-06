@@ -22,7 +22,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/login", "/public/**", "/session-expired",
+                                "/", "/login", "/signup", "/public/**", "/session-expired",
                                 "/css/**", "/js/**", "/images/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
