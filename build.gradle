@@ -6,10 +6,6 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-
-ext {
-    set('springCloudVersion', "2025.0.0")
-}
 description = 'StudyRoomReservation'
 
 java {
@@ -76,7 +72,6 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-    implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'
     //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -92,11 +87,19 @@ dependencies {
     implementation group: 'org.apache.tika', name: 'tika-core', version: '3.2.3'
 }
 
-dependencyManagement {
+// 서킷 브레이크를 위한 라이브러리 추가
+/*dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
+
+ext {
+    set('springCloudVersion', "2025.0.0")
+}
+
+implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j'*/
+
 tasks.named('test') {
     useJUnitPlatform()
 }
