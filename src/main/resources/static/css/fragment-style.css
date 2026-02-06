@@ -134,6 +134,7 @@ header .nav{
 .nav .nav-link{
     padding: 8px 12px;
     font-weight: 600;
+    border-radius: 12px;
 }
 .nav .nav-link:hover{
     background: rgba(37,99,235,0.08);
@@ -141,7 +142,6 @@ header .nav{
 }
 .nav .nav-link.is-active{
     color: #1e40af;
-    border-radius: 12px;
     background: rgba(37,99,235,0.12);
 }
 

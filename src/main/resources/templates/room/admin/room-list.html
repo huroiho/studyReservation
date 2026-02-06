@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
 <nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='rooms')}"></nav>
 
 <div class="container">
@@ -112,28 +112,7 @@
             </tbody>
         </table>
     </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-        <a th:if="${page.hasPrevious()}"
-           th:href="@{/admin/rooms(page=${page.number - 1})}"
-           class="page-btn">
-            <span class="material-icons">chevron_left</span>
-        </a>
-
-        <span class="page-info">
-            <span th:text="${page.number + 1}">1</span>
-            /
-            <span th:text="${page.totalPages}">1</span>
-        </span>
-
-        <a th:if="${page.hasNext()}"
-           th:href="@{/admin/rooms(page=${page.number + 1})}"
-           class="page-btn">
-            <span class="material-icons">chevron_right</span>
-        </a>
-    </div>
-
+    <div th:replace="~{fragment/pagination :: sitePagination(${page}, 'admin/rooms')}"></div>
 </div>
 
 <footer th:insert="~{fragment/footer :: siteFooter}"></footer>

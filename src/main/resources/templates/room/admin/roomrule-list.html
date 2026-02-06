@@ -41,7 +41,7 @@
                 <th>최소 이용 시간</th>
                 <th>예약 가능 기간</th>
                 <th>생성일</th>
-                <th class="text-center">액션</th>
+                <th>상세보기</th>
             </tr>
             </thead>
             <tbody>
@@ -51,7 +51,7 @@
                 </td>
             </tr>
             <tr th:each="rule : ${paging.content}">
-                <td style="padding-left: 25px; font-weight: bold;" th:text="${rule.name}">일반 예약 규칙</td>
+                <td style="padding-left: 25px;" th:text="${rule.name}">일반 예약 규칙</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label class="switch">
@@ -74,9 +74,9 @@
                     <a th:href="@{/admin/roomrules/{id}(id=${rule.id})}" class="action-link">
                         <span class="material-icons" style="font-size: 18px;">visibility</span>
                     </a>
-                    <a href="#" class="action-link delete">
-                        <span class="material-icons" style="font-size: 18px;">delete</span>
-                    </a>
+<!--                삭제없음 <a href="#" class="action-link delete">-->
+<!--                        <span class="material-icons" style="font-size: 18px;">delete</span>-->
+<!--                    </a>-->
                 </td>
             </tr>
             </tbody>
