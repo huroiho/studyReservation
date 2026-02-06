@@ -1,6 +1,5 @@
 package com.example.studyroomreservation.domain.payment.service;
 
-import com.example.studyroomreservation.domain.payment.dto.request.PaymentApproveRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.TossConfirmResponse;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
@@ -8,7 +7,6 @@ import com.example.studyroomreservation.domain.payment.entity.PaymentAttemptStat
 import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
-import com.example.studyroomreservation.domain.payment.service.PaymentAttemptFailService;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
@@ -24,8 +22,7 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class PaymentAppender {
-    //PaymentAppender 네이밍 이유: Appender는 보통 DDD나 CQS 패턴에서 데이터 저장(Insert) 행위에만 집중하는 컴포넌트를 의미, 프록시의 자가호출 문제 해결을 위해 생성
+public class PaymentTransactionHelper {
 
     private final PaymentRepository paymentRepository;
     private final PaymentAttemptRepository paymentAttemptRepository;

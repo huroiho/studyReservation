@@ -39,7 +39,7 @@ public class PaymentService {
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
 
-    private final PaymentAppender paymentAppender;
+    private final PaymentTransactionHelper paymentTransactionHelper;
     private final PaymentAttemptFailService failService;
     private final TossPaymentsClient tossPaymentsClient;
 
@@ -115,7 +115,7 @@ public class PaymentService {
         }
 
         //  별도 컴포넌트로 위임하여 저장 트랜잭션 수행
-        paymentAppender.appendPayment(attempt, confirmResponse);
+        paymentTransactionHelper.appendPayment(attempt, confirmResponse);
     }
 
     private PaymentAttempt validateAndGetAttempt(PaymentApproveRequest request) {
