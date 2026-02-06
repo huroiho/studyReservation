@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Component
 @RequiredArgsConstructor
 public class TossPaymentsClient {
@@ -30,7 +32,7 @@ public class TossPaymentsClient {
                                     ))
                     )
                     .bodyToMono(TossConfirmResponse.class)
-                    .block(); //FIXME: 제품에서는 절때 쓰면 안되고, deeper를 써야한다.
+                    .block(Duration.ofSeconds(10)); // 10초 타임아웃
 
         } catch (BusinessException e) {
             throw e;
