@@ -4,11 +4,9 @@ import com.example.studyroomreservation.domain.room.dto.request.RoomRuleCreateRe
 import com.example.studyroomreservation.domain.room.dto.response.RoomRuleResponse;
 import com.example.studyroomreservation.domain.room.service.RoomRuleService;
 import com.example.studyroomreservation.domain.room.validation.RoomRuleValidator;
-import com.example.studyroomreservation.global.exception.BusinessException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,7 +19,7 @@ import static com.example.studyroomreservation.domain.room.controller.RoomRuleCo
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(BASE_PATH)
-public class RoomRuleController {
+public class AdminRoomRuleViewController {
     private final RoomRuleService roomRuleService;
     private final RoomRuleValidator roomRuleValidator;
 
