@@ -1,11 +1,9 @@
 package com.example.studyroomreservation.domain.room.mapper;
 
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
+import com.example.studyroomreservation.domain.room.dto.response.*;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.DeleteBlockInfo;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse.RoomSummary;
-import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyPickDetailResponse;
-import com.example.studyroomreservation.domain.room.dto.response.OperationScheduleResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
@@ -107,5 +105,17 @@ public interface OperationPolicyMapper {
                 schedules
         );
     }
-}
 
+    default OperationPolicyResponse toResponse(OperationPolicy policy) {
+        if (policy == null) return null;
+
+        List<OperationScheduleResponse> schedules = toScheduleDetails(policy.getSchedules());
+
+        return new OperationPolicyResponse(
+                policy.getId(),
+                policy.getName(),
+                policy.getSlotUnit(),
+                schedules
+        );
+    }
+}

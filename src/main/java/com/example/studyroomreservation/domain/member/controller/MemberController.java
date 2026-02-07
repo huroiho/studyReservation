@@ -1,21 +1,17 @@
 package com.example.studyroomreservation.domain.member.controller;
 
 import com.example.studyroomreservation.domain.member.dto.request.MemberSignupRequest;
-import com.example.studyroomreservation.domain.member.dto.response.MemberAdminResponse;
 import com.example.studyroomreservation.domain.member.service.MemberService;
 import com.example.studyroomreservation.domain.member.validation.MemberSignupValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.studyroomreservation.domain.member.controller.MemberControllerConstants.*;
+import static com.example.studyroomreservation.domain.member.controller.MemberConstants.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,43 +25,27 @@ public class MemberController {
         binder.addValidators(memberSignupValidator);
     }
 
-    @GetMapping(LOGIN)
+    @GetMapping(VIEW_MEMBER_LOGIN)
     public String loginPage() {
-        return MEMBER_LOGIN;
+        return TMPL_MEMBER_LOGIN;
     }
 
-    @GetMapping(SIGNUP)
+    @GetMapping(VIEW_MEMBER_SIGNUP)
     public String signupPage(Model model) {
         model.addAttribute("memberSignupRequest", new MemberSignupRequest("", "", "", ""));
-        return MEMBER_SIGNUP;
+        return TMPL_MEMBER_SIGNUP;
     }
 
-    @PostMapping(SIGNUP)
+    @PostMapping(VIEW_MEMBER_SIGNUP)
     public String signupSubmit(
             @Valid @ModelAttribute("memberSignupRequest")
             MemberSignupRequest memberSignupRequest,
             BindingResult bindingResult
     ) {
         if (bindingResult.hasErrors()) {
-            return MEMBER_SIGNUP;
+            return TMPL_MEMBER_SIGNUP;
         }
         memberService.signup(memberSignupRequest);
-        return  REDIRECT_LOGIN;
-    }
-
-
-    // 회원목록 관리
-    @GetMapping(ADMIN_MEMBER_LIST_VIEW)
-    public String getAllMembers(
-            @RequestParam(required = false) String keyword, // 추가
-            @PageableDefault(size = 10) Pageable pageable,
-            Model model
-    ){
-        Page<MemberAdminResponse> memberPage = memberService.getMembersForAdmin(keyword,pageable);
-
-        model.addAttribute("page", memberPage);
-        model.addAttribute("members", memberPage.getContent());
-        model.addAttribute("keyword", keyword);
-        return ADMIN_MEMBER_LIST;
+        return REDIRECT_MEMBER_LOGIN;
     }
 }

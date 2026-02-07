@@ -1,5 +1,6 @@
 package com.example.studyroomreservation.domain.room.service;
 
+import com.example.studyroomreservation.domain.room.dto.TempImageFiles;
 import com.example.studyroomreservation.domain.room.validation.RoomImageContentValidator;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -21,9 +23,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
- * Room 이미지 파일 저장 서비스
- * - 로컬 파일시스템 저장, 롤백 시 디렉토리 정리
- * - 썸네일 생성 (thumbnailator 사용)
+ * Room 이미지 파일 저장 서비스 (파일 I/O 전용)
+ * - 임시 디렉토리에 파일 저장
+ * - 임시 → 실제 디렉토리 파일 이동
+ * - 파일/디렉토리 삭제
  */
 @Slf4j
 @Service
@@ -31,128 +34,154 @@ public class RoomImageStorageService {
 
     private static final int THUMBNAIL_WIDTH = 320;
     private static final int THUMBNAIL_HEIGHT = 240;
+    private static final String TEMP_PREFIX = "temp_";
 
     private final Path basePath;
     private final RoomImageContentValidator contentValidator;
 
-    // 생성자 -> 루트 디렉토리 지정(application.yml에서 값 주입. 없으면 ./uploads)
-    // 현재 룸에서만 이미지 업로드를 해서 룸 이미지 서비스에 있음.
     public RoomImageStorageService(
             @Value("${file.upload.base-path:./uploads}") String basePathStr,
             RoomImageContentValidator roomImageContentValidator
     ) {
-        // 문자열을 Path 객체로 변환 -> 절대 경로로 변환 -> 정규화
         this.basePath = Paths.get(basePathStr).toAbsolutePath().normalize();
         this.contentValidator = roomImageContentValidator;
     }
 
-    // room 디렉토리 생성
-    public void  createRoomDirectory(Long roomId) {
-        Path roomDir = getRoomDirectoryPath(roomId);
+    // ========== 임시 디렉토리 저장 ==========
+
+    public TempImageFiles saveImagesToTemp(
+            MultipartFile mainImage,
+            List<MultipartFile> generalImages
+    ) {
+        String tempDirId = UUID.randomUUID().toString();
+        Path tempDir = getTempDirectoryPath(tempDirId);
+
         try {
-            Files.createDirectories(roomDir);   // mkdir -p
-            log.debug("room 디렉토리 생성 성공: {}", roomDir);
+            Files.createDirectories(tempDir);
+
+            // 메인 이미지 저장
+            String mainFilename = saveFileToTemp(tempDir, mainImage, "main");
+
+            // 썸네일 생성
+            String thumbnailFilename = generateThumbnailInTemp(tempDir, mainFilename);
+
+            // 일반 이미지 저장
+            List<String> generalFilenames = new ArrayList<>();
+            if (generalImages != null) {
+                for (MultipartFile file : generalImages) {
+                        generalFilenames.add(saveFileToTemp(tempDir, file, "general"));
+                }
+            }
+
+            log.debug("임시 저장 완료: tempDirId={}, main={}, thumb={}, general={}",
+                    tempDirId, mainFilename, thumbnailFilename, generalFilenames.size());
+
+            return new TempImageFiles(tempDirId, mainFilename, thumbnailFilename, generalFilenames);
+
         } catch (IOException e) {
-            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
-                    "room 디렉토리 생성 실패: " + roomDir, e);
+            // 부분 저장 실패 시 cleanup
+            deleteTempDirectory(tempDirId);
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED, "임시 파일 저장 실패", e);
         }
     }
 
+    // 임시 디렉토리의 파일들을 실제 room 디렉토리로 이
+    public void moveToRoomDirectory(String tempDirId, Long roomId) {
+        Path tempDir = getTempDirectoryPath(tempDirId);
+        Path roomDir = getRoomDirectoryPath(roomId);
+
+        if (!Files.exists(tempDir)) {
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
+                    "임시 디렉토리가 존재하지 않음: " + tempDirId);
+        }
+
+        try {
+            Files.createDirectories(roomDir);
+
+            try (Stream<Path> files = Files.list(tempDir)) {
+                List<Path> fileList = files.toList();
+                for (Path source : fileList) {
+                    Path target = roomDir.resolve(source.getFileName());
+                    Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+                    log.debug("파일 이동: {} -> {}", source, target);
+                }
+            }
+
+            Files.deleteIfExists(tempDir);
+            log.debug("파일 이동 완료: tempDirId={} -> roomId={}", tempDirId, roomId);
+
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
+                    "파일 이동 실패: tempDirId=" + tempDirId + ", roomId=" + roomId, e);
+        }
+    }
+
+    // ========== Room 디렉토리 직접 저장 (수정 시 사용) ==========
+
     /**
-     * 메인 이미지 저장
-     * @return DB에 저장할 상대 경로 (예: /rooms/15/main_uuid.jpg)
+     * 메인 이미지를 room 디렉토리에 직접 저장
+     * @return 저장된 파일의 상대 경로 (/rooms/{roomId}/{filename})
      */
     public String saveMainImage(Long roomId, MultipartFile file) {
-        byte[] bytes = readBytesOrThrow(file);
-        String mimeType = contentValidator.validateAndDetectMimeType(bytes);
+        Path roomDir = getRoomDirectoryPath(roomId);
+        ensureDirectoryExists(roomDir);
 
-        String uuid = UUID.randomUUID().toString(); // 이미지 파일명 중복 방지 + 원본 파일명 노출 방지
-        String extension = extensionFromMimeType(mimeType);
-        String filename = "main_" + uuid + "." + extension;
-
-        return saveBytes(roomId, bytes, filename);
+        String filename = saveFileToDirectory(roomDir, file, "main");
+        return buildRelativePath(roomId, filename);
     }
 
     /**
-     * 일반 이미지 저장 (다중)
-     * @return 저장된 이미지들의 상대 경로 목록
+     * 메인 이미지로부터 썸네일 생성
+     * @return 썸네일 상대 경로
+     */
+    public String generateThumbnail(Long roomId, String mainImagePath) {
+        Path roomDir = getRoomDirectoryPath(roomId);
+        String mainFilename = Path.of(mainImagePath).getFileName().toString();
+
+        String thumbnailFilename = generateThumbnailFromFile(roomDir, mainFilename);
+        return buildRelativePath(roomId, thumbnailFilename);
+    }
+
+    /**
+     * 일반 이미지를 room 디렉토리에 저장
+     * @return 저장된 파일들의 상대 경로 목록
      */
     public List<String> saveGeneralImages(Long roomId, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             return List.of();
         }
 
-        List<String> savedPaths = new ArrayList<>();
+        Path roomDir = getRoomDirectoryPath(roomId);
+        ensureDirectoryExists(roomDir);
 
-        // 이미지 하나씩 상대 경로 생성
+        List<String> paths = new ArrayList<>();
         for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) {
-                continue;
+            if (file != null && !file.isEmpty()) {
+                String filename = saveFileToDirectory(roomDir, file, "general");
+                paths.add(buildRelativePath(roomId, filename));
             }
-
-            byte[] bytes = readBytesOrThrow(file);
-            String mimeType = contentValidator.validateAndDetectMimeType(bytes);
-
-            String uuid = UUID.randomUUID().toString();
-            String extension = extensionFromMimeType(mimeType);
-            String filename = "general_" + uuid + "." + extension;
-
-            savedPaths.add(saveBytes(roomId, bytes, filename));
         }
+        return paths;
+    }
 
-        return savedPaths;
+    // ========== 삭제 ==========
+
+    /**
+     * 임시 디렉토리 삭제
+     */
+    public void deleteTempDirectory(String tempDirId) {
+        deleteDirectoryRecursively(getTempDirectoryPath(tempDirId));
     }
 
     /**
-     * 메인 이미지로부터 썸네일 생성
-     * @param mainImageRelativePath 메인 이미지의 상대 경로
-     * @return 썸네일의 상대 경로
+     * Room 디렉토리 삭제
      */
-    public String generateThumbnail(Long roomId, String mainImageRelativePath) {
-
-        Path roomDir = getRoomDirectoryPath(roomId);
-
-        // 상대경로에서 파일명만 뽑아서 roomDir 기준으로 다시 조립 (substring 제거)
-        String mainFilename = Path.of(mainImageRelativePath).getFileName().toString();
-        Path mainImagePath = roomDir.resolve(mainFilename);
-
-        // 썸네일이 저장될 경로를 먼저 db에 저장될 스트링으로 만들기
-        String uuid = UUID.randomUUID().toString();
-        String thumbnailFilename = "thumb_" + uuid + ".jpg";
-        Path thumbnailPath = roomDir.resolve(thumbnailFilename);
-
-        // 메인 이미지로 썸네일 생성 - thumbnailator
-        try {
-            Thumbnails.of(mainImagePath.toFile())
-                    .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
-                    .crop(Positions.CENTER)
-                    .outputFormat("jpg")
-                    .toFile(thumbnailPath.toFile());    // Path → java.io.File(실제 디스크의 파일 객체) 변환
-
-            log.debug("썸네일 생성 성공 : {}", thumbnailPath);
-            return "/rooms/" + roomId + "/" + thumbnailFilename;
-
-        } catch (IOException e) {
-            throw new BusinessException(ErrorCode.ROOM_THUMBNAIL_FAILED,
-                    "썸네일 생성 실패: " + mainImageRelativePath, e);
-        }
-    }
-
-    public void deleteImages(List<String> paths) {
-        if (paths == null || paths.isEmpty()) return;
-
-        for (String path : paths) {
-            try {
-                deleteImageFile(path); // 이미 있는 단건 삭제 메서드
-            } catch (Exception e) {
-                log.warn("Failed to delete image during cleanup: {}", path, e);
-            }
-        }
+    public void deleteRoomDirectory(Long roomId) {
+        deleteDirectoryRecursively(getRoomDirectoryPath(roomId));
     }
 
     /**
      * 개별 이미지 파일 삭제
-     * @param relativePath DB에 저장된 상대 경로 (예: /rooms/15/main_uuid.jpg)
      */
     public void deleteImageFile(String relativePath) {
         if (relativePath == null || relativePath.isBlank()) {
@@ -163,67 +192,110 @@ public class RoomImageStorageService {
         Path filePath = basePath.resolve(normalized);
 
         try {
-            Files.deleteIfExists(filePath);
-            log.debug("이미지 파일 삭제: {}", filePath);
+            if (Files.deleteIfExists(filePath)) {
+                log.debug("이미지 파일 삭제: {}", filePath);
+            }
         } catch (IOException e) {
             log.warn("이미지 파일 삭제 실패: {}", filePath, e);
         }
     }
 
-    // Room 디렉토리 삭제
-    public void deleteRoomDirectory(Long roomId) {
-        Path roomDir = getRoomDirectoryPath(roomId);
-        if (!Files.exists(roomDir)) {
+    /**
+     * 여러 이미지 파일 삭제
+     */
+    public void deleteImageFiles(List<String> paths) {
+        if (paths == null) return;
+        paths.forEach(this::deleteImageFile);
+    }
+
+    // ========== 내부 헬퍼 메서드 ==========
+
+    private Path getRoomDirectoryPath(Long roomId) {
+        return basePath.resolve("rooms").resolve(String.valueOf(roomId));
+    }
+
+    private Path getTempDirectoryPath(String tempDirId) {
+        return basePath.resolve("rooms").resolve(TEMP_PREFIX + tempDirId);
+    }
+
+    private String buildRelativePath(Long roomId, String filename) {
+        return "/rooms/" + roomId + "/" + filename;
+    }
+
+    private void ensureDirectoryExists(Path dir) {
+        try {
+            Files.createDirectories(dir);
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
+                    "디렉토리 생성 실패: " + dir, e);
+        }
+    }
+
+    private String saveFileToTemp(Path tempDir, MultipartFile file, String prefix) throws IOException {
+        byte[] bytes = file.getBytes();
+        String mimeType = contentValidator.validateAndDetectMimeType(bytes);
+        String filename = prefix + "_" + UUID.randomUUID() + "." + extensionFromMimeType(mimeType);
+
+        Files.write(tempDir.resolve(filename), bytes);
+        return filename;
+    }
+
+    private String saveFileToDirectory(Path dir, MultipartFile file, String prefix) {
+        try {
+            byte[] bytes = file.getBytes();
+            String mimeType = contentValidator.validateAndDetectMimeType(bytes);
+            String filename = prefix + "_" + UUID.randomUUID() + "." + extensionFromMimeType(mimeType);
+
+            Files.write(dir.resolve(filename), bytes);
+            log.debug("파일 저장: {}/{}", dir, filename);
+            return filename;
+
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED, "파일 저장 실패", e);
+        }
+    }
+
+    private String generateThumbnailInTemp(Path tempDir, String mainFilename) throws IOException {
+        return generateThumbnailFromFile(tempDir, mainFilename);
+    }
+
+    private String generateThumbnailFromFile(Path dir, String mainFilename) {
+        Path mainPath = dir.resolve(mainFilename);
+        String thumbnailFilename = "thumb_" + UUID.randomUUID() + ".jpg";
+        Path thumbnailPath = dir.resolve(thumbnailFilename);
+
+        try {
+            Thumbnails.of(mainPath.toFile())
+                    .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+                    .crop(Positions.CENTER)
+                    .outputFormat("jpg")
+                    .toFile(thumbnailPath.toFile());
+
+            log.debug("썸네일 생성: {}", thumbnailPath);
+            return thumbnailFilename;
+
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.ROOM_THUMBNAIL_FAILED,
+                    "썸네일 생성 실패: " + mainFilename, e);
+        }
+    }
+
+    private void deleteDirectoryRecursively(Path dir) {
+        if (!Files.exists(dir)) {
             return;
         }
-        try (Stream<Path> paths = Files.walk(roomDir)) {
-            paths
-                    .sorted(Comparator.reverseOrder()) // 파일 먼저, 디렉토리 나중
+        try (Stream<Path> paths = Files.walk(dir)) {
+            paths.sorted(Comparator.reverseOrder())
                     .forEach(path -> {
                         try {
                             Files.deleteIfExists(path);
                         } catch (IOException e) {
-                            log.warn("Failed to delete file during cleanup: {}", path, e);
+                            log.warn("파일 삭제 실패: {}", path, e);
                         }
                     });
-
-            log.debug("Deleted room directory: {}", roomDir);
-
+            log.debug("디렉토리 삭제: {}", dir);
         } catch (IOException e) {
-            log.warn("Failed to cleanup room directory: {}", roomDir, e);
-        }
-    }
-
-    // ========= 공통 메서드 ===========
-
-    // roomId 기준으로 이미지 저장 경로(폴더) 생성 (/uploads/rooms/15)
-    private Path getRoomDirectoryPath(Long roomId) {
-        return basePath.resolve("rooms").resolve(String.valueOf(roomId)); // resolve는 경로를 이어붙이는 메서드.
-    }
-
-    private byte[] readBytesOrThrow(MultipartFile file) {
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED, "파일 읽기 실패", e);
-        }
-    }
-
-    private String saveBytes(Long roomId, byte[] bytes, String filename) {
-
-        Path filePath = getRoomDirectoryPath(roomId).resolve(filename); // 저장될 전체 경로
-
-        try {
-            Files.createDirectories(filePath.getParent());
-
-            Files.write(filePath, bytes);           // 실제 디스크에 bytes 저장
-
-            log.debug("파일 저장 성공: {}", filePath);
-            return "/rooms/" + roomId + "/" + filename;
-
-        } catch (IOException e) {
-            throw new BusinessException(ErrorCode.ROOM_IMAGE_SAVE_FAILED,
-                    "파일 저장 실패: " + filename, e);
+            log.warn("디렉토리 삭제 실패: {}", dir, e);
         }
     }
 

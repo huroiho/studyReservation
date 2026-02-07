@@ -15,8 +15,8 @@
     <h2>마이페이지</h2>
     <section class="content">
         <div class="tabs">
-            <a th:href="@{/members/myPage/reservations}" class="tab active">예약 현황</a>
-            <a th:href="@{/members/myPage/history}" class="tab">예약 히스토리</a>
+            <a th:href="@{/members/mypage/reservations}" class="tab active">예약 현황</a>
+            <a th:href="@{/members/mypage/history}" class="tab">예약 히스토리</a>
             <a th:href="@{/my}" class="tab">내 정보</a>
         </div>
         <div class="section-header">
@@ -51,8 +51,7 @@
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
                 <!-- <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
-
-                <form th:if="${(res.status.name() == 'CONFIRMED' || res.status.name() == 'TEMP')
+                <form th:if="${(res.status == 'CONFIRMED' || res.status == 'TEMP')
                                 and res.startTime.isAfter(#temporals.createNow())}"
                       th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
                       method="post"

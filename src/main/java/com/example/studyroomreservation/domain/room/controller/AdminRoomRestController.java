@@ -17,14 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-/**
- * Admin Room REST API 컨트롤러
- * - Room 생성 POST (multipart/form-data)
- * - 에러 발생 시 JSON 응답 (ApiExceptionHandler에서 처리)
- */
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.API_ADMIN_ROOM_BASE;
+
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/rooms")
+@RequestMapping(API_ADMIN_ROOM_BASE)
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminRoomRestController {
