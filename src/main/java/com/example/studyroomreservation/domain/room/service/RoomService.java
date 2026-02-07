@@ -2,12 +2,14 @@ package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
+import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
+import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -36,6 +38,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
+    private final OperationPolicyMapper operationPolicyMapper;
     private final ReservationService reservationService;
 
     public Page<UserRoomListResponse> getUserList(Integer minCapacity, String sort, List<String> amenityStrings, Pageable pageable) {
@@ -177,5 +180,16 @@ public class RoomService {
         return reserved
                 ? RoomSlotResponse.SlotStatus.RESERVED
                 : RoomSlotResponse.SlotStatus.AVAILABLE;
+    }
+
+    public OperationPolicyResponse getRoomPolicy(Long roomId) {
+        Room room = roomRepository.findWithOperationPolicyById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getStatus() != Room.RoomStatus.ACTIVE) {
+            throw new BusinessException(ErrorCode.ROOM_NOT_AVAILABLE);
+        }
+
+        return operationPolicyMapper.toResponse(room.getOperationPolicy());
     }
 }

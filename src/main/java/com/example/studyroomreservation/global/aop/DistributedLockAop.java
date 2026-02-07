@@ -54,7 +54,7 @@ public class DistributedLockAop {
                 throw new BusinessException(ErrorCode.RES_CONCURRENT_ACCESS);
             }
 
-            return false;
+            return joinPoint.proceed();
         } catch (InterruptedException e) {
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         } finally {

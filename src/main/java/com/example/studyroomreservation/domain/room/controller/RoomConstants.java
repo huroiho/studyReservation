@@ -1,66 +1,105 @@
 package com.example.studyroomreservation.domain.room.controller;
 
-public class RoomConstants {
+public final class RoomConstants {
+
+    private RoomConstants() {}
 
     // ==========================================
-    // API URL (사용자)
+    // 1. Room (스터디룸)
     // ==========================================
+    
+    // --- 사용자 API ---
     public static final String API_ROOM_BASE = "/api/rooms";
     public static final String API_ROOM_SLOTS = "/{roomId}/slots";
     public static final String API_ROOM_POLICY = "/{roomId}/policy";
 
-    // ==========================================
-    // API URL (관리자)
-    // ==========================================
-    public static final String API_ADMIN_ROOM_BASE = "/api/admin/rooms";
-    public static final String API_ADMIN_ROOM_RULE_BASE = "/api/admin/room-rules";
-    public static final String API_ADMIN_OP_POLICY_BASE = "/api/admin/operation-policies";
-
-    // ==========================================
-    // View URL (사용자)
-    // ==========================================
+    // --- 사용자 View ---
     public static final String VIEW_ROOM_BASE = "/rooms";
     public static final String VIEW_ROOM_DETAIL = "/{roomId}";
 
-    // ==========================================
-    // View URL (관리자)
-    // ==========================================
-    public static final String VIEW_ADMIN_ROOM_BASE = "/admin/rooms";
-    public static final String VIEW_ADMIN_ROOM_CREATE = "/new";
-
-    public static final String VIEW_ADMIN_ROOM_RULE_BASE = "/admin/room-rules";
-    public static final String VIEW_ADMIN_ROOM_RULE_CREATE = "/new";
-    public static final String VIEW_ADMIN_ROOM_RULE_DETAIL = "/{ruleId}";
-
-    public static final String VIEW_ADMIN_OP_POLICY_BASE = "/admin/operation-policies";
-    public static final String VIEW_ADMIN_OP_POLICY_CREATE = "/new";
-    public static final String VIEW_ADMIN_OP_POLICY_DETAIL = "/{policyId}";
-
-    // ==========================================
-    // Template Path (View 파일 경로)
-    // ==========================================
-    // 사용자
     public static final String TMPL_ROOM_LIST = "room/user/list";
     public static final String TMPL_ROOM_DETAIL = "room/user/detail";
 
-    // 관리자 - 룸
+    // --- 관리자 API ---
+    public static final String API_ADMIN_ROOM_BASE = "/api/admin/rooms";
+
+    // --- 관리자 View ---
+    public static final String VIEW_ADMIN_ROOM_BASE = "/admin/rooms";
+    public static final String VIEW_ADMIN_ROOM_CREATE = "/new";
+    public static final String VIEW_ADMIN_ROOM_EDIT = "/{id}/edit";
+    public static final String VIEW_ADMIN_ROOM_TOGGLE = "/{id}/toggle";
+    public static final String VIEW_ADMIN_ROOM_DELETE = "/{id}/delete";
+
     public static final String TMPL_ADMIN_ROOM_LIST = "room/admin/room-list";
     public static final String TMPL_ADMIN_ROOM_CREATE = "room/admin/create";
 
-    // 관리자 - 예약 규칙
+    public static final String REDIRECT_ADMIN_ROOM_LIST = "redirect:" + VIEW_ADMIN_ROOM_BASE;
+
+
+    // ==========================================
+    // 2. RoomRule (예약 규칙) - 관리자 전용
+    // ==========================================
+    
+    // --- API ---
+    public static final String API_ADMIN_ROOM_RULE_BASE = "/api/admin/room-rules";
+    public static final String API_ROOM_RULE_PICK = "/pick-items";
+    public static final String API_ROOM_RULE_STATUS = "/{id}/status";
+
+    // --- View ---
+    public static final String VIEW_ADMIN_ROOM_RULE_BASE = "/admin/room-rules";
+    public static final String VIEW_ADMIN_ROOM_RULE_NEW = "/new";
+    public static final String VIEW_ADMIN_ROOM_RULE_DETAIL = "/{id}";
+
     public static final String TMPL_ADMIN_ROOM_RULE_LIST = "room/admin/roomrule-list";
     public static final String TMPL_ADMIN_ROOM_RULE_FORM = "room/admin/roomrule-form";
     public static final String TMPL_ADMIN_ROOM_RULE_DETAIL = "room/admin/roomrule-detail";
 
-    // 관리자 - 운영 정책
+    public static final String REDIRECT_ADMIN_ROOM_RULE_LIST = "redirect:" + VIEW_ADMIN_ROOM_RULE_BASE;
+
+    // --- Model Attributes (RoomRule) ---
+    public static final String MODEL_ROOMRULES = "roomRules";
+    public static final String MODEL_ROOMRULE_REQUEST = "roomRuleRequest";
+    public static final String MODEL_PAGING = "paging";
+    public static final String MODEL_CURRENT_URL = "currentUrl";
+
+
+    // ==========================================
+    // 3. OperationPolicy (운영 정책) - 관리자 전용
+    // ==========================================
+    
+    // --- API ---
+    public static final String API_ADMIN_OP_POLICY_BASE = "/api/admin/operation-policies";
+    public static final String API_OP_POLICY_PICK = "/pick-items";
+    public static final String API_OP_POLICY_ROOMS = "/{policyId}/rooms";
+
+    // --- View ---
+    public static final String VIEW_ADMIN_OP_POLICY_BASE = "/admin/operation-policies";
+    public static final String VIEW_ADMIN_OP_POLICY_NEW = "/new";
+    public static final String VIEW_ADMIN_OP_POLICY_DETAIL = "/{id}";
+    public static final String VIEW_ADMIN_OP_POLICY_ACTIVATE = "/{id}/activate";
+    public static final String VIEW_ADMIN_OP_POLICY_DEACTIVATE = "/{id}/deactivate";
+    public static final String VIEW_ADMIN_OP_POLICY_DELETE = "/{id}/delete";
+
     public static final String TMPL_ADMIN_OP_POLICY_LIST = "room/operation-policy/list";
     public static final String TMPL_ADMIN_OP_POLICY_CREATE = "room/operation-policy/create";
     public static final String TMPL_ADMIN_OP_POLICY_DETAIL = "room/operation-policy/detail";
 
-    // ==========================================
-    // Redirect
-    // ==========================================
-    public static final String REDIRECT_ADMIN_ROOM_LIST = "redirect:" + VIEW_ADMIN_ROOM_BASE;
-    public static final String REDIRECT_ADMIN_ROOM_RULE_LIST = "redirect:" + VIEW_ADMIN_ROOM_RULE_BASE;
     public static final String REDIRECT_ADMIN_OP_POLICY_LIST = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE;
+    public static final String REDIRECT_ADMIN_OP_POLICY_DETAIL = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE + "/";
+    
+    // --- Model Attributes & Params (OperationPolicy) ---
+    public static final String MODEL_OP_FORM = "form";
+    public static final String MODEL_OP_POLICY = "policy";
+    public static final String MODEL_OP_PAGE = "page";
+    public static final String MODEL_OP_SLOT_UNITS = "slotUnits";
+    public static final String MODEL_OP_HOURS = "hours";
+    public static final String MODEL_OP_DAYS = "days";
+    
+    public static final String PARAM_OP_SEARCH = "search";
+    public static final String PARAM_OP_STATUS = "status";
+    public static final String PARAM_OP_REDIRECT = "redirect";
+    
+    public static final String VAL_OP_STATUS_ACTIVE = "active";
+    public static final String VAL_OP_STATUS_INACTIVE = "inactive";
+    public static final String VAL_OP_REDIRECT_LIST = "list";
 }

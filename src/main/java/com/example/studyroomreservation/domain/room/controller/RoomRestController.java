@@ -16,7 +16,7 @@ import static com.example.studyroomreservation.domain.room.controller.RoomConsta
 @RestController
 @RequestMapping(API_ROOM_BASE)
 @RequiredArgsConstructor
-public class RoomApiController {
+public class RoomRestController {
 
     private final RoomService roomService;
 

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방 예약 규칙 등록</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/room-rule-style.css}">
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='roomrules')}"></nav>
+<div class="container">
+    <a th:href="@{/admin/room-rules}" class="back-link">
+        <span class="material-icons" style="font-size: 18px;">arrow_back</span> 목록으로
+    </a>
+
+    <h2>방 예약 규칙 등록</h2>
+
+    <div class="info-box">
+        <span class="material-icons icon">error_outline</span>
+        <div>
+            <div class="warning-text">방 예약 규칙은 생성 후 수정할 수 없습니다.</div>
+            <div style="color: #856404; font-size: 0.85rem;">입력 내용을 신중히 확인한 후 등록하세요.</div>
+        </div>
+    </div>
+
+    <form th:action="@{/admin/room-rules}" th:object="${roomRuleRequest}" method="post" class="form-section">
+        <div id="global-error-data"
+             th:if="${#fields.hasGlobalErrors()}"
+             th:data-message="${#fields.globalErrors()[0]}"
+             style="display:none;">
+        </div>
+
+        <div class="form-group">
+            <div class="label-group">
+                <label>규칙명</label><span class="required">*</span>
+            </div>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="예: 일반 예약 규칙" maxlength="30"
+                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''" />
+            <div class="input-footer">
+                <span>1~30자 이내로 입력해주세요.</span>
+                <span>0/30</span>
+            </div>
+            <p th:if="${#fields.hasErrors('name')}"
+               th:errors="*{name}"
+               style="color: red; font-size: 0.8em;">이름 중복 메시지가 출력됩니다.</p>
+        </div>
+
+        <div class="form-group">
+            <div class="label-group">
+                <label>최소 이용 시간 (분)</label><span class="required">*</span>
+            </div>
+            <div class="options-group">
+                <div class="option-item" th:each="val : ${#numbers.sequence(30, 120, 30)}">
+                    <input type="radio" th:id="${'min' + val}" th:field="*{minDurationMinutes}" th:value="${val}">
+                    <label th:for="${'min' + val}" th:text="${val + '분'}"></label>
+                </div>
+            </div>
+            <p th:if="${#fields.hasErrors('minDurationMinutes')}"
+               th:errors="*{minDurationMinutes}"
+               style="color: red; font-size: 0.8em; margin-top: 5px;"></p>
+        </div>
+
+        <div class="form-group">
+            <div class="label-group">
+                <label>예약 오픈 가능 기간 (일)</label><span class="required">*</span>
+            </div>
+            <div class="options-group">
+                <div class="option-item" th:each="val : ${ {7, 14, 30, 60} }">
+                    <input type="radio" th:id="${'day' + val}" th:field="*{bookingOpenDays}" th:value="${val}">
+                    <label th:for="${'day' + val}" th:text="${val + '일'}"></label>
+                </div>
+            </div>
+            <p th:if="${#fields.hasErrors('bookingOpenDays')}"
+               th:errors="*{bookingOpenDays}"
+               style="color: red; font-size: 0.8em; margin-top: 5px;"></p>
+        </div>
+
+        <div class="form-group">
+            <div class="label-group"><label>상태</label></div>
+            <div class="status-box">
+                <label class="switch">
+                    <input type="checkbox"
+                           name="active"
+                           id="statusCheckbox"
+                           th:checked="${roomRuleRequest.active}"
+                           onchange="updateStatusText(this.checked)">
+                    <span class="slider"></span>
+                    <input type="hidden" name="active" value="false">
+                </label>
+                <span class="status-text" id="statusText">ACTIVE</span>
+            </div>
+            <div class="switch-info">활성 상태로 등록하면 즉시 신규 룸 설정에서 사용할 수 있습니다.</div>
+        </div>
+
+        <div class="footer-actions">
+            <a th:href="@{/admin/room-rules}" class="btn btn-cancel">취소</a>
+            <button type="submit" class="btn btn-save">저장</button>
+        </div>
+    </form>
+</div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+</body>
+<script>
+    function updateStatusText(checked) {
+        const textElement = document.getElementById('statusText');
+        if (textElement) {
+            textElement.innerText = checked ? 'ACTIVE' : 'INACTIVE';
+            textElement.style.color = checked ? '#2ecc71' : '#e74c3c';
+        }
+    }
+    // 초기 로드 시 실행
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkbox = document.getElementById('statusCheckbox');
+        if (checkbox) updateStatusText(checkbox.checked);
+    });
+</script>
+<script th:inline="javascript">
+    window.onload = function() {
+        const errorDiv = document.getElementById('global-error-data');
+        if (errorDiv) {
+            const msg = errorDiv.getAttribute('data-message');
+            if (msg) alert(msg);
+        }
+    };
+</script>
+</html>

@@ -2,7 +2,6 @@ package com.example.studyroomreservation.domain.payment.controller;
 
 import com.example.studyroomreservation.domain.payment.dto.request.PaymentApproveRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
-import com.example.studyroomreservation.domain.payment.service.PaymentAttemptFailService;
 import com.example.studyroomreservation.domain.payment.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +12,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import static com.example.studyroomreservation.domain.payment.controller.PaymentControllerConstants.*;
+
+import static com.example.studyroomreservation.domain.payment.controller.PaymentConstants.*;
 
 @Controller
-@RequestMapping(BASE)
+@RequestMapping(VIEW_PAYMENT_BASE)
 @RequiredArgsConstructor
-public class PaymentViewController {
+public class PaymentController {
 
     private final PaymentService paymentService;
-    private final PaymentAttemptFailService paymentAttemptFailService;
-
 
     //successUrl, failUrl 추가하기
-    @GetMapping(CHECK)
+    @GetMapping(VIEW_PAYMENT_CHECK)
     public String checkoutPage(
             @RequestParam Long reservationId,
             Model model
@@ -34,31 +32,33 @@ public class PaymentViewController {
 
         model.addAttribute("payment", response);
 
-        return PAYMENT_CHECK;
+        return TMPL_PAYMENT_CHECK;
     }
 
-    @GetMapping(APPROVE)
+    @GetMapping(VIEW_PAYMENT_APPROVE)
     public String approveSuccess(
             @RequestParam(value = "paymentType", required = false) String paymentType,
             @Valid @ModelAttribute PaymentApproveRequest request,
             BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()){
-            return PAYMENT_FAIL;
+            return TMPL_PAYMENT_FAIL;
         }
-        paymentService.approveSuccess(paymentType,request);
-        return REDIRECT_RESERVATIONS; // TODO : 예약 파트 하면 주소 변경 필요
+        Long reservationId = paymentService.approveSuccess(paymentType, request);
+        return redirectReservationDetail(reservationId);
     }
 
-    @GetMapping(FAIL)
+    @GetMapping(VIEW_PAYMENT_FAIL)
     public String fail(
             @RequestParam(required = false) String orderId,
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String message
     ) {
-        if (orderId != null) {
-            paymentAttemptFailService.markFailed(orderId, code, message);
+        Long reservationId = paymentService.handlePaymentFail(orderId, code, message);
+
+        if (reservationId != null) {
+            return redirectReservationDetail(reservationId);
         }
-        return REDIRECT_RESERVATIONS;
+        return REDIRECT_RESERVATION_LIST;
     }
 }

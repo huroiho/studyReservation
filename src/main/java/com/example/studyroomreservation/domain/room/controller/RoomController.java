@@ -25,7 +25,7 @@ import static com.example.studyroomreservation.domain.room.controller.RoomConsta
 @Controller
 @RequestMapping(VIEW_ROOM_BASE)
 @RequiredArgsConstructor
-public class RoomViewController {
+public class RoomController {
 
     private static final int MAX_PAGE_SIZE = 48;
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("name", "price");
