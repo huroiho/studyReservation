@@ -1,6 +1,5 @@
 package com.example.studyroomreservation.domain.room.controller;
 
-import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room.AmenityType;
@@ -19,25 +18,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
+
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/admin/rooms")
+@RequestMapping(VIEW_ADMIN_ROOM_BASE)
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminRoomViewController {
+public class AdminRoomController {
 
     private final AdminRoomService adminRoomService;
-    private final RefundPolicyService refundPolicyService;
 
-    private static final String CREATE_VIEW = "room/admin/create";
-
-    @GetMapping("/new")
+    @GetMapping(VIEW_ADMIN_ROOM_CREATE)
     public String showCreateForm(Model model) {
         model.addAttribute("amenityTypes", List.of(AmenityType.values()));
         model.addAttribute("mode", "create");
-        return CREATE_VIEW;
+        return TMPL_ADMIN_ROOM_CREATE;
     }
 
-    @GetMapping("/{id}/edit")
+    @GetMapping(VIEW_ADMIN_ROOM_EDIT)
     public String showEditForm(@PathVariable Long id, Model model) {
         RoomUpdateResponse room = adminRoomService.getRoomForEdit(id);
 
@@ -45,7 +43,7 @@ public class AdminRoomViewController {
         model.addAttribute("roomId", id);
         model.addAttribute("amenityTypes", List.of(AmenityType.values()));
         model.addAttribute("mode", "edit");
-        return CREATE_VIEW;
+        return TMPL_ADMIN_ROOM_CREATE;
     }
 
     @GetMapping
@@ -59,18 +57,18 @@ public class AdminRoomViewController {
         model.addAttribute("rooms", page.getContent());
         model.addAttribute("page", page);
 
-        return "room/admin/room-list";
+        return TMPL_ADMIN_ROOM_LIST;
     }
 
-    @PostMapping("/{id}/toggle")
+    @PostMapping(VIEW_ADMIN_ROOM_TOGGLE)
     public String toggleRoomStatus(@PathVariable Long id) {
         adminRoomService.toggleRoomStatus(id);
-        return "redirect:/admin/rooms";
+        return REDIRECT_ADMIN_ROOM_LIST;
     }
 
-    @PostMapping("/{id}/delete")
+    @PostMapping(VIEW_ADMIN_ROOM_DELETE)
     public String deleteRoom(@PathVariable Long id) {
         adminRoomService.deleteRoom(id);
-        return "redirect:/admin/rooms";
+        return REDIRECT_ADMIN_ROOM_LIST;
     }
 }

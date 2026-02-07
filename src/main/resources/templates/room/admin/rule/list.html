@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>방 예약 규칙 관리</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/room-rule-style.css}">
+    <script th:src="@{/js/room-rule-update.js}" defer></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='roomrules')}"></nav>
+<div class="container">
+    <h2>방 예약 규칙</h2>
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/admin/room-rules/new}" class="btn-register">
+            <span class="material-icons" style="font-size: 18px;">add</span> 방 예약 규칙 등록
+        </a>
+    </div>
+
+    <div class="search-card">
+        <input type="text" class="form-control" placeholder="규칙명으로 검색">
+        <div class="filter-group">
+            <span class="text-muted" style="margin-right: 10px;">상태:</span>
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn">활성</button>
+            <button class="filter-btn">비활성</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th style="padding-left: 25px;">규칙명</th>
+                <th>상태</th>
+                <th>최소 이용 시간</th>
+                <th>예약 가능 기간</th>
+                <th>생성일</th>
+                <th>상세보기</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${paging.isEmpty()}">
+                <td colspan="6" style="text-align: center; padding: 50px 0; color: #999;">
+                    조회된 규칙이 없습니다.
+                </td>
+            </tr>
+            <tr th:each="rule : ${paging.content}">
+                <td style="padding-left: 25px;" th:text="${rule.name}">일반 예약 규칙</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label class="switch">
+                            <input type="checkbox"
+                                   th:checked="${rule.isActive}"
+                                   th:onchange="|confirmStatusChange(this, ${rule.id})|">
+                            <span class="slider"></span>
+                        </label>
+                        <span th:id="'statusText-' + ${rule.id}"
+                              th:class="${rule.isActive ? 'badge badge-active' : 'badge badge-inactive'}"
+                              th:text="${rule.isActive ? '활성' : '비활성'}">
+                            ACTIVE
+                        </span>
+                    </div>
+                </td>
+                <td th:text="${rule.minDurationMinutes + '분'}">60분</td>
+                <td th:text="${rule.bookingOpenDays + '일'}">30일</td>
+                <td th:text="${#temporals.format(rule.createdAt, 'yyyy. MM. dd.')}">2025. 01. 15.</td>
+                <td style="text-align: center;">
+                    <a th:href="@{/admin/room-rules/{id}(id=${rule.id})}" class="action-link">
+                        <span class="material-icons" style="font-size: 18px;">visibility</span>
+                    </a>
+<!--                삭제없음 <a href="#" class="action-link delete">-->
+<!--                        <span class="material-icons" style="font-size: 18px;">delete</span>-->
+<!--                    </a>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="~{fragment/pagination :: sitePagination(${paging}, ${currentUrl})}"></div>
+</div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+</body>
+</html>

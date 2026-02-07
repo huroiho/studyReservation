@@ -13,13 +13,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.studyroomreservation.domain.room.controller.RoomRuleControllerConstants.*;
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
 
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(BASE_PATH)
-public class AdminRoomRuleViewController {
+@RequestMapping(VIEW_ADMIN_ROOM_RULE_BASE)
+public class AdminRoomRuleController {
     private final RoomRuleService roomRuleService;
     private final RoomRuleValidator roomRuleValidator;
 
@@ -32,20 +32,20 @@ public class AdminRoomRuleViewController {
         response.setHeader("Pragma", "no-cache"); // HTTP 1.0
         response.setHeader("Expires", "0"); // Proxies
 
-        model.addAttribute(PAGING, roomRuleService.getAllRoomRules(page));
-        model.addAttribute(CURRENT_URL, BASE_PATH);
-        return LIST_VIEW;
+        model.addAttribute(MODEL_PAGING, roomRuleService.getAllRoomRules(page));
+        model.addAttribute(MODEL_CURRENT_URL, VIEW_ADMIN_ROOM_RULE_BASE);
+        return TMPL_ADMIN_ROOM_RULE_LIST;
     }
 
     // 활성화 목록 조회 별도x -> RoomController 에서 getActiveRoomRules 호출예정
 
     // 상세 조회
-    @GetMapping("/{id}")
+    @GetMapping(VIEW_ADMIN_ROOM_RULE_DETAIL)
     public String getRuleDetail(@PathVariable Long id, Model model) {
         RoomRuleResponse roomRules = roomRuleService.getRuleDetail(id);
-        model.addAttribute(ROOMRULES, roomRules);
+        model.addAttribute(MODEL_ROOMRULES, roomRules);
 
-        return DETAIL_VIEW;
+        return TMPL_ADMIN_ROOM_RULE_DETAIL;
     }
 
     @InitBinder("roomRuleRequest")
@@ -54,28 +54,20 @@ public class AdminRoomRuleViewController {
     }
 
     // 등록 폼 (룸 규칙은 수정불가)
-    @GetMapping(NEW_FORM_PATH)
+    @GetMapping(VIEW_ADMIN_ROOM_RULE_NEW)
     public String showCreateForm(Model model){
-        model.addAttribute(ROOMRULE_REQUEST, new RoomRuleCreateRequest("", 0, 0, true));
-        return FORM_VIEW;
+        model.addAttribute(MODEL_ROOMRULE_REQUEST, new RoomRuleCreateRequest("", 0, 0, true));
+        return TMPL_ADMIN_ROOM_RULE_FORM;
     }
 
     // 저장처리
     @PostMapping
-    public String create(@ModelAttribute(ROOMRULE_REQUEST) @Valid RoomRuleCreateRequest request, BindingResult result) {
+    public String create(@ModelAttribute(MODEL_ROOMRULE_REQUEST) @Valid RoomRuleCreateRequest request, BindingResult result) {
         roomRuleValidator.validate(request, result);
         if (result.hasErrors()) {
-            return FORM_VIEW;
+            return TMPL_ADMIN_ROOM_RULE_FORM;
         }
         roomRuleService.createRoomRule(request);
-        return REDIRECT_BASE;
+        return REDIRECT_ADMIN_ROOM_RULE_LIST;
     }
-
-    // 상태변경
-//    @PatchMapping("/{id}/status")
-//    @ResponseBody
-//    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
-//            roomRuleService.updateStatus(id, active);
-//            return ResponseEntity.ok().build();
-//    }
 }

@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.example.studyroomreservation.domain.room.controller.OperationPolicyControllerConstants.*;
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(API_BASE_PATH)
-public class OperationPolicyRestController {
+@RequestMapping(API_ADMIN_OP_POLICY_BASE)
+public class AdminOperationPolicyRestController {
 
     private final OperationPolicyService operationPolicyService;
 
     // Room 생성 시 활성화 된 목록 조회용
-    @GetMapping("/pick-items")
+    @GetMapping(API_OP_POLICY_PICK)
     public ResponseEntity<ApiResponse<List<OperationPolicyPickItemResponse>>> pickItems() {
         return ResponseEntity.ok(ApiResponse.success(operationPolicyService.getActivePickItems()));
     }
@@ -34,7 +34,7 @@ public class OperationPolicyRestController {
     }
 
     // 특정 정책을 사용하는 룸 목록 조회(모달용)
-    @GetMapping(ROOMS_BY_POLICY)
+    @GetMapping(API_OP_POLICY_ROOMS)
     public ResponseEntity<List<RoomSummary>> getRoomsByPolicy(@PathVariable Long policyId) {
         List<RoomSummary> summaries = operationPolicyService.getRoomsByPolicy(policyId);
         return ResponseEntity.ok(summaries);
