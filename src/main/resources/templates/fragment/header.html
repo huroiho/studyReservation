@@ -16,7 +16,7 @@
            th:classappend="${activeLink == 'rooms'} ? 'is-active'">룸</a>
 
         <a sec:authorize="hasRole('USER')"
-           class="nav-link" th:href="@{/members/myPage/reservations}"
+           class="nav-link" th:href="@{/members/mypage/reservations}"
            th:classappend="${activeLink == 'reservations'} ? 'is-active'">내 예약</a>
     </div>
 
@@ -26,7 +26,7 @@
             <li sec:authorize="isAuthenticated()"
                 th:with="isAdmin=${#authorization.expression('hasRole(''ADMIN'')')},
                  adminUrl=@{/admin/rooms},
-                 userUrl=@{/members/myPage/reservations}">
+                 userUrl=@{/members/mypage/reservations}">
 
                 <a th:href="${isAdmin ? adminUrl : userUrl}"
                    th:text="${#authentication.principal?.member?.name}">홍길동</a>

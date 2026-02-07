@@ -254,25 +254,52 @@ VALUES
 -- D-1) ROOM IMAGES (다중 이미지 및 타입 테스트 데이터)
 -- =============================================================================
 
--- 룸 1번에 3개의 이미지 등록 (매퍼는 MAIN인 1번 데이터를 가져와야 함)
 INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
 VALUES
-    (1, 1, '/img/test1.png', 'MAIN', 1, NOW()),      -- 대표 이미지
-    (2, 1, '/img/test1.png', 'GENERAL', 2, NOW()),
-    (3, 1, '/img/test1.png', 'GENERAL', 3, NOW());
+    (1,  1,  '/img/16.png',  'MAIN', 1, NOW()),
+    (2,  2,  '/img/3.png',  'MAIN', 1, NOW()),
+    (3,  3,  '/img/7.png',  'MAIN', 1, NOW()),
+    (4,  4,  '/img/6.png',  'MAIN', 1, NOW()),
+    (5,  5,  '/img/8.png',  'MAIN', 1, NOW()),
+    (6,  6,  '/img/10.png',  'MAIN', 1, NOW()),
+    (7,  7,  '/img/7.png',  'MAIN', 1, NOW()),
+    (8,  8,  '/img/11.png',  'MAIN', 1, NOW()),
+    (9,  9,  '/img/2.png',  'MAIN', 1, NOW()),
+    (10, 10, '/img/4.png', 'MAIN', 1, NOW()),
+    (11, 11, '/img/6.png', 'MAIN', 1, NOW()),
+    (12, 12, '/img/9.png', 'MAIN', 1, NOW()),
+    (13, 13, '/img/15.png', 'MAIN', 1, NOW()),
+    (14, 14, '/img/1.png', 'MAIN', 1, NOW()),
+    (15, 15, '/img/5.png', 'MAIN', 1, NOW()),
+    (16, 16, '/img/17.png', 'MAIN', 1, NOW()),
+    (17, 17, '/img/13.png', 'MAIN', 1, NOW()),
+    (18, 18, '/img/20.png', 'MAIN', 1, NOW()),
+    (19, 19, '/img/19.png', 'MAIN', 1, NOW()),
+    (20, 20, '/img/18.png', 'MAIN', 1, NOW()),
 
--- 룸 2번에 2개의 이미지 등록 (MAIN 없이 THUMBNAIL만 있을 때 테스트)
-INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
-VALUES
-    (4, 2, '/img/test2.png', 'THUMBNAIL', 1, NOW()), -- MAIN 없을 시 차선책
-    (5, 2, '/img/test1.png', 'GENERAL', 2, NOW());
+    (21,  1,  '/img/16.png',  'THUMBNAIL', 1, NOW()),
+    (22,  2,  '/img/3.png',  'THUMBNAIL', 1, NOW()),
+    (23,  3,  '/img/7.png',  'THUMBNAIL', 1, NOW()),
+    (24,  4,  '/img/6.png',  'THUMBNAIL', 1, NOW()),
+    (25,  5,  '/img/8.png',  'THUMBNAIL', 1, NOW()),
+    (26,  6,  '/img/10.png',  'THUMBNAIL', 1, NOW()),
+    (27,  7,  '/img/7.png',  'THUMBNAIL', 1, NOW()),
+    (28,  8,  '/img/11.png',  'THUMBNAIL', 1, NOW()),
+    (29,  9,  '/img/2.png',  'THUMBNAIL', 1, NOW()),
+    (30, 10, '/img/4.png', 'THUMBNAIL', 1, NOW()),
+    (31, 11, '/img/6.png', 'THUMBNAIL', 1, NOW()),
+    (32, 12, '/img/9.png', 'THUMBNAIL', 1, NOW()),
+    (33, 13, '/img/15.png', 'THUMBNAIL', 1, NOW()),
+    (34, 14, '/img/1.png', 'THUMBNAIL', 1, NOW()),
+    (35, 15, '/img/5.png', 'THUMBNAIL', 1, NOW()),
+    (36, 16, '/img/17.png', 'THUMBNAIL', 1, NOW()),
+    (37, 17, '/img/13.png', 'THUMBNAIL', 1, NOW()),
+    (38, 18, '/img/16.png', 'THUMBNAIL', 1, NOW()),
+    (39, 19, '/img/19.png', 'THUMBNAIL', 1, NOW()),
+    (40, 20, '/img/18.png', 'THUMBNAIL', 1, NOW()),
 
--- 나머지 룸들 (단일 이미지)
-INSERT INTO room_images (id, room_id, image_url, type, sort_order, created_at)
-VALUES
-    (6, 3, '/img/test2.png', 'MAIN', 1, NOW()),
-    (7, 4, '/img/test1.png', 'MAIN', 1, NOW()),
-    (8, 5, '/img/test1.png', 'MAIN', 1, NOW());
+    (41, 14, '/img/21.png', 'GENERAL', 1, NOW()),
+    (42, 14, '/img/22.png', 'GENERAL', 1, NOW());
 
 -- AUTO_INCREMENT 값 조정 (총 8개 들어갔으므로 9로 설정)
 ALTER TABLE room_images AUTO_INCREMENT = 9;

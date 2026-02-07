@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>예약 히스토리</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
     <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
 </head>
@@ -14,8 +15,8 @@
 
     <section class="content">
         <div class="tabs">
-            <a th:href="@{/members/myPage/reservations}" class="tab">예약 현황</a>
-            <a th:href="@{/members/myPage/history}" class="tab active">예약 히스토리</a>
+            <a th:href="@{/members/mypage/reservations}" class="tab">예약 현황</a>
+            <a th:href="@{/members/mypage/history}" class="tab active">예약 히스토리</a>
             <a th:href="@{/my}" class="tab">내 정보</a>
         </div>
         <div class="section-header">
@@ -53,7 +54,7 @@
                 </tr>
                 </tbody>
             </table>
-            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'myPage/history')}"></div>
+            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'history')}"></div>
         </div>
     </section>
 </div>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Profile</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('')}"></nav>
+
+<div class="container">
+    <h2>회원정보 수정</h2>
+
+    <div class="edit-profile-container">
+        <form th:action="@{/my/edit}" th:object="${memberUpdateRequest}" method="post" class="edit-form">
+
+        <div class="form-group">
+            <label th:for="name">이름</label>
+            <input type="text" th:field="*{name}" placeholder="이름을 입력하세요" />
+            <div class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+
+        <div class="form-group">
+            <label>이메일</label>
+            <div class="input-with-badge">
+                <input type="email" th:value="${memberEmail}" readonly class="readonly-input" />
+                <span class="badge-status success">인증완료</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label th:for="phoneNumber">연락처</label>
+            <div class="input-with-button">
+                <input type="text" th:field="*{phoneNumber}" placeholder="010-0000-0000" />
+                <button type="button" class="btn-inline-auth">인증</button>
+            </div>
+            <div class="error-msg" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+        </div>
+
+        <button type="submit" class="btn-save-main">변경사항 저장</button>
+    </form>
+    </div>
+
+    <div class="footer-actions">
+        <a th:href="@{/my}" class="back-link">취소</a>
+    </div>
+</div>
+<!--<form th:action="@{/my/edit}"-->
+<!--      th:object="${memberUpdateRequest}"-->
+<!--      method="post">-->
+
+<!--    &lt;!&ndash; 이름 &ndash;&gt;-->
+<!--    <div>-->
+<!--        <label>이름</label><br/>-->
+<!--        <input type="text" th:field="*{name}" />-->
+<!--        <div th:if="${#fields.hasErrors('name')}"-->
+<!--             th:errors="*{name}"></div>-->
+<!--    </div>-->
+
+<!--    <br/>-->
+
+<!--    &lt;!&ndash; 전화번호 &ndash;&gt;-->
+<!--    <div>-->
+<!--        <label>전화번호</label><br/>-->
+<!--        <input type="text" th:field="*{phoneNumber}" />-->
+<!--        <div th:if="${#fields.hasErrors('phoneNumber')}"-->
+<!--             th:errors="*{phoneNumber}"></div>-->
+<!--    </div>-->
+
+<!--    <br/>-->
+
+<!--    <button type="submit">저장</button>-->
+<!--</form>-->
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+</body>
+</html>

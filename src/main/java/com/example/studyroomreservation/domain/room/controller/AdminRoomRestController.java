@@ -17,9 +17,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.API_ADMIN_ROOM_BASE;
+
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/rooms")
+@RequestMapping(API_ADMIN_ROOM_BASE)
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminRoomRestController {
