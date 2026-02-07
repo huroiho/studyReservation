@@ -19,11 +19,6 @@ import java.util.List;
 
 import static com.example.studyroomreservation.domain.room.controller.RoomConstants.API_ADMIN_ROOM_BASE;
 
-/**
- * Admin Room REST API 컨트롤러
- * - Room 생성 POST (multipart/form-data)
- * - 에러 발생 시 JSON 응답 (ApiExceptionHandler에서 처리)
- */
 @Slf4j
 @RestController
 @RequestMapping(API_ADMIN_ROOM_BASE)
