@@ -478,3 +478,28 @@ body.has_bg{
     font-size: 1.05rem;   /* 살짝 크게 */
     font-weight: 700;     /* bold */
 }
+
+.readonly-box{
+    flex: 1;
+    background: #f3f4f6;        /* 회색 */
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.readonly-value{
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.readonly-hint{
+    font-size: 12px;
+    color: #9ca3af;             /* 흐린 글씨 */
+    line-height: 1.2;
+}
