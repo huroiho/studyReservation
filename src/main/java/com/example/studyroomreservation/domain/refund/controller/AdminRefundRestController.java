@@ -10,21 +10,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.studyroomreservation.domain.refund.controller.RefundConstants.*;
+
 @RestController
-@RequestMapping("/api/admin/refund-policies")
+@RequestMapping(API_ADMIN_REFUND_BASE)
 @RequiredArgsConstructor
-public class AdminRefundPolicyApiController {
+public class AdminRefundRestController {
 
     private final RefundPolicyService refundPolicyService;
 
     // Room 생성 시 활성화 된 목록 조회용
-    @GetMapping("/pick-items")
+    @GetMapping(API_REFUND_PICK)
     public ResponseEntity<ApiResponse<List<RefundPolicyPickItemResponse>>> pickItems() {
         return ResponseEntity.ok(ApiResponse.success(refundPolicyService.getActivePickItems()));
     }
 
     // 상세조회
-    @GetMapping("/{id}")
+    @GetMapping(API_REFUND_DETAIL)
     public ResponseEntity<ApiResponse<RefundPolicyDetailResponse>> getDetail(@PathVariable Long id) {
         RefundPolicyDetailResponse result = refundPolicyService.getRefundPolicyDetail(id);
         return ResponseEntity.ok(ApiResponse.success(result));

@@ -10,15 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
+
 @RestController
-@RequestMapping("/api/admin/room-rules")
+@RequestMapping(API_ADMIN_ROOM_RULE_BASE)
 @RequiredArgsConstructor
-public class AdminRoomRuleApiController {
+public class AdminRoomRuleRestController {
 
     private final RoomRuleService roomRuleService;
 
     // 상태변경
-    @PatchMapping("/{id}/status")
+    @PatchMapping(API_ROOM_RULE_STATUS)
     @ResponseBody
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam boolean active) {
         roomRuleService.updateStatus(id, active);
@@ -26,7 +28,7 @@ public class AdminRoomRuleApiController {
     }
 
     // Room 생성 시 활성화 된 목록 조회용
-    @GetMapping("/pick-items")
+    @GetMapping(API_ROOM_RULE_PICK)
     public ResponseEntity<ApiResponse<List<RoomRulePickItemResponse>>> pickItems() {
         return ResponseEntity.ok(ApiResponse.success(roomRuleService.getActivePickItems()));
     }

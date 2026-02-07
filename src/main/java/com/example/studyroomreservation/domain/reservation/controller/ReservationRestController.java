@@ -3,8 +3,6 @@ package com.example.studyroomreservation.domain.reservation.controller;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.common.ApiResponse;
-import com.example.studyroomreservation.global.exception.BusinessException;
-import com.example.studyroomreservation.global.exception.ErrorCode;
 import com.example.studyroomreservation.global.security.auth.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.example.studyroomreservation.domain.reservation.controller.ReservationControllerConstants.*;
+import static com.example.studyroomreservation.domain.reservation.controller.ReservationConstants.API_RESERVATION_BASE;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(RES_API_BASE_PATH)
+@RequestMapping(API_RESERVATION_BASE)
 public class ReservationRestController {
     private final ReservationService reservationService;
 

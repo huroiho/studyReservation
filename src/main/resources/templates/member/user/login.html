@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>로그인 | StudyRoom</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+</head>
+<body class="has_bg">
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+
+<main class="page container">
+    <div class="auth-layout">
+        <!-- 왼쪽 소개 영역 -->
+        <section class="hero">
+            <div class="hero-badge">StudyRoom Reservation</div>
+            <h1 class="hero-title">조용한 집중, 빠른 예약</h1>
+            <p class="hero-desc">
+                운영정책/룸룰 기반으로 예약을 더 정확하게.<br/>
+                로그인 후 예약 내역과 결제 상태를 한눈에 확인하세요.
+            </p>
+
+            <ul class="hero-points">
+                <li>
+                    <span class="dot"></span>
+                    <span>실시간 예약 가능 시간 확인</span>
+                </li>
+                <li>
+                    <span class="dot"></span>
+                    <span>예약/결제/환불 정책 일관 관리</span>
+                </li>
+                <li>
+                    <span class="dot"></span>
+                    <span>마이페이지에서 예약 현황 추적</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 오른쪽 로그인 카드 -->
+        <section class="card">
+            <div class="card-head">
+                <h2 class="card-title">로그인</h2>
+                <p class="card-sub">이메일과 비밀번호를 입력해주세요.</p>
+            </div>
+
+            <!-- 알림 영역 -->
+            <div class="alert alert-error" th:if="${param.error}">
+                <strong>로그인 실패</strong>
+                <span>이메일 또는 비밀번호를 확인해주세요.</span>
+            </div>
+            <div class="alert alert-info" th:if="${param.logout}">
+                <strong>로그아웃 완료</strong>
+                <span>안전하게 로그아웃되었습니다.</span>
+            </div>
+
+            <form class="form" th:action="@{/login-process}" method="post">
+                <!-- CSRF (Spring Security 켜져있으면 넣는게 안전) -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="field">
+                    <label class="label" for="username">이메일</label>
+                    <div class="input-wrap">
+                        <span class="icon" aria-hidden="true">@</span>
+                        <input
+                                class="input"
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="예: user@test.com"
+                                autocomplete="username"
+                                autofocus
+                                required
+                        />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label" for="password">비밀번호</label>
+                    <div class="input-wrap">
+                        <span class="icon" aria-hidden="true">＊</span>
+                        <input
+                                class="input"
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="비밀번호 입력"
+                                autocomplete="current-password"
+                                required
+                        />
+                    </div>
+                </div>
+
+                <button class="btn" type="submit">
+                    로그인
+                    <span class="btn-arrow" aria-hidden="true">→</span>
+                </button>
+
+                <div class="card-foot">
+                    <p class="muted">
+                        아직 계정이 없으신가요?
+                        <a th:href="@{/signup}">회원가입</a>
+                    </p>
+                </div>
+
+                <div class="card-foot">
+                    <p class="hint">
+                        테스트 계정:
+                        <span class="pill">user@test.com / 1234</span>
+                        <span class="pill">admin@test.com / 1234</span>
+                    </p>
+                    <p class="muted">
+                        회원가입은 MVP 이후에 제공될 수 있어요.
+                    </p>
+                </div>
+            </form>
+        </section>
+    </div>
+</main>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+
+</body>
+</html>

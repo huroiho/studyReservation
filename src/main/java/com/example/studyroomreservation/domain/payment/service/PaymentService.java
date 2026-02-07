@@ -98,7 +98,7 @@ public class PaymentService {
             key = "'payment:approval:' + #request.orderId",
             leaseTime = -1
     )
-    public void approveSuccess(String paymentType, PaymentApproveRequest request) {
+    public Long approveSuccess(String paymentType, PaymentApproveRequest request) {
 
         // 조회 및 검증 (Toss 호출 전 방어)
         PaymentAttempt attempt = validateAndGetAttempt(request);
@@ -116,6 +116,8 @@ public class PaymentService {
 
         //  별도 컴포넌트로 위임하여 저장 트랜잭션 수행
         paymentTransactionHelper.appendPayment(attempt, confirmResponse);
+
+        return attempt.getReservationId();
     }
 
     private PaymentAttempt validateAndGetAttempt(PaymentApproveRequest request) {
@@ -162,5 +164,16 @@ public class PaymentService {
         }
 
         return attempt;
+    }
+
+    // 실패 처리 후 예약 ID 반환
+    public Long handlePaymentFail(String orderId, String code, String message) {
+        if (orderId == null) return null;
+
+        failService.markFailed(orderId, code, message);
+
+        return paymentAttemptRepository.findByOrderId(orderId)
+                .map(PaymentAttempt::getReservationId)
+                .orElse(null);
     }
 }

@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static com.example.studyroomreservation.domain.reservation.controller.ReservationControllerConstants.*;
+import static com.example.studyroomreservation.domain.reservation.controller.ReservationConstants.*;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(ADMIN_BASE_PATH)
+@RequestMapping(VIEW_ADMIN_RESERVATION_BASE)
 @PreAuthorize("hasRole('ADMIN')")
-public class ReservationAdminViewController {
+public class AdminReservationController {
 
     private final ReservationService reservationService;
 
@@ -35,15 +35,15 @@ public class ReservationAdminViewController {
         model.addAttribute("reservations", reservations);
         model.addAttribute("maxPage", 10);
 
-        return RES_ADMIN_LIST;
+        return TMPL_ADMIN_RESERVATION_LIST;
     }
 
-    @GetMapping(ADMIN_DETAIL_PATH)
+    @GetMapping(VIEW_ADMIN_RESERVATION_DETAIL)
     public String adminReservationDetail(@PathVariable("reservationId") Long reservationId, Model model) {
         ReservationDetailResponse detail = reservationService.getReservationDetailForAdmin(reservationId);
 
         model.addAttribute("reservation", detail);
 
-        return RES_ADMIN_DETAIL;
+        return TMPL_ADMIN_RESERVATION_DETAIL;
     }
 }
