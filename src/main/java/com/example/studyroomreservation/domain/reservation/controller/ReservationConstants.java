@@ -23,9 +23,9 @@ public final class ReservationConstants {
     public static final String VIEW_MY_RESERVATION_HISTORY = "/history";
 
     // --- Templates ---
-    public static final String TMPL_RESERVATION_DETAIL = "reservation/reservation-detail";
-    public static final String TMPL_MY_RESERVATION_LIST = "reservation/mypage-reservation-list";
-    public static final String TMPL_MY_RESERVATION_HISTORY = "reservation/mypage-reservation-history";
+    public static final String TMPL_RESERVATION_DETAIL = "reservation/user/detail";
+    public static final String TMPL_MY_RESERVATION_LIST = "reservation/user/mypage-list";
+    public static final String TMPL_MY_RESERVATION_HISTORY = "reservation/user/mypage-history";
 
     // --- Redirects ---
     public static final String REDIRECT_RESERVATION_DETAIL = "redirect:" + VIEW_RESERVATION_BASE + "/";
@@ -38,6 +38,6 @@ public final class ReservationConstants {
     public static final String VIEW_ADMIN_RESERVATION_DETAIL = "/{reservationId}";
 
     // --- Templates ---
-    public static final String TMPL_ADMIN_RESERVATION_LIST = "reservation/admin/adminReservationList";
+    public static final String TMPL_ADMIN_RESERVATION_LIST = "reservation/admin/list";
     public static final String TMPL_ADMIN_RESERVATION_DETAIL = "reservation/admin/detail";
 }

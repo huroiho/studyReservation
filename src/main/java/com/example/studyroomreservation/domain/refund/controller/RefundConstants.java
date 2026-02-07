@@ -25,7 +25,7 @@ public final class RefundConstants {
     public static final String VIEW_ADMIN_REFUND_POLICY_ACTIVE = VIEW_ADMIN_REFUND_POLICY + "/{policyId}/active";
 
     // --- Templates ---
-    public static final String TMPL_ADMIN_REFUND_FORM = "refund/admin/policy-form";
+    public static final String TMPL_ADMIN_REFUND_FORM = "refund/admin/form";
     public static final String TMPL_ADMIN_REFUND_LIST = "refund/admin/list";
     public static final String TMPL_ADMIN_REFUND_DETAIL = "refund/admin/detail";
 

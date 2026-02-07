@@ -30,8 +30,8 @@ public final class RoomConstants {
     public static final String VIEW_ADMIN_ROOM_TOGGLE = "/{id}/toggle";
     public static final String VIEW_ADMIN_ROOM_DELETE = "/{id}/delete";
 
-    public static final String TMPL_ADMIN_ROOM_LIST = "room/admin/room-list";
-    public static final String TMPL_ADMIN_ROOM_CREATE = "room/admin/create";
+    public static final String TMPL_ADMIN_ROOM_LIST = "room/admin/list";
+    public static final String TMPL_ADMIN_ROOM_CREATE = "room/admin/form";
 
     public static final String REDIRECT_ADMIN_ROOM_LIST = "redirect:" + VIEW_ADMIN_ROOM_BASE;
 
@@ -50,9 +50,9 @@ public final class RoomConstants {
     public static final String VIEW_ADMIN_ROOM_RULE_NEW = "/new";
     public static final String VIEW_ADMIN_ROOM_RULE_DETAIL = "/{id}";
 
-    public static final String TMPL_ADMIN_ROOM_RULE_LIST = "room/admin/roomrule-list";
-    public static final String TMPL_ADMIN_ROOM_RULE_FORM = "room/admin/roomrule-form";
-    public static final String TMPL_ADMIN_ROOM_RULE_DETAIL = "room/admin/roomrule-detail";
+    public static final String TMPL_ADMIN_ROOM_RULE_LIST = "room/admin/rule/list";
+    public static final String TMPL_ADMIN_ROOM_RULE_FORM = "room/admin/rule/form";
+    public static final String TMPL_ADMIN_ROOM_RULE_DETAIL = "room/admin/rule/detail";
 
     public static final String REDIRECT_ADMIN_ROOM_RULE_LIST = "redirect:" + VIEW_ADMIN_ROOM_RULE_BASE;
 
@@ -80,9 +80,9 @@ public final class RoomConstants {
     public static final String VIEW_ADMIN_OP_POLICY_DEACTIVATE = "/{id}/deactivate";
     public static final String VIEW_ADMIN_OP_POLICY_DELETE = "/{id}/delete";
 
-    public static final String TMPL_ADMIN_OP_POLICY_LIST = "room/operation-policy/list";
-    public static final String TMPL_ADMIN_OP_POLICY_CREATE = "room/operation-policy/create";
-    public static final String TMPL_ADMIN_OP_POLICY_DETAIL = "room/operation-policy/detail";
+    public static final String TMPL_ADMIN_OP_POLICY_LIST = "room/admin/policy/list";
+    public static final String TMPL_ADMIN_OP_POLICY_CREATE = "room/admin/policy/form";
+    public static final String TMPL_ADMIN_OP_POLICY_DETAIL = "room//admin/policy/detail";
 
     public static final String REDIRECT_ADMIN_OP_POLICY_LIST = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE;
     public static final String REDIRECT_ADMIN_OP_POLICY_DETAIL = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE + "/";

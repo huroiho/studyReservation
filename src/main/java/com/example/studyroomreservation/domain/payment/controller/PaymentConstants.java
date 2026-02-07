@@ -20,5 +20,5 @@ public final class PaymentConstants {
     }
     
     // 예약 목록으로 리다이렉트 (ID를 찾을 수 없을 때)
-    public static final String REDIRECT_RESERVATION_LIST = "redirect:/members/myPage/reservations";
+    public static final String REDIRECT_RESERVATION_LIST = "redirect:/members/mypage/reservations";
 }
