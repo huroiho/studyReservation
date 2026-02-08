@@ -151,26 +151,11 @@ public class Reservation extends BaseAuditableEntity {
         validateTransitionTo(CANCELED);
 
         if (!isCancellable(now)) {
-            //TODO: 환불 기능 들어가면 isCancellable 로직에 CONFIRM 상태에서의 취소 가능성 검토하기
             throw new BusinessException(ErrorCode.RES_CANCEL_NOT_ALLOWED);
         }
 
         this.status = CANCELED;
         this.canceledAt = now;
-        this.expiresAt = null;
-    }
-
-    // TODO : USING 상태 추가 후 변경 필요(reservation 논의사항 참고)
-    public void completeUsage(LocalDateTime now){
-        validateTransitionTime(now);
-        validateTransitionTo(USED);
-
-        if(now.isBefore(endTime)){
-            throw new BusinessException(ErrorCode.RES_NOT_ENDED_YET);
-        }
-
-        this.status = USED;
-        this.usedAt = now;
         this.expiresAt = null;
     }
 
@@ -193,7 +178,11 @@ public class Reservation extends BaseAuditableEntity {
             return this.expiresAt != null && now.isBefore(this.expiresAt);
         }
 
-        //TODO: 예약 확정(CONFIRMED) 상태일 때의 취소 로직 추가하기
+        // 예약 확정(CONFIRMED) 상태일 때 -> 예약 시작 시간 전이어야 취소 가능
+        if (this.status == CONFIRMED) {
+            return now.isBefore(this.startTime);
+        }
+
         return false;
     }
     // ===== 검증 메서드 =====

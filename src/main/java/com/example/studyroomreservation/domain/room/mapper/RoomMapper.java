@@ -52,6 +52,7 @@ public interface RoomMapper {
                 slotMinutes,
                 minDurationMinutes,
                 bookingOpenDays,
+                room.getRefundPolicyId(),
                 amenities,
                 heroImageUrl,
                 galleryImages

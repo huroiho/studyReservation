@@ -10,6 +10,7 @@ public record UserRoomDetailResponse(
         Integer slotMinutes,
         Integer minDurationMinutes,
         Integer bookingOpenDays,
+        Long refundPolicyId,
         List<String> amenities,
         String heroImageUrl,
         List<GalleryImage> galleryImages

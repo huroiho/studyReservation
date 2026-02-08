@@ -1,6 +1,5 @@
 package com.example.studyroomreservation.domain.refund.entity;
 
-import com.example.studyroomreservation.global.common.BaseCreatedEntity;
 import com.example.studyroomreservation.global.common.BasePolicyEntity;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
@@ -11,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -56,5 +56,19 @@ public class RefundPolicy extends BasePolicyEntity {
         } else {
             deactivate();
         }
+    }
+
+    public int calculateRefundRate(long minutesUntilStart) {
+        return rules.stream()
+                .filter(rule -> minutesUntilStart >= rule.getRefundBaseMinutes())
+                .mapToInt(RefundRule::getRefundRate)
+                .max()
+                .orElse(0);
+    }
+
+    public List<RefundRule> getRulesSortedByTimeDesc() {
+        List<RefundRule> sortedRules = new ArrayList<>(this.rules);
+        sortedRules.sort(Comparator.comparingInt(RefundRule::getRefundBaseMinutes).reversed());
+        return sortedRules;
     }
 }

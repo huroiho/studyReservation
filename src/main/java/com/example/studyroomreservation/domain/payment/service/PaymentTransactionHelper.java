@@ -10,7 +10,6 @@ import com.example.studyroomreservation.domain.payment.repository.PaymentReposit
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
-import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ public class PaymentTransactionHelper {
 
     private final PaymentMapper paymentMapper;
     private final PaymentAttemptFailService failService;
-     private final ReservationService reservationService;
 
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
 
@@ -47,8 +45,9 @@ public class PaymentTransactionHelper {
             paymentRepository.save(payment);
 
             // 예약 상태 확정 (TEMP -> CONFIRMED)
-            reservationService.confirmReservation(attempt.getReservationId());
-
+            Reservation reservation = reservationRepository.findById(attempt.getReservationId())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+            reservation.confirm(LocalDateTime.now());
         } catch (DataIntegrityViolationException e) {
             // Unique 조건 위반으로 잡힘 -> 이미 성공한 것으로 간주하고 리턴
             return;

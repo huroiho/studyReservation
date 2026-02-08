@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
 import java.util.List;
 
 import static com.example.studyroomreservation.domain.reservation.controller.ReservationConstants.*;
@@ -27,9 +26,6 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    // ==========================================
-    // 예약 상세 및 취소 (기존 ReservationViewController)
-    // ==========================================
 
     @GetMapping(VIEW_RESERVATION_BASE + VIEW_RESERVATION_DETAIL)
     public String reservationDetail(@PathVariable("reservationId") Long reservationId,
@@ -54,10 +50,7 @@ public class ReservationController {
     }
 
 
-    // ==========================================
     // 마이페이지 예약 목록 (기존 ReservationMypageController)
-    // ==========================================
-
     @GetMapping(VIEW_MY_RESERVATION_BASE + VIEW_MY_RESERVATION_LIST)
     public String getMyReservations(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         if (userDetails == null) {

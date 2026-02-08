@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.refund.service;
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundCalculationResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyPickItemResponse;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -81,5 +84,25 @@ public class RefundPolicyService {
                 .map(RefundPolicy::getName)
                 .orElse("");
     }
-}
 
+
+    @Transactional(readOnly = true)
+    public RefundCalculationResponse calculateRefundAmount(Long policyId, int totalAmount, LocalDateTime reservationStartTime) {
+        // rules까지 함께 조회 Fetch Join -
+        RefundPolicy policy = refundPolicyRepository.findByIdWithRules(policyId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REF_POLICY_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        long minutesUntilStart = Duration.between(now, reservationStartTime).toMinutes();
+
+        // 예약 시작 시간이 지났으면 환불 불가 0%
+        if (minutesUntilStart < 0) {
+            return refundMapper.toCalculationResponse(policy, 0, 0, totalAmount);
+        }
+
+        int refundRate = policy.calculateRefundRate(minutesUntilStart);
+        long refundAmount = (long) (totalAmount * (refundRate / 100.0));
+
+        return refundMapper.toCalculationResponse(policy, refundRate, refundAmount, totalAmount);
+    }
+}
