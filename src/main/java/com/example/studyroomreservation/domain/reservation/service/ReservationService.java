@@ -1,9 +1,9 @@
 package com.example.studyroomreservation.domain.reservation.service;
 
 import com.example.studyroomreservation.domain.member.entity.Member;
-import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.member.service.MemberQueryService;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
-import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
+import com.example.studyroomreservation.domain.payment.service.PaymentQueryService;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
@@ -16,7 +16,7 @@ import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
-import com.example.studyroomreservation.domain.room.repository.RoomRepository;
+import com.example.studyroomreservation.domain.room.service.RoomQueryService;
 import com.example.studyroomreservation.global.aop.DistributedLock;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
@@ -40,10 +40,10 @@ import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 public class ReservationService {
 
     private final ReservationMapper reservationMapper;
-    private final RoomRepository roomRepository;
+    private final RoomQueryService roomQueryService;
     private final ReservationRepository reservationRepository;
-    private final MemberRepository memberRepository;
-    private final PaymentRepository paymentRepository;
+    private final MemberQueryService memberQueryService;
+    private final PaymentQueryService paymentQueryService;
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
@@ -66,7 +66,7 @@ public class ReservationService {
         if(request.startTime().isBefore(LocalDateTime.now()))
             throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
 
-        Room room = roomRepository.findById(request.roomId())
+        Room room = roomQueryService.findById(request.roomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
         OperationPolicy operationPolicy = room.getOperationPolicy();
@@ -121,14 +121,14 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 조회할 수 있습니다.");
         }
 
-        Room room = roomRepository.findById(reservation.getRoomId())
+        Room room = roomQueryService.findById(reservation.getRoomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberQueryService.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 결제 정보는 없을 수도 있음 (결제 전 취소)
-        Payment payment = paymentRepository.findByReservationId(reservationId)
+        Payment payment = paymentQueryService.findByReservationId(reservationId)
                 .orElse(null);
 
         // 취소 가능 여부 계산
@@ -148,13 +148,13 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        Room room = roomRepository.findById(reservation.getRoomId())
+        Room room = roomQueryService.findById(reservation.getRoomId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
-        Member member = memberRepository.findById(reservation.getMemberId())
+        Member member = memberQueryService.findById(reservation.getMemberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Payment payment = paymentRepository.findByReservationId(reservationId)
+        Payment payment = paymentQueryService.findByReservationId(reservationId)
                 .orElse(null);
 
         boolean isCancellable = reservation.isCancellable(LocalDateTime.now());

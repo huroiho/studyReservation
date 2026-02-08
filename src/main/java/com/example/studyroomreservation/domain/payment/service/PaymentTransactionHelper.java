@@ -8,8 +8,7 @@ import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
-import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
-import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
+import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
@@ -26,11 +25,11 @@ public class PaymentTransactionHelper {
 
     private final PaymentRepository paymentRepository;
     private final PaymentAttemptRepository paymentAttemptRepository;
-    private final ReservationRepository reservationRepository;
+    private final ReservationQueryService reservationQueryService;
 
     private final PaymentMapper paymentMapper;
     private final PaymentAttemptFailService failService;
-     private final ReservationService reservationService;
+    private final ReservationService reservationService;
 
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
 
@@ -65,19 +64,19 @@ public class PaymentTransactionHelper {
         }
 
         // 예약 상태 및 만료 최종 확인 (방어 로직)
-        Reservation reservation = reservationRepository.findById(attempt.getReservationId())
+        Reservation reservation = reservationQueryService.findById(attempt.getReservationId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if (reservation.getStatus() != ReservationStatus.TEMP) {
-            // 돈은 나갔는데 예약 상태가 이상한 상황 -> (추후 환불 로직 cancel 호출 필요)
-            failService.markFailed(orderId, "INVALID_STATUS", "Reservation is not TEMP");
-            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS);
-        }
-
-        if (reservation.getExpiresAt().isBefore(LocalDateTime.now())) {
-            //TODO 돈은 나갔는데 예약이 만료된 상황 -> (추후 환불 로직 cancel 호출 필요)
-            failService.markFailed(orderId, "RESERVATION_EXPIRED", "Reservation time has expired before save");
-            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
+        //TODO : 돈은 나갔는데 예약 상태가 이상한 상황 or 예약이 만료된 상황 -> (추후 환불 로직 cancel 호출 필요)
+        try {
+            reservation.validatePayableForApprove(LocalDateTime.now());
+        } catch (BusinessException e) {
+            failService.markFailed(
+                    orderId,
+                    e.getErrorCode().name(),
+                    "Reservation validation failed: " + e.getErrorCode().name()
+            );
+            throw e;
         }
 
         // 금액 일치 검증
