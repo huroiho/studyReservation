@@ -17,7 +17,8 @@
          th:data-room-price="${room.price}"
          th:data-slot-minutes="${room.slotMinutes}"
          th:data-min-duration-minutes="${room.minDurationMinutes}"
-         th:data-booking-open-days="${room.bookingOpenDays}">
+         th:data-booking-open-days="${room.bookingOpenDays}"
+         th:data-refund-policy-id="${room.refundPolicyId}">
         <div class="content-wrapper">
 
             <!-- Back Link -->
@@ -164,6 +165,12 @@
                                 <label for="reserverCompany">회사/소속 (선택)</label>
                                 <input type="text" id="reserverCompany" class="form-input" placeholder="회사명">
                             </div>
+
+                            <!-- Refund Policy Link (Simple View) -->
+                            <div class="form-group" style="text-align: right; margin-top: 10px;">
+                                <button type="button" id="viewRefundPolicyBtn" class="btn-link">환불 정책 보기</button>
+                            </div>
+
                             <button type="button" id="reserveBtn" class="btn btn-reserve" disabled
                                     th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}">예약하기</button>
                         </div>
@@ -175,6 +182,24 @@
 
             </div>
 
+        </div>
+    </div>
+
+    <!-- Refund Policy Modal -->
+    <div id="refundPolicyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>환불 정책 확인</h2>
+            <div id="refundPolicyContent" class="modal-body">
+                <!-- Policy content will be loaded here -->
+                <p>로딩 중...</p>
+            </div>
+            <div class="modal-footer">
+                <!-- Buttons will be toggled by JS -->
+                <button type="button" id="modalCloseBtn" class="btn btn-secondary close-modal-btn">닫기</button>
+                <button type="button" id="modalCancelBtn" class="btn btn-secondary close-modal-btn" style="display:none;">취소</button>
+                <button type="button" id="modalAgreeBtn" class="btn btn-primary" style="display:none;">동의하고 예약하기</button>
+            </div>
         </div>
     </div>
 
