@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.member.controller;
 
 import com.example.studyroomreservation.domain.member.dto.response.MemberAdminResponse;
+import com.example.studyroomreservation.domain.member.service.MemberQueryService;
 import com.example.studyroomreservation.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ import static com.example.studyroomreservation.domain.member.controller.MemberCo
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminMemberController {
 
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
 
     // 회원목록 관리
     @GetMapping
@@ -30,7 +31,7 @@ public class AdminMemberController {
             @PageableDefault(size = 10) Pageable pageable,
             Model model
     ){
-        Page<MemberAdminResponse> memberPage = memberService.getMembersForAdmin(keyword,pageable);
+        Page<MemberAdminResponse> memberPage = memberQueryService.getMembersForAdmin(keyword,pageable);
 
         model.addAttribute("page", memberPage);
         model.addAttribute("members", memberPage.getContent());

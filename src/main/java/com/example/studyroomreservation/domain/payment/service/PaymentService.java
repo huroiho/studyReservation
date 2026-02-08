@@ -36,6 +36,7 @@ public class PaymentService {
 
     private final PaymentAttemptRepository paymentAttemptRepository;
     private final ReservationRepository reservationRepository;  // Lock 메서드용 유지
+
     private final RoomQueryService roomQueryService;
     private final MemberQueryService memberQueryService;
     private final ReservationQueryService reservationQueryService;
@@ -50,6 +51,7 @@ public class PaymentService {
 
     private static final int RESERVATION_EXPIRE_EXTENSION_MINUTES = 3;
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
+    private final PaymentQueryService paymentQueryService;
 
     @Transactional
     public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
@@ -71,11 +73,9 @@ public class PaymentService {
         PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, PaymentMethod.PG);
         paymentAttemptRepository.save(paymentAttempt);
 
-        Room room = roomQueryService.findById(reservation.getRoomId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        Room room = roomQueryService.getById(reservation.getRoomId());
 
-        Member member = memberQueryService.findById(reservation.getMemberId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberQueryService.getById(reservation.getMemberId());
 
         return paymentMapper.toPrepareResponse(
                 paymentAttempt,
@@ -117,8 +117,7 @@ public class PaymentService {
     }
 
     private PaymentAttempt validateAndGetAttempt(PaymentApproveRequest request) {
-        PaymentAttempt attempt = paymentAttemptRepository.findByOrderId(request.orderId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_ATTEMPT_NOT_FOUND));
+        PaymentAttempt attempt = paymentQueryService.getAttemptByOrderId(request.orderId());
 
         // 시간 검증 (TTL)
         if (attempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(LocalDateTime.now())) {
@@ -126,8 +125,7 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
         }
 
-        Reservation reservation = reservationQueryService.findById(attempt.getReservationId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = reservationQueryService.getById(attempt.getReservationId());
 
         try {
             reservation.validatePayableForApprove(LocalDateTime.now());

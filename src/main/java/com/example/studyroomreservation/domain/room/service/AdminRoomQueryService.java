@@ -1,37 +1,37 @@
 package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
+import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-/**
-* 공용 query 서비스 -> 다른 도메인이 Room 조회할 때 쓰는 용
- */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RoomQueryService {
+public class AdminRoomQueryService {
 
     private final RoomRepository roomRepository;
+    private final RoomMapper roomMapper;
+    private final RefundPolicyQueryService refundPolicyQueryService;
 
-    public Room getById(Long id) {
-        return roomRepository.findById(id)
+    public RoomUpdateResponse getRoomForEdit(Long roomId) {
+        Room room = roomRepository.findDetailById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        String refundPolicyName = refundPolicyQueryService.getRefundPolicyName(room.getRefundPolicyId());
+        return roomMapper.toRoomUpdateResponse(room, refundPolicyName);
     }
 
-    public List<Room> findByOperationPolicyId(Long policyId) {
-        return roomRepository.findByOperationPolicyId(policyId);
-    }
-
-    public boolean existsByOperationPolicyId(Long policyId) {
-        return roomRepository.existsByOperationPolicyId(policyId);
+    public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
+        return roomRepository.findAdminRoomList(pageable);
     }
 }
