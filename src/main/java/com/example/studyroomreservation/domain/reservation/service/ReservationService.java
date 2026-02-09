@@ -51,7 +51,6 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberQueryService memberQueryService;
     private final PaymentQueryService paymentQueryService;
-    private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
     private final RefundPolicyService refundPolicyService;
     private final PaymentService paymentService;

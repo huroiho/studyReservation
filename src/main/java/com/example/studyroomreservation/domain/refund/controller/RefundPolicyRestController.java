@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.refund.controller;
 
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,11 @@ import static com.example.studyroomreservation.domain.refund.controller.RefundCo
 @RequestMapping(API_REFUND_POLICY_BASE)
 public class RefundPolicyRestController {
 
-    private final RefundPolicyService refundPolicyService;
+    private final RefundPolicyQueryService refundPolicyQueryService;
 
     @GetMapping(API_REFUND_POLICY_DETAIL)
     public ApiResponse<RefundPolicyDetailResponse> getRefundPolicyDetail(@PathVariable Long policyId) {
-        RefundPolicyDetailResponse response = refundPolicyService.getRefundPolicyDetail(policyId);
+        RefundPolicyDetailResponse response = refundPolicyQueryService.getRefundPolicyDetail(policyId);
         return ApiResponse.success(response);
     }
 }

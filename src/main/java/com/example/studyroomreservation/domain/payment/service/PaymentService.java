@@ -42,9 +42,6 @@ public class PaymentService {
     private final RoomQueryService roomQueryService;
     private final MemberQueryService memberQueryService;
     private final ReservationQueryService reservationQueryService;
-    private final ReservationRepository reservationRepository;
-    private final RoomRepository roomRepository;
-    private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
 
     private final PaymentTransactionHelper paymentTransactionHelper;

@@ -26,8 +26,12 @@
                 <li>
                     <strong>이메일:</strong> <span th:text="${myInfo.email()}">이메일</span>
                 </li>
-                <li>
-                    <strong>전화번호:</strong> <span th:text="${myInfo.phoneNumber()}">전화번호</span>
+                <li th:with="p=${myInfo.phoneNumber()}">
+                    <strong>전화번호:</strong>
+                    <span th:text="${p != null and #strings.length(p) == 11
+                    ? p.substring(0,3) + '-' + p.substring(3,7) + '-' + p.substring(7)
+                    : p}">전화번호
+                    </span>
                 </li>
             </ul>
         </div>
