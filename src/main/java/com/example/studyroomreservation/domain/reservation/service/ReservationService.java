@@ -74,8 +74,10 @@ public class ReservationService {
     //TODO: FACADE 패턴 적용해서 락 이후의 트랜잭션 로직 최소화 하기
     @Transactional
     public Long createReservation(ReservationCreateRequest request, Long memberId){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
-        if(request.startTime().isBefore(LocalDateTime.now()))
+        if(request.startTime().isBefore(now))
             throw new BusinessException(ErrorCode.RES_PAST_TIME_NOT_ALLOWED);
 
         Room room = roomQueryService.getById(request.roomId());
@@ -87,7 +89,7 @@ public class ReservationService {
         operationPolicy.validateWithinOperatingHours(request.startTime(), request.endTime());
 
         // 최소시간, 예약 가능 기간 검증
-        roomRule.validateReservable(request.startTime(), request.endTime(), LocalDate.now());
+        roomRule.validateReservable(request.startTime(), request.endTime(), today);
 
         //중복 예약 확인 QueryDSl 작성
         if (reservationRepository.existsActiveReservation(room.getId(), request.startTime(), request.endTime())) {
@@ -96,7 +98,7 @@ public class ReservationService {
 
         int totalAmount = room.calculatePriceFor(request.startTime(), request.endTime());
 
-        LocalDateTime expiredAt = LocalDateTime.now().plusMinutes(BASIC_EXPIRED_TIME);
+        LocalDateTime expiredAt = now.plusMinutes(BASIC_EXPIRED_TIME);
 
         Reservation reservation = reservationMapper.toTempReservation(request, memberId, room, totalAmount, expiredAt);
         reservationRepository.save(reservation);
@@ -174,6 +176,7 @@ public class ReservationService {
             waitTime = 5L,
             leaseTime = -1
     )
+    // 트랜잭션 분리를 위해 @Transactional 제거 (내부에서 별도 트랜잭션 처리)
     public void cancelReservation(Long reservationId, Long memberId) {
 
         // 현재 클래스가 @Transactional(readOnly=true)이므로 괜찮음)
@@ -185,7 +188,7 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 취소할 수 있습니다.");
         }
 
-        // TEMP 상태라면 만료 여부와 상관없이 바로 취소 처리
+        // TEMP 상태라면 만료 여부와 상관없이 바로 취소 처리 (환불 이력 생성 X)
         if (reservation.getStatus() == ReservationStatus.TEMP) {
             reservationTransactionHelper.cancelTempReservation(reservationId);
             return;
