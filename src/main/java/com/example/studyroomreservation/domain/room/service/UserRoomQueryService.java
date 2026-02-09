@@ -1,7 +1,7 @@
 package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
-import com.example.studyroomreservation.domain.reservation.service.ReservationService;
+import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RoomService {
+public class UserRoomQueryService {
 
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
     private final OperationPolicyMapper operationPolicyMapper;
-    private final ReservationService reservationService;
+    private final ReservationQueryService reservationQueryService;
 
     public Page<UserRoomListResponse> getUserList(Integer minCapacity, String sort, List<String> amenityStrings, Pageable pageable) {
 
@@ -88,9 +88,7 @@ public class RoomService {
         Room room = roomRepository.findDetailById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
-        if (room.getStatus() != Room.RoomStatus.ACTIVE) {
-            throw new BusinessException(ErrorCode.ROOM_NOT_AVAILABLE);
-        }
+        validRoomStatus(room);
 
         return roomMapper.toUserDetailResponse(room);
     }
@@ -105,9 +103,7 @@ public class RoomService {
         Room room = roomRepository.findWithOperationPolicyById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
-        if (room.getStatus() != Room.RoomStatus.ACTIVE) {
-            throw new BusinessException(ErrorCode.ROOM_NOT_AVAILABLE);
-        }
+        validRoomStatus(room);
 
         OperationPolicy policy = room.getOperationPolicy();
 
@@ -122,7 +118,7 @@ public class RoomService {
         }
 
         // 예약된 시간 조회(예약 서비스 호출 - 순환 참조 없는거 확인)
-        List<RoomReservedTimeResponse> reservedTimes = reservationService.getReservedTimes(roomId, date);
+        List<RoomReservedTimeResponse> reservedTimes = reservationQueryService.getReservedTimes(roomId, date);
 
         return buildSlots(date, policy, schedule, reservedTimes);
     }
@@ -186,10 +182,15 @@ public class RoomService {
         Room room = roomRepository.findWithOperationPolicyById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
+        validRoomStatus(room);
+
+        return operationPolicyMapper.toResponse(room.getOperationPolicy());
+    }
+
+    // ====== 공통 메서드 =====
+    private void validRoomStatus(Room room){
         if (room.getStatus() != Room.RoomStatus.ACTIVE) {
             throw new BusinessException(ErrorCode.ROOM_NOT_AVAILABLE);
         }
-
-        return operationPolicyMapper.toResponse(room.getOperationPolicy());
     }
 }

@@ -20,12 +20,9 @@ import java.util.List;
 
 /**
  * Room DB 트랜잭션 서비스
- * <p>
- * 책임:
  * - Room/RoomImage 엔티티 CRUD
  * - 파일명 기반 최종 경로 조립 후 DB 저장
- * <p>
- * 이 서비스는 파일 I/O를 절대 수행하지 않습니다.
+ * 이 서비스는 파일 I/O를 수행하지 않습니다.
  */
 @Service
 @RequiredArgsConstructor

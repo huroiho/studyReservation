@@ -225,8 +225,7 @@ h2 {
 
 /* Amenities */
 .amenities-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    display: flex;
     gap: 12px;
 }
 .amenity-item {

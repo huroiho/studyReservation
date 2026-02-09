@@ -185,6 +185,7 @@ public class Reservation extends BaseAuditableEntity {
 
         return false;
     }
+
     // ===== 검증 메서드 =====
     private void validateTransitionTo(ReservationStatus target) {
         if (!this.status.canChangeTo(target)) {
@@ -195,6 +196,28 @@ public class Reservation extends BaseAuditableEntity {
 
     private static void validateTransitionTime(LocalDateTime now) {
         if (now == null) throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING, "now");
+    }
+
+    // 결제시 검증용 메서드
+    public void validatePayableForApprove(LocalDateTime now) {
+        if (now == null) {
+            throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING, "now");
+        }
+
+        if (this.status != TEMP) {
+            throw new BusinessException(ErrorCode.INVALID_RESERVATION_STATUS,"결제 승인 가능한 예약 상태가 아닙니다.");
+        }
+
+        if (this.expiresAt == null || !now.isBefore(this.expiresAt)) {
+            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED,"예약 유효 시간이 만료되었습니다.");
+        }
+    }
+
+    public boolean isPayable(LocalDateTime now) {
+        if (now == null) throw new BusinessException(ErrorCode.RES_REQUIRED_VALUE_MISSING, "now");
+        return this.status == TEMP
+                && this.expiresAt != null
+                && now.isBefore(this.expiresAt);
     }
 
 }

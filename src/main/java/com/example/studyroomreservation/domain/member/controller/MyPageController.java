@@ -3,6 +3,7 @@ package com.example.studyroomreservation.domain.member.controller;
 import com.example.studyroomreservation.domain.member.dto.request.MemberPasswordChangeRequest;
 import com.example.studyroomreservation.domain.member.dto.request.MemberUpdateRequest;
 import com.example.studyroomreservation.domain.member.dto.response.MemberInfoResponse;
+import com.example.studyroomreservation.domain.member.service.MemberQueryService;
 import com.example.studyroomreservation.domain.member.service.MemberService;
 import com.example.studyroomreservation.domain.member.validation.MemberPasswordChangeValidator;
 import com.example.studyroomreservation.domain.member.validation.MemberUpdateValidator;
@@ -24,6 +25,7 @@ import static com.example.studyroomreservation.domain.member.controller.MemberCo
 public class MyPageController {
 
     private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
     private final MemberUpdateValidator memberUpdateValidator;
     private final MemberPasswordChangeValidator memberPasswordChangeValidator;
 
@@ -44,7 +46,7 @@ public class MyPageController {
     ) {
         Long memberId = userDetails.getMember().getId();
 
-        model.addAttribute("myInfo", memberService.getMyInfo(memberId));
+        model.addAttribute("myInfo", memberQueryService.getMyInfo(memberId));
         return TMPL_MEMBER_MYPAGE;
     }
 
@@ -55,7 +57,7 @@ public class MyPageController {
     ) {
         Long memberId = userDetails.getMember().getId();
 
-        MemberInfoResponse myInfo = memberService.getMyInfo(memberId);
+        MemberInfoResponse myInfo = memberQueryService.getMyInfo(memberId);
 
         model.addAttribute("memberUpdateRequest", new MemberUpdateRequest(myInfo.name(), myInfo.phoneNumber()));
         return TMPL_MEMBER_EDIT;
