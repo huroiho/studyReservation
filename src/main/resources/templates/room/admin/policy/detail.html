@@ -12,6 +12,9 @@
 <header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
 <nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='operation-policies')}"></nav>
 <div class="container">
+    <a th:href="@{/admin/operation-policies}" class="back-link">
+        <span class="material-icons">arrow_back</span> 목록으로
+    </a>
     <h2>운영 정책 상세</h2>
     <!-- 정책 기본 정보 -->
     <div class="detail-card">
