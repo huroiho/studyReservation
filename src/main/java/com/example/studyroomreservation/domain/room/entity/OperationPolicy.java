@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -139,4 +140,36 @@ public class OperationPolicy extends BasePolicyEntity {
             LocalTime closeTime,
             boolean isClosed
     ) {}
+
+    //================================================
+    public void validateWithinOperatingHours(LocalDateTime start, LocalDateTime end) {
+        // 하루 단위 예약인지 확인
+        if (!start.toLocalDate().equals(end.toLocalDate())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "예약은 하루 단위로만 가능합니다.");
+        }
+
+        DayOfWeek dayOfWeek = start.getDayOfWeek();
+
+        OperationSchedule schedule = this.schedules.stream()
+                .filter(s -> s.getDayOfWeek() == dayOfWeek)
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.OS_DAY_NOT_FOUND));
+
+        if (schedule.isClosed()) {
+            throw new BusinessException(ErrorCode.OS_CLOSED_DAY);
+        }
+
+        LocalTime openTime = schedule.getOpenTime();
+        LocalTime closeTime = schedule.getCloseTime();
+        LocalTime reqStartTime = start.toLocalTime();
+        LocalTime reqEndTime = end.toLocalTime();
+
+        // TODO 당일 운영시간 기준, 금일 - 익일 동시 예약은 현재로서는 불가능
+        if (reqStartTime.isBefore(openTime) || reqEndTime.isAfter(closeTime)) {
+            throw new BusinessException(
+                    ErrorCode.RES_OUT_OF_OPERATION_HOURS,
+                    String.format("운영 시간: %s ~ %s", openTime, closeTime)
+            );
+        }
+    }
 }

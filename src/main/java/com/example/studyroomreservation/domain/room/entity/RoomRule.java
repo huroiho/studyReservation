@@ -1,8 +1,14 @@
 package com.example.studyroomreservation.domain.room.entity;
 
 import com.example.studyroomreservation.global.common.BasePolicyEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,5 +41,18 @@ public class RoomRule extends BasePolicyEntity {
     public void toggleActiveStatus(boolean active) {
         if (active) this.isActive = true;
         else this.deactivate();
+    }
+
+    // ==========================================
+    public void validateReservable(LocalDateTime start, LocalDateTime end, LocalDate today) {
+        long duration = Duration.between(start, end).toMinutes();
+        if (duration < this.minDurationMinutes) {
+            throw new BusinessException(ErrorCode.RES_MIN_DURATION_NOT_MET);
+        }
+
+        LocalDate maxDate = today.plusDays(this.bookingOpenDays);
+        if (start.toLocalDate().isAfter(maxDate)) {
+            throw new BusinessException(ErrorCode.RES_BOOKING_PERIOD_EXCEEDED);
+        }
     }
 }

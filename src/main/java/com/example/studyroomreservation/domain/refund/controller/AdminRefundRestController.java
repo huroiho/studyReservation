@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.refund.controller;
 
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyPickItemResponse;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,18 +18,19 @@ import static com.example.studyroomreservation.domain.refund.controller.RefundCo
 @RequiredArgsConstructor
 public class AdminRefundRestController {
 
+    private final RefundPolicyQueryService refundPolicyQueryService;
     private final RefundPolicyService refundPolicyService;
 
     // Room 생성 시 활성화 된 목록 조회용
     @GetMapping(API_REFUND_PICK)
     public ResponseEntity<ApiResponse<List<RefundPolicyPickItemResponse>>> pickItems() {
-        return ResponseEntity.ok(ApiResponse.success(refundPolicyService.getActivePickItems()));
+        return ResponseEntity.ok(ApiResponse.success(refundPolicyQueryService.getActivePickItems()));
     }
 
     // 상세조회
     @GetMapping(API_REFUND_DETAIL)
     public ResponseEntity<ApiResponse<RefundPolicyDetailResponse>> getDetail(@PathVariable Long id) {
-        RefundPolicyDetailResponse result = refundPolicyService.getRefundPolicyDetail(id);
+        RefundPolicyDetailResponse result = refundPolicyQueryService.getRefundPolicyDetail(id);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 }

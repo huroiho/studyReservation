@@ -3,7 +3,9 @@ package com.example.studyroomreservation.domain.room.controller;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room.AmenityType;
+import com.example.studyroomreservation.domain.room.service.AdminRoomQueryService;
 import com.example.studyroomreservation.domain.room.service.AdminRoomService;
+import com.example.studyroomreservation.domain.room.service.RoomQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ import static com.example.studyroomreservation.domain.room.controller.RoomConsta
 public class AdminRoomController {
 
     private final AdminRoomService adminRoomService;
+    private final AdminRoomQueryService adminRoomQueryService;
 
     @GetMapping(VIEW_ADMIN_ROOM_CREATE)
     public String showCreateForm(Model model) {
@@ -37,7 +40,7 @@ public class AdminRoomController {
 
     @GetMapping(VIEW_ADMIN_ROOM_EDIT)
     public String showEditForm(@PathVariable Long id, Model model) {
-        RoomUpdateResponse room = adminRoomService.getRoomForEdit(id);
+        RoomUpdateResponse room = adminRoomQueryService.getRoomForEdit(id);
 
         model.addAttribute("room", room);
         model.addAttribute("roomId", id);
@@ -52,7 +55,7 @@ public class AdminRoomController {
             Model model) {
 
         Page<AdminRoomListResponse> page =
-                adminRoomService.getAdminRoomList(pageable);
+                adminRoomQueryService.getAdminRoomList(pageable);
 
         model.addAttribute("rooms", page.getContent());
         model.addAttribute("page", page);
