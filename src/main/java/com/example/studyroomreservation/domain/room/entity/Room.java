@@ -3,7 +3,6 @@ package com.example.studyroomreservation.domain.room.entity;
 import com.example.studyroomreservation.global.common.BaseSoftDeletableEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -16,7 +15,19 @@ import java.util.Set;
 
 @Entity
 @Getter
-@Table(name="rooms")
+@Table(
+        name="rooms",
+        indexes = {
+                @Index(
+                        name = "idx_rooms_status_deleted_name_id",
+                        columnList = "status, deleted_at, name, id"
+                ),
+                @Index(
+                        name = "idx_rooms_status_deleted_price_id",
+                        columnList = "status, deleted_at, price, id"
+                )
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Room extends BaseSoftDeletableEntity {
 
