@@ -1,5 +1,6 @@
 package com.example.studyroomreservation.domain.payment.client;
 
+import com.example.studyroomreservation.domain.payment.dto.request.TossCancelRequest;
 import com.example.studyroomreservation.domain.payment.dto.request.TossConfirmRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.TossConfirmResponse;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -40,6 +41,31 @@ public class TossPaymentsClient {
             throw e;
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.PAYMENT_FAILED, "toss confirm call failed", e);
+        }
+    }
+
+    public void cancel(String paymentKey, long cancelAmount, String reason) {
+        TossCancelRequest request = new TossCancelRequest(reason, cancelAmount);
+
+        try {
+            tossWebClient.post()
+                    .uri("/v1/payments/" + paymentKey + "/cancel")
+                    .bodyValue(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, resp ->
+                            resp.bodyToMono(String.class)
+                                    .defaultIfEmpty("toss cancel error")
+                                    .flatMap(body -> Mono.error(
+                                            new BusinessException(ErrorCode.PAYMENT_CANCEL_FAILED, body)
+                                    ))
+                    )
+                    .toBodilessEntity()
+                    .block(Duration.ofSeconds(TIMEOUT_SECONDS));
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.PAYMENT_CANCEL_FAILED, "toss cancel call failed", e);
         }
     }
 }

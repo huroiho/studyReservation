@@ -38,7 +38,7 @@ public enum ErrorCode {
     REF_RULE_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "RF004", "규칙 이름은 필수입니다."),
     REF_POLICY_ALREADY_ASSIGNED(HttpStatus.BAD_REQUEST, "RF005", "이미 환불 정책이 할당되어 있습니다."),
     REF_PAYMENT_REQUIRED(HttpStatus.BAD_REQUEST, "RF006", "환불 대상 결제 정보는 필수입니다."),
-    REF_AMOUNT_INVALID(HttpStatus.BAD_REQUEST, "RF007", "환불 금액은 0원보다 커야 합니다."),
+    REF_AMOUNT_INVALID(HttpStatus.BAD_REQUEST, "RF007", "환불 금액이 올바르지 않습니다."),
     REF_POLICY_NAME_DUPLICATE(HttpStatus.CONFLICT, "RF008", "이미 존재하는 정책 이름입니다."),
     REF_POLICY_NOT_FOUND(HttpStatus.NOT_FOUND, "RF009", "환불 정책이 존재하지 않습니다."),
     REF_POLICY_INACTIVE(HttpStatus.BAD_REQUEST, "RF010","비활성화된 환불 정책입니다"),
@@ -73,6 +73,8 @@ public enum ErrorCode {
     PAYMENT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P008", "결제 처리에 실패했습니다."),
     PAYMENT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "P009", "잘못된 결제 요청입니다."),
     PAYMENT_IN_PROGRESS(HttpStatus.CONFLICT, "P010", "이미 결제가 처리 중입니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "P011", "결제 정보가 존재하지 않습니다."),
+    PAYMENT_CANCEL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "P012", "결제 취소에 실패했습니다."),
 
     // OPERATION POLICY
     OP_POLICY_SCHEDULE_REQUIRED(HttpStatus.BAD_REQUEST, "OP001", "요일별 운영 스케줄이 필요합니다."),

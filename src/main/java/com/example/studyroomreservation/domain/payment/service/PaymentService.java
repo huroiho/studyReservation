@@ -7,12 +7,14 @@ import com.example.studyroomreservation.domain.payment.dto.request.PaymentApprov
 import com.example.studyroomreservation.domain.payment.dto.request.TossConfirmRequest;
 import com.example.studyroomreservation.domain.payment.dto.response.PaymentPrepareResponse;
 import com.example.studyroomreservation.domain.payment.dto.response.TossConfirmResponse;
+import com.example.studyroomreservation.domain.payment.entity.Payment;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttempt;
 import com.example.studyroomreservation.domain.payment.entity.PaymentAttemptStatus;
 import com.example.studyroomreservation.domain.payment.entity.PaymentMethod;
 import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
 import com.example.studyroomreservation.domain.payment.mapper.TossConfirmMapper;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
 import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
@@ -40,6 +42,7 @@ public class PaymentService {
     private final RoomQueryService roomQueryService;
     private final MemberQueryService memberQueryService;
     private final ReservationQueryService reservationQueryService;
+    private final PaymentRepository paymentRepository;
 
     private final PaymentTransactionHelper paymentTransactionHelper;
     private final PaymentAttemptFailService failService;
@@ -168,5 +171,29 @@ public class PaymentService {
         return paymentAttemptRepository.findByOrderId(orderId)
                 .map(PaymentAttempt::getReservationId)
                 .orElse(null);
+    }
+
+    public void cancelPayment(Long reservationId, long cancelAmount, String reason) {
+        Payment payment = paymentRepository.findByReservationId(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        if (cancelAmount <= 0) {
+            log.info("Cancel amount is 0. Skip PG cancellation. reservationId={}", reservationId);
+            return;
+        }
+
+        // 테스트용
+        if (payment.getPaymentKey().startsWith("test_")) {
+            log.info("Test payment key detected. Skip PG cancellation. paymentKey={}", payment.getPaymentKey());
+            return;
+        }
+
+        try {
+            tossPaymentsClient.cancel(payment.getPaymentKey(), cancelAmount, reason);
+        } catch (Exception e) {
+            log.error("PG cancellation failed. paymentKey={}, amount={}, reason={}",
+                    payment.getPaymentKey(), cancelAmount, reason, e);
+            throw new BusinessException(ErrorCode.PAYMENT_CANCEL_FAILED);
+        }
     }
 }

@@ -11,11 +11,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RefundPolicyRepository extends JpaRepository<RefundPolicy, Long> {
 
     Page<RefundPolicy> findByIsActive(boolean active, Pageable pageable);
     boolean existsByName(String name);
+
+    @Query("SELECT p FROM RefundPolicy p LEFT JOIN FETCH p.rules WHERE p.id = :id")
+    Optional<RefundPolicy> findByIdWithRules(@Param("id") Long id);
 
     @Query(
             value = """

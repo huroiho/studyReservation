@@ -8,6 +8,8 @@ public final class ReservationConstants {
     // 1. API (사용자)
     // ==========================================
     public static final String API_RESERVATION_BASE = "/api/reservations";
+    public static final String API_REFUND_CALCULATION = "/{reservationId}/refund-calculation";
+    public static final String API_RESERVATION_CANCEL = "/{reservationId}/cancel";
 
 
     // ==========================================
