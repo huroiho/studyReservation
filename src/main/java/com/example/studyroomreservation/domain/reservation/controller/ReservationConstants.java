@@ -9,6 +9,7 @@ public final class ReservationConstants {
     // ==========================================
     public static final String API_RESERVATION_BASE = "/api/reservations";
 
+
     // ==========================================
     // 2. View (사용자)
     // ==========================================
@@ -23,8 +24,8 @@ public final class ReservationConstants {
     public static final String VIEW_MY_RESERVATION_HISTORY = "/history";
 
     // --- Templates ---
-    public static final String TMPL_RESERVATION_DETAIL = "reservation/user/detail";
-    public static final String TMPL_MY_RESERVATION_LIST = "reservation/user/mypage-list";
+    public static final String TMPL_RESERVATION_DETAIL = "reservation/user/mypage-reservation-detail";
+    public static final String TMPL_MY_RESERVATION_LIST = "reservation/user/mypage-reservation-list";
     public static final String TMPL_MY_RESERVATION_HISTORY = "reservation/user/mypage-history";
 
     // --- Redirects ---

@@ -82,7 +82,7 @@ public final class RoomConstants {
 
     public static final String TMPL_ADMIN_OP_POLICY_LIST = "room/admin/policy/list";
     public static final String TMPL_ADMIN_OP_POLICY_CREATE = "room/admin/policy/form";
-    public static final String TMPL_ADMIN_OP_POLICY_DETAIL = "room//admin/policy/detail";
+    public static final String TMPL_ADMIN_OP_POLICY_DETAIL = "room/admin/policy/detail";
 
     public static final String REDIRECT_ADMIN_OP_POLICY_LIST = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE;
     public static final String REDIRECT_ADMIN_OP_POLICY_DETAIL = "redirect:" + VIEW_ADMIN_OP_POLICY_BASE + "/";
