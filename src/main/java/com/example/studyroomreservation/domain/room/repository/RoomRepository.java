@@ -25,27 +25,14 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     // 룸 목록 조회용(이미지에서 썸네일만 dto에 담아 조회)
     @Query("""
-        SELECT new com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse(
-            r.id, r.name, r.maxCapacity, r.price, i.imageUrl, r.amenities
+        SELECT DISTINCT new com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse(
+            r.id, r.name, r.maxCapacity, r.price, i.imageUrl
         )
         FROM Room r
         LEFT JOIN RoomImage i ON i.room = r AND i.type = 'THUMBNAIL'
         WHERE r.id IN :ids
         """)
     List<UserRoomListResponse> findUserListResponsesByIds(@Param("ids") List<Long> ids);
-
-    // 룸 검색 조회
-    @Query("""
-        SELECT r.id FROM Room r 
-        WHERE r.status = 'ACTIVE' AND r.deletedAt IS NULL 
-          AND (:min IS NULL OR r.maxCapacity >= :min) 
-                  
-        ORDER BY 
-          CASE WHEN :sort = 'price' THEN r.price END ASC,
-          CASE WHEN :sort = 'name' THEN r.name END ASC,
-          r.id ASC
-        """)
-    List<Long> findAllActiveIdsByCapacity(@Param("min") Integer minCapacity, @Param("sort") String sort);
 
     //룸 상세 조회 공용(admin 수정 화면, user 상세 화면) - images, operationPolicy, roomRule을 함께 fetch
     // 추후 화면 요구사항에 따라 분리 가능
