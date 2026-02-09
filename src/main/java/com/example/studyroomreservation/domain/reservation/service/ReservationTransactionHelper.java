@@ -31,4 +31,13 @@ public class ReservationTransactionHelper {
         // refundAmount가 0원이어도 기록을 위해 저장함
         refundService.createRefund(reservationId, refundPolicyId, refundAmount);
     }
+
+    // TEMP 상태 전용 취소
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void cancelTempReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        reservation.cancel(LocalDateTime.now());
+    }
 }

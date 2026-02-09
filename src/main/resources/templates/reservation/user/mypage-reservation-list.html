@@ -60,8 +60,18 @@
                       th:id="'cancelForm-' + ${res.reservationId}"
                       th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
                       method="post">
-                    <button type="button" class="btn-cancel"
+
+                    <!-- CONFIRMED 상태일 때: 환불 모달 띄우기 -->
+                    <button th:if="${res.status == 'CONFIRMED'}"
+                            type="button" class="btn-cancel"
                             th:onclick="'openRefundModal(' + ${res.reservationId} + ')'">
+                        예약 취소
+                    </button>
+
+                    <!-- TEMP 상태일 때: 바로 취소 (단순 확인) -->
+                    <button th:if="${res.status == 'TEMP'}"
+                            type="submit" class="btn-cancel"
+                            onclick="return confirm('결제 대기 중인 예약을 취소하시겠습니까?');">
                         예약 취소
                     </button>
                 </form>

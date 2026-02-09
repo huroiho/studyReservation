@@ -174,7 +174,6 @@ public class ReservationService {
             waitTime = 5L,
             leaseTime = -1
     )
-    // 트랜잭션 분리를 위해 @Transactional 제거 (내부에서 별도 트랜잭션 처리)
     public void cancelReservation(Long reservationId, Long memberId) {
 
         // 현재 클래스가 @Transactional(readOnly=true)이므로 괜찮음)
@@ -186,34 +185,37 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 취소할 수 있습니다.");
         }
 
-        // 취소 가능 여부 확인 (상태 및 시간)
+        // TEMP 상태라면 만료 여부와 상관없이 바로 취소 처리
+        if (reservation.getStatus() == ReservationStatus.TEMP) {
+            reservationTransactionHelper.cancelTempReservation(reservationId);
+            return;
+        }
+
+        // 그 외 상태(CONFIRMED 등)는 취소 가능 여부(시간 등)를 엄격하게 확인
         if (!reservation.isCancellable(LocalDateTime.now())) {
             throw new BusinessException(ErrorCode.RES_CANCEL_NOT_ALLOWED);
         }
 
-        Optional<Payment> paymentOpt = paymentRepository.findByReservationId(reservationId);
+        // CONFIRMED 상태 등: 결제 정보 조회 및 취소 시도
         long refundAmount = 0;
+        Optional<Payment> paymentOpt = paymentRepository.findByReservationId(reservationId);
 
         if (paymentOpt.isPresent()) {
             Payment payment = paymentOpt.get();
 
-            if (reservation.getStatus() == ReservationStatus.TEMP) {
-                refundAmount = reservation.getTotalAmount();
-            } else {
-                // CONFIRMED 상태 -> 환불 정책 적용
-                RefundCalculationResponse refundInfo = refundPolicyService.calculateRefundAmount(
-                        reservation.getAppliedRefundPolicyId(),
-                        reservation.getTotalAmount(),
-                        reservation.getStartTime()
-                );
-                refundAmount = refundInfo.refundAmount();
-            }
+            // 환불 정책 적용
+            RefundCalculationResponse refundInfo = refundPolicyService.calculateRefundAmount(
+                    reservation.getAppliedRefundPolicyId(),
+                    reservation.getTotalAmount(),
+                    reservation.getStartTime()
+            );
+            refundAmount = refundInfo.refundAmount();
 
             // PG사 결제 취소 요청 (외부 API)
             paymentService.cancelPayment(reservationId, refundAmount, "사용자 요청에 의한 예약 취소");
         }
 
-        // 결제 내역이 없으면(TEMP 상태에서 결제 전 취소) 환불 금액 0원으로 처리
+        // 결제 후 취소이므로 환불 이력 생성
         reservationTransactionHelper.completeCancellation(
                 reservationId,
                 reservation.getAppliedRefundPolicyId(),
