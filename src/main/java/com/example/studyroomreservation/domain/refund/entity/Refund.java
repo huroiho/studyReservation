@@ -49,9 +49,8 @@ public class Refund extends BaseAuditableEntity {
             throw new BusinessException(ErrorCode.REF_PAYMENT_REQUIRED);
         }
 
-        // 환불 금액 검증 (0원 이하 환불 불가 정책 가정)
-        if (refundAmount == null || refundAmount <= 0) {
-            throw new BusinessException(ErrorCode.REF_RATE_INVALID);
+        if (refundAmount == null || refundAmount < 0) {
+            throw new BusinessException(ErrorCode.REF_AMOUNT_INVALID);
         }
 
         return new Refund(payment, appliedRefundPolicyId, refundAmount);

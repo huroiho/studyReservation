@@ -21,7 +21,5 @@ public interface ReservationRepositoryCustom {
 
     Page<Tuple> findMyReservationHistory(Long memberId, LocalDateTime now, Pageable pageable);
 
-    long confirmIfTemp(Long reservationId, LocalDateTime now);
-
     Page<AdminReservationResponse> findAllReservationsForAdmin(Pageable pageable);
 }

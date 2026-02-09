@@ -33,7 +33,11 @@
                      alt="room image" class="room-img">
 
                 <div class="info-group">
-                    <h3 class="room-name" th:text="${res.roomName}">스터디룸 A</h3>
+                    <h3 class="room-name">
+                        <a th:href="@{/reservations/{id}(id=${res.reservationId})}"
+                           th:text="${res.roomName}"
+                           style="text-decoration: none; color: inherit;">스터디룸 A</a>
+                    </h3>
                     <p class="datetime">
                         <i class="icon-calendar"></i>
                         <span th:text="${#temporals.format(res.startTime, 'yyyy년 M월 d일')}">2026년 2월 2일</span>
@@ -50,19 +54,56 @@
             <div class="card-right">
                 <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
                 <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
-                <!-- <span th:if="${res.status == 'EXPIRED'}" class="status-badge badge-red">만료됨</span>-->
+
                 <form th:if="${(res.status == 'CONFIRMED' || res.status == 'TEMP')
                                 and res.startTime.isAfter(#temporals.createNow())}"
+                      th:id="'cancelForm-' + ${res.reservationId}"
                       th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
-                      method="post"
-                      onsubmit="return confirm('정말 예약을 취소하시겠습니까?');">
-
-                    <button type="submit" class="btn-cancel">예약 취소</button>
+                      method="post">
+                    <button type="button" class="btn-cancel"
+                            th:onclick="'openRefundModal(' + ${res.reservationId} + ')'">
+                        예약 취소
+                    </button>
                 </form>
             </div>
         </div>
     </section>
 </div>
+
+<!-- 환불 안내 모달 -->
+<div id="refundModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>예약 취소 및 환불 안내</h3>
+        </div>
+        <div class="refund-info">
+            <div class="info-row">
+                <span>적용 정책</span>
+                <span id="policyName">-</span>
+            </div>
+            <div class="info-row">
+                <span>총 결제 금액</span>
+                <span id="totalAmount">0원</span>
+            </div>
+            <div class="info-row highlight">
+                <span>환불율</span>
+                <span id="refundRate">0%</span>
+            </div>
+            <div class="info-row">
+                <span>환불 예정 금액</span>
+                <span id="refundAmount">0원</span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal btn-close" onclick="closeRefundModal()">닫기</button>
+            <button type="button" class="btn-modal btn-confirm" onclick="confirmCancel()">취소 확정</button>
+        </div>
+    </div>
+</div>
+
 <Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+
+<script th:src="@{/js/mypage-reservation.js}"></script>
+
 </body>
 </html>

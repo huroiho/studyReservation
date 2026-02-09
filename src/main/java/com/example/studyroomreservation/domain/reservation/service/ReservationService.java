@@ -3,6 +3,11 @@ package com.example.studyroomreservation.domain.reservation.service;
 import com.example.studyroomreservation.domain.member.entity.Member;
 import com.example.studyroomreservation.domain.member.service.MemberQueryService;
 import com.example.studyroomreservation.domain.payment.entity.Payment;
+import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
+import com.example.studyroomreservation.domain.payment.service.PaymentService;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundCalculationResponse;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
+import com.example.studyroomreservation.domain.refund.service.RefundService;
 import com.example.studyroomreservation.domain.payment.service.PaymentQueryService;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
@@ -10,6 +15,7 @@ import com.example.studyroomreservation.domain.reservation.dto.response.Reservat
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
@@ -29,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.studyroomreservation.domain.reservation.entity.QReservation.reservation;
@@ -44,6 +51,11 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MemberQueryService memberQueryService;
     private final PaymentQueryService paymentQueryService;
+    private final PaymentRepository paymentRepository;
+    private final RefundPolicyService refundPolicyService;
+    private final PaymentService paymentService;
+    private final RefundService refundService;
+    private final ReservationTransactionHelper reservationTransactionHelper;
 
     private static final int BASIC_EXPIRED_TIME = 10;
 
@@ -157,32 +169,56 @@ public class ReservationService {
     }
 
     //예약 취소
-    @Transactional
+    @DistributedLock(
+            key = "'lock:reservation:cancel:' + #reservationId",
+            waitTime = 5L,
+            leaseTime = -1
+    )
+    // 트랜잭션 분리를 위해 @Transactional 제거 (내부에서 별도 트랜잭션 처리)
     public void cancelReservation(Long reservationId, Long memberId) {
+
+        // 현재 클래스가 @Transactional(readOnly=true)이므로 괜찮음)
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        // 1. 본인 확인
+        // 본인 확인
         if (!reservation.getMemberId().equals(memberId)) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 취소할 수 있습니다.");
         }
 
-        // 취소 처리: 현재 로직 -TEMP 상태일 때만 취소 가능 (CONFIRMED는 엔티티에서 막힘)
-        reservation.cancel(LocalDateTime.now());
-
-        /*TODO: 결제 취소: 결제 정보가 있다면 환불 처리
-        paymentRepository.findByReservationId(reservationId)
-        */
-    }
-
-    // 임시 예약 확인 -> 결제 전 후에 확인
-    @Transactional
-    public void confirmReservation(Long reservationId) {
-        long result = reservationRepository.confirmIfTemp(reservationId, LocalDateTime.now());
-
-        if (result == 0) {
-            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
+        // 취소 가능 여부 확인 (상태 및 시간)
+        if (!reservation.isCancellable(LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.RES_CANCEL_NOT_ALLOWED);
         }
+
+        Optional<Payment> paymentOpt = paymentRepository.findByReservationId(reservationId);
+        long refundAmount = 0;
+
+        if (paymentOpt.isPresent()) {
+            Payment payment = paymentOpt.get();
+
+            if (reservation.getStatus() == ReservationStatus.TEMP) {
+                refundAmount = reservation.getTotalAmount();
+            } else {
+                // CONFIRMED 상태 -> 환불 정책 적용
+                RefundCalculationResponse refundInfo = refundPolicyService.calculateRefundAmount(
+                        reservation.getAppliedRefundPolicyId(),
+                        reservation.getTotalAmount(),
+                        reservation.getStartTime()
+                );
+                refundAmount = refundInfo.refundAmount();
+            }
+
+            // PG사 결제 취소 요청 (외부 API)
+            paymentService.cancelPayment(reservationId, refundAmount, "사용자 요청에 의한 예약 취소");
+        }
+
+        // 결제 내역이 없으면(TEMP 상태에서 결제 전 취소) 환불 금액 0원으로 처리
+        reservationTransactionHelper.completeCancellation(
+                reservationId,
+                reservation.getAppliedRefundPolicyId(),
+                refundAmount
+        );
     }
 
     // 관리자 용 예약 목록 조회(DTO 프로젝션 사용)
@@ -191,11 +227,68 @@ public class ReservationService {
         return reservationRepository.findAllReservationsForAdmin(pageable);
     }
 
+    // 편의 매서드
+    private int calculateTotalAmount(Room room, LocalDateTime start, LocalDateTime end){
+        long minutes = Duration.between(start, end).toMinutes();
+        double hours = minutes / 60.0;
+        return (int) (hours * room.getPrice());
+    }
+
+    private void validateOperationSchedule(OperationPolicy policy, LocalDateTime start, LocalDateTime end) {
+        DayOfWeek dayOfWeek = start.getDayOfWeek();
+
+        // 해당 요일의 스케줄 찾기
+        OperationSchedule schedule = policy.getSchedules().stream()
+                .filter(s -> s.getDayOfWeek() == dayOfWeek)
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.OS_DAY_NOT_FOUND));
+
+        // 1) 휴무일 체크
+        if (schedule.isClosed()) {
+            throw new BusinessException(ErrorCode.OS_CLOSED_DAY);
+        }
+
+        // 2) 오픈/마감 시간 체크
+        LocalTime openTime = schedule.getOpenTime();
+        LocalTime closeTime = schedule.getCloseTime();
+        LocalTime reqStartTime = start.toLocalTime();
+        LocalTime reqEndTime = end.toLocalTime();
+
+        // TODO 당일 운영시간 기준, 금일 - 익일 동시 예약은 현재로서는 불가능
+        if (reqStartTime.isBefore(openTime) || reqEndTime.isAfter(closeTime)) {
+            throw new BusinessException(
+                    ErrorCode.RES_OUT_OF_OPERATION_HOURS,
+                    String.format("운영 시간: %s ~ %s", openTime, closeTime)
+            );
+        }
+
+        // 하루 단위 예약인지 확인
+        if (!start.toLocalDate().equals(end.toLocalDate())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "예약은 하루 단위로만 가능합니다.");
+        }
+    }
+
     // 마이페이지 예약 히스토리 조회
     public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         Page<Tuple> pageResults = reservationRepository.findMyReservationHistory(memberId, now, pageable);
 
         return pageResults.map(t -> reservationMapper.toResponse(t.get(reservation), t.get(room)));
+    }
+
+    // 예약 취소 예상 금액 조회
+    public RefundCalculationResponse getRefundCalculation(Long reservationId, Long memberId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!reservation.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "본인의 예약만 조회할 수 있습니다.");
+        }
+
+        return refundPolicyService.calculateRefundAmount(
+                reservation.getAppliedRefundPolicyId(),
+                reservation.getTotalAmount(),
+                reservation.getStartTime()
+        );
     }
 }

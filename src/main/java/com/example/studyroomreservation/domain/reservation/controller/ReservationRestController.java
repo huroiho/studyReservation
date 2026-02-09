@@ -1,5 +1,6 @@
 package com.example.studyroomreservation.domain.reservation.controller;
 
+import com.example.studyroomreservation.domain.refund.dto.response.RefundCalculationResponse;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.common.ApiResponse;
@@ -8,12 +9,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static com.example.studyroomreservation.domain.reservation.controller.ReservationConstants.API_RESERVATION_BASE;
+import static com.example.studyroomreservation.domain.reservation.controller.ReservationConstants.*;
 
 @Slf4j
 @RestController
@@ -40,6 +38,26 @@ public class ReservationRestController {
         Long reservationId = reservationService.createReservation(request, memberId);
         return ApiResponse.success(reservationId);
 
+    }
+
+    @GetMapping(API_REFUND_CALCULATION)
+    public ApiResponse<RefundCalculationResponse> getRefundCalculation(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long memberId = userDetails.getMember().getId();
+        RefundCalculationResponse response = reservationService.getRefundCalculation(reservationId, memberId);
+        return ApiResponse.success(response);
+    }
+
+    @DeleteMapping(API_RESERVATION_CANCEL)
+    public ApiResponse<Void> cancelReservation(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long memberId = userDetails.getMember().getId();
+        reservationService.cancelReservation(reservationId, memberId);
+        return ApiResponse.success();
     }
 
 }
