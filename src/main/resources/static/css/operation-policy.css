@@ -382,7 +382,7 @@ td.text-primary {
     width: 1rem;
     border-radius: var(--border-radius-full);
     background-color: var(--color-background);
-    transform: translateX(0.25rem);
+    transform: translateX(-3px);
     transition: transform 0.2s ease;
 }
 
@@ -1183,7 +1183,7 @@ td.text-primary {
     display: grid;
     grid-template-columns: 80px 70px 1fr 1fr;
     align-items: center;
-    gap: 16px;
+    column-gap: 16px;
     padding: 14px 20px;
     border-bottom: 1px solid var(--color-gray-100);
 }
