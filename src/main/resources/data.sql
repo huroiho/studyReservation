@@ -394,12 +394,64 @@ VALUES
      40000,
      NULL,
      NULL, NOW() - INTERVAL 1 HOUR, NULL,
+     NOW(), NOW()),
+
+    -- 9. [추가] 홍길동: 50% 환불 테스트용 (5시간 뒤 예약, 일반 정책)
+    (9, 1, 1, 1, 1, 'CONFIRMED',
+     NOW() + INTERVAL 5 HOUR,
+     NOW() + INTERVAL 7 HOUR,
+     20000,
+     NULL,
+     NOW(), NULL, NULL,
+     NOW(), NOW()),
+
+    -- 10. [추가] 홍길동: 20% 환불 테스트용 (13시간 뒤 예약, 엄격 정책)
+    (10, 1, 4, 1, 2, 'CONFIRMED',
+     NOW() + INTERVAL 13 HOUR,
+     NOW() + INTERVAL 15 HOUR,
+     80000,
+     NULL,
+     NOW(), NULL, NULL,
+     NOW(), NOW()),
+
+    -- 11. [추가] 홍길동: 0% 환불 테스트용 (30분 뒤 예약, 일반 정책)
+    (11, 1, 1, 1, 1, 'CONFIRMED',
+     NOW() + INTERVAL 30 MINUTE,
+     NOW() + INTERVAL 2 HOUR + INTERVAL 30 MINUTE,
+     20000,
+     NULL,
+     NOW(), NULL, NULL,
      NOW(), NOW());
 
 -- =============================================================================
--- Reset AUTO_INCREMENT (데이터 8개이므로 9로 설정)
+-- Reset AUTO_INCREMENT (데이터 11개이므로 12로 설정)
 -- =============================================================================
-ALTER TABLE reservations AUTO_INCREMENT = 9;
+ALTER TABLE reservations AUTO_INCREMENT = 12;
+
+-- =============================================================================
+-- E-1) PAYMENTS (For Refund Test)
+-- =============================================================================
+-- 환불 테스트를 위해서는 결제 정보(Payment)가 반드시 있어야 합니다.
+-- Reservation ID 9, 10, 11에 대한 가상 결제 정보 추가
+
+INSERT INTO payments (
+    id,
+    reservation_id,
+    pg_tid,
+    success_order_id,
+    amount,
+    payment_method,
+    payment_status,
+    approved_at,
+    created_at,
+    updated_at
+)
+VALUES
+    (1, 9, 'test_payment_key_9', 'order_id_9', 20000, 'PG', 'SUCCESS', NOW(), NOW(), NOW()),
+    (2, 10, 'test_payment_key_10', 'order_id_10', 80000, 'PG', 'SUCCESS', NOW(), NOW(), NOW()),
+    (3, 11, 'test_payment_key_11', 'order_id_11', 20000, 'PG', 'SUCCESS', NOW(), NOW(), NOW());
+
+ALTER TABLE payments AUTO_INCREMENT = 4;
 
 
 -- =============================================================================
@@ -429,7 +481,7 @@ VALUES
 -- Reset AUTO_INCREMENT for future inserts
 -- =============================================================================
 ALTER TABLE members AUTO_INCREMENT = 4;
-ALTER TABLE reservations AUTO_INCREMENT = 7;
+ALTER TABLE reservations AUTO_INCREMENT = 12;
 ALTER TABLE operation_policies AUTO_INCREMENT = 4;
 ALTER TABLE operation_schedules AUTO_INCREMENT = 22;
 ALTER TABLE room_rules AUTO_INCREMENT = 6;

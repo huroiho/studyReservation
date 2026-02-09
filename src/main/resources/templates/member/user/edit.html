@@ -18,31 +18,37 @@
     <div class="edit-profile-container">
         <form th:action="@{/my/edit}" th:object="${memberUpdateRequest}" method="post" class="edit-form">
 
-        <div class="form-group">
-            <label th:for="name">이름</label>
-            <input type="text" th:field="*{name}" placeholder="이름을 입력하세요" />
-            <div class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-        </div>
-
-        <div class="form-group">
-            <label>이메일</label>
-            <div class="input-with-badge">
-                <input type="email" th:value="${memberEmail}" readonly class="readonly-input" />
-                <span class="badge-status success">인증완료</span>
+            <div class="form-group">
+                <label th:for="name">이름</label>
+                <input type="text" th:field="*{name}" placeholder="이름을 입력하세요" />
+                <div class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label th:for="phoneNumber">연락처</label>
-            <div class="input-with-button">
-                <input type="text" th:field="*{phoneNumber}" placeholder="010-0000-0000" />
-                <button type="button" class="btn-inline-auth">인증</button>
+            <div class="form-group">
+                <label>이메일</label>
+
+                <div class="input-with-badge">
+                    <div class="readonly-box">
+                        <div class="readonly-value" th:text="${memberEmail}">user@test.com</div>
+                        <div class="readonly-hint">이메일은 변경할 수 없습니다.</div>
+                    </div>
+
+                    <span class="badge-status success">인증완료</span>
+                </div>
             </div>
-            <div class="error-msg" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
-        </div>
 
-        <button type="submit" class="btn-save-main">변경사항 저장</button>
-    </form>
+            <div class="form-group">
+                <label th:for="phoneNumber">연락처</label>
+                <div class="input-with-button">
+                    <input type="text"
+                           th:field="*{phoneNumber}"
+                           placeholder="010-0000-0000" />
+                </div>
+                <div class="error-msg" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+            </div>
+
+            <button type="submit" class="btn-save-main">변경사항 저장</button>
+        </form>
     </div>
 
     <div class="footer-actions">

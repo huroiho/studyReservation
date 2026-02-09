@@ -103,26 +103,6 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .fetch();
     }
 
-
-    @Override
-    public long confirmIfTemp(Long reservationId, LocalDateTime now) {
-        em.flush();
-        long count = queryFactory
-                .update(reservation)
-                .set(reservation.status, CONFIRMED)
-                .set(reservation.confirmedAt, now)
-                .set(reservation.expiresAt, (LocalDateTime) null)
-                .where(
-                        reservation.id.eq(reservationId),
-                        reservation.status.eq(TEMP),
-                        reservation.expiresAt.gt(now.plusMinutes(1))
-                )
-                .execute();
-        em.clear();
-
-        return count;
-    }
-
     private BooleanExpression isActiveStatus(LocalDateTime now) {
         // 확정 + 종료 전
         BooleanExpression isConfirmed = reservation.status.eq(ReservationStatus.CONFIRMED)

@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.refund.mapper;
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
 import com.example.studyroomreservation.domain.refund.dto.request.RefundRuleRequest;
+import com.example.studyroomreservation.domain.refund.dto.response.RefundCalculationResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyDetailResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundPolicyListResponse;
 import com.example.studyroomreservation.domain.refund.dto.response.RefundRuleResponse;
@@ -47,5 +48,18 @@ public interface RefundMapper {
         );
     }
 
+    default RefundCalculationResponse toCalculationResponse(RefundPolicy policy, int refundRate, long refundAmount, long totalAmount) {
+        List<RefundRuleResponse> ruleResponses = policy.getRulesSortedByTimeDesc().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
 
+        return new RefundCalculationResponse(
+                policy.getId(),
+                policy.getName(),
+                ruleResponses,
+                refundRate,
+                refundAmount,
+                totalAmount
+        );
+    }
 }

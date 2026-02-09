@@ -17,6 +17,7 @@
     const slotMinutes = parseInt(container.dataset.slotMinutes, 10) || DEFAULT_SLOT_MINUTES;
     const minDurationMinutes = parseInt(container.dataset.minDurationMinutes, 10) || DEFAULT_MIN_DURATION_MINUTES;
     const bookingOpenDays = parseInt(container.dataset.bookingOpenDays, 10) || DEFAULT_BOOKING_OPEN_DAYS;
+    const refundPolicyId = container.dataset.refundPolicyId;
     const requiredSlots = Math.ceil(minDurationMinutes / slotMinutes);
 
     const dateInput = document.getElementById('slotDate');
@@ -30,11 +31,22 @@
     const summaryCard = document.getElementById('summaryCard');
     const reserverForm = document.getElementById('reserverForm');
     const reserveBtn = document.getElementById('reserveBtn');
+    
+    const viewRefundPolicyBtn = document.getElementById('viewRefundPolicyBtn');
+    const refundPolicyModal = document.getElementById('refundPolicyModal');
+    const refundPolicyContent = document.getElementById('refundPolicyContent');
+    const closeModalBtn = document.querySelector('.close-modal');
+    
+    // Modal Buttons
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalAgreeBtn = document.getElementById('modalAgreeBtn');
 
     // ========== State ==========
     let slots = [];
     let selectedIndices = [];
     let selectedDate = null;
+    let isReservationMode = false; // true if modal opened for reservation
 
     // ========== Gallery Thumbnail Switching ==========
     const mainImage = document.getElementById('mainImage');
@@ -302,6 +314,87 @@
         hideSummaryAndForm();
     }
 
+    // ========== Refund Policy Modal ==========
+    async function showRefundPolicy(forReservation) {
+        if (!refundPolicyId) {
+            alert('환불 정책 정보가 없습니다.');
+            return;
+        }
+
+        isReservationMode = forReservation;
+        refundPolicyModal.style.display = 'block';
+        refundPolicyContent.innerHTML = '<p>로딩 중...</p>';
+
+        // Toggle buttons based on mode
+        if (forReservation) {
+            modalCloseBtn.style.display = 'none';
+            modalCancelBtn.style.display = 'inline-block';
+            modalAgreeBtn.style.display = 'inline-block';
+        } else {
+            modalCloseBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'none';
+            modalAgreeBtn.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('/api/refund-policies/' + refundPolicyId);
+            const result = await response.json();
+
+            if (!response.ok) {
+                refundPolicyContent.innerHTML = '<p class="error">정책 정보를 불러오는데 실패했습니다.</p>';
+                return;
+            }
+
+            const policy = result.data;
+            let html = '<h3>' + policy.name + '</h3>';
+            
+            if (forReservation) {
+                html += '<p style="margin-bottom: 10px; color: #666;">아래 환불 정책을 확인하시고 동의하시면 예약하기 버튼을 눌러주세요.</p>';
+            }
+
+            html += '<ul class="refund-rules-list">';
+            
+            // Sort rules by time descending
+            const rules = policy.rules.sort((a, b) => b.refundBaseMinutes - a.refundBaseMinutes);
+            
+            rules.forEach((rule, index) => {
+                const hours = Math.floor(rule.refundBaseMinutes / 60);
+                const minutes = rule.refundBaseMinutes % 60;
+                let timeStr = '';
+                
+                if (rule.refundBaseMinutes === 0) {
+                    // 가장 짧은 시간(0분)인 경우
+                    // 바로 앞 규칙(더 큰 시간)을 찾음
+                    if (index > 0) {
+                        const prevRule = rules[index - 1];
+                        const prevMinutes = prevRule.refundBaseMinutes;
+                        // 1시간 = 60분 -> "0분 ~ 59분 전" 또는 "1시간 미만 전"
+                        // 여기서는 "0분 ~ XX분 전" 형태로 표시
+                        timeStr = '0분 ~ ' + prevMinutes + '분 전';
+                    } else {
+                        timeStr = '예약 시작 직전';
+                    }
+                } else {
+                    if (hours > 0) timeStr += hours + '시간 ';
+                    if (minutes > 0) timeStr += minutes + '분 ';
+                    timeStr += '전';
+                }
+                
+                html += '<li>' + timeStr + ' 취소 시: <strong>' + rule.refundRate + '% 환불</strong></li>';
+            });
+            html += '</ul>';
+            
+            refundPolicyContent.innerHTML = html;
+
+        } catch (err) {
+            refundPolicyContent.innerHTML = '<p class="error">네트워크 오류가 발생했습니다.</p>';
+        }
+    }
+
+    function closeRefundPolicyModal() {
+        refundPolicyModal.style.display = 'none';
+    }
+
     // ========== API Calls ==========
     async function fetchSlots() {
         var date = dateInput.value;
@@ -367,8 +460,10 @@
         }
 
         hideError();
-        reserveBtn.disabled = true;
-        reserveBtn.textContent = '예약 중...';
+        
+        // Disable buttons
+        modalAgreeBtn.disabled = true;
+        modalAgreeBtn.textContent = '예약 처리 중...';
 
         var sortedIndices = selectedIndices.slice().sort(function(a, b) { return a - b; });
         var startSlot = slots[sortedIndices[0]];
@@ -380,7 +475,8 @@
         var requestBody = {
             roomId: roomId,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            isRefundPolicyAgreed: true // Always true when coming from modal agree button
         };
 
         try {
@@ -395,9 +491,10 @@
             var result = await response.json();
 
             if (!response.ok) {
+                closeRefundPolicyModal();
                 showError(result.message || '예약에 실패했습니다.');
-                reserveBtn.disabled = false;
-                reserveBtn.textContent = '예약하기';
+                modalAgreeBtn.disabled = false;
+                modalAgreeBtn.textContent = '동의하고 예약하기';
                 fetchSlots();
                 return;
             }
@@ -406,17 +503,11 @@
             await preparePaymentAndRedirect(reservationId);
             return;
 
-            showSuccess('예약이 완료되었습니다. (예약번호: ' + result.data + ') 10분 내에 결제를 완료해주세요.');
-            clearSelection();
-            document.getElementById('reserverName').value = '';
-            document.getElementById('reserverPhone').value = '';
-            document.getElementById('reserverEmail').value = '';
-            document.getElementById('reserverCompany').value = '';
-            fetchSlots();
         } catch (err) {
+            closeRefundPolicyModal();
             showError('네트워크 오류가 발생했습니다.');
-            reserveBtn.disabled = false;
-            reserveBtn.textContent = '예약하기';
+            modalAgreeBtn.disabled = false;
+            modalAgreeBtn.textContent = '동의하고 예약하기';
         }
     }
 
@@ -425,13 +516,32 @@
     dateInput.addEventListener('change', fetchSlots);
     clearSelectionBtn.addEventListener('click', clearSelection);
     
+    // "예약하기" 버튼 클릭 -> 모달 오픈
     reserveBtn.addEventListener('click', function() {
         const isAuthenticated = this.dataset.isAuthenticated === 'true';
         if (isAuthenticated) {
-            createReservation();
+            showRefundPolicy(true); // true = reservation mode
         } else {
             alert('로그인이 필요한 서비스입니다.');
             window.location.href = '/login';
+        }
+    });
+
+    // "환불 정책 보기" 버튼 클릭 -> 모달 오픈 (단순 조회)
+    viewRefundPolicyBtn.addEventListener('click', function() {
+        showRefundPolicy(false); // false = view only mode
+    });
+
+    // 모달 내부 버튼
+    modalCloseBtn.addEventListener('click', closeRefundPolicyModal);
+    modalCancelBtn.addEventListener('click', closeRefundPolicyModal);
+    modalAgreeBtn.addEventListener('click', createReservation); // 실제 예약 요청
+
+    closeModalBtn.addEventListener('click', closeRefundPolicyModal);
+    
+    window.addEventListener('click', function(e) {
+        if (e.target === refundPolicyModal) {
+            closeRefundPolicyModal();
         }
     });
 

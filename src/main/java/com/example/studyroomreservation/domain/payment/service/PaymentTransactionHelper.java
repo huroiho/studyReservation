@@ -8,6 +8,8 @@ import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
 import com.example.studyroomreservation.domain.payment.repository.PaymentRepository;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
+import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
 import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -24,12 +26,11 @@ import java.time.LocalDateTime;
 public class PaymentTransactionHelper {
 
     private final PaymentRepository paymentRepository;
-    private final PaymentAttemptRepository paymentAttemptRepository;
     private final ReservationQueryService reservationQueryService;
 
     private final PaymentMapper paymentMapper;
     private final PaymentAttemptFailService failService;
-    private final ReservationService reservationService;
+     private final ReservationRepository reservationRepository;
 
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
 
@@ -46,8 +47,9 @@ public class PaymentTransactionHelper {
             paymentRepository.save(payment);
 
             // 예약 상태 확정 (TEMP -> CONFIRMED)
-            reservationService.confirmReservation(attempt.getReservationId());
-
+            Reservation reservation = reservationRepository.findById(attempt.getReservationId())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+            reservation.confirm(LocalDateTime.now());
         } catch (DataIntegrityViolationException e) {
             // Unique 조건 위반으로 잡힘 -> 이미 성공한 것으로 간주하고 리턴
             return;

@@ -36,7 +36,11 @@
                 <tbody>
                 <tr th:each="res : ${reservations}">
                     <td th:text="${#temporals.format(res.startTime, 'yyyy-MM-dd')}">2026-02-02</td>
-                    <td class="room-name" th:text="${res.roomName}">미팅룸 A</td>
+                    <td class="room-name">
+                        <a th:href="@{/reservations/{id}(id=${res.reservationId})}"
+                           th:text="${res.roomName}"
+                           style="text-decoration: none; color: inherit;">미팅룸 A</a>
+                    </td>
                     <td>
                         <span th:text="${#temporals.format(res.startTime, 'HH:mm')}">14:00</span> ~
                         <span th:text="${#temporals.format(res.endTime, 'HH:mm')}">16:00</span>

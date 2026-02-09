@@ -5,14 +5,20 @@ public final class RefundConstants {
     private RefundConstants() {}
 
     // ==========================================
-    // 1. API (관리자)
+    // 1. API (사용자)
+    // ==========================================
+    public static final String API_REFUND_POLICY_BASE = "/api/refund-policies";
+    public static final String API_REFUND_POLICY_DETAIL = "/{policyId}";
+
+    // ==========================================
+    // 2. API (관리자)
     // ==========================================
     public static final String API_ADMIN_REFUND_BASE = "/api/admin/refund-policies";
     public static final String API_REFUND_PICK = "/pick-items";
     public static final String API_REFUND_DETAIL = "/{id}";
 
     // ==========================================
-    // 2. View (관리자)
+    // 3. View (관리자)
     // ==========================================
     public static final String VIEW_ADMIN_REFUND_BASE = "/admin/refund";
     public static final String VIEW_ADMIN_REFUND_POLICY = "/policy";
