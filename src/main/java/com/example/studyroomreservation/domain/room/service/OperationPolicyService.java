@@ -1,6 +1,6 @@
 package com.example.studyroomreservation.domain.room.service;
 
-import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
+import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.room.dto.request.OperationPolicyCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyListResponse;
@@ -10,7 +10,6 @@ import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.OperationPolicyMapper;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
-import com.example.studyroomreservation.domain.room.repository.RoomRepository;
 import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,8 @@ import java.util.List;
 public class OperationPolicyService {
 
     private final OperationPolicyRepository operationPolicyRepository;
-    private final RoomRepository roomRepository;
-    private final ReservationRepository reservationRepository;
+    private final RoomQueryService roomQueryService;
+    private final ReservationQueryService reservationQueryService;
     private final OperationPolicyMapper operationPolicyMapper;
 
     /**
@@ -51,8 +50,8 @@ public class OperationPolicyService {
         OperationPolicy policy = operationPolicyRepository.findByIdWithSchedules(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.OP_POLICY_NOT_FOUND));
 
-        List<Room> connectedRooms = roomRepository.findByOperationPolicyId(id);
-        boolean hasReservationReference = reservationRepository.existsByAppliedOperationPolicyId(id);
+        List<Room> connectedRooms = roomQueryService.findByOperationPolicyId(id);
+        boolean hasReservationReference = reservationQueryService.existsByAppliedOperationPolicyId(id);
 
         return operationPolicyMapper.toDetailResponse(policy, connectedRooms, hasReservationReference);
     }
@@ -103,7 +102,7 @@ public class OperationPolicyService {
     // 룸 목록 조회 api 컨트롤러용 메서드
     public List<OperationPolicyDetailResponse.RoomSummary> getRoomsByPolicy(Long id){
         findPolicyById(id);
-        List<Room> rooms = roomRepository.findByOperationPolicyId(id);
+        List<Room> rooms = roomQueryService.findByOperationPolicyId(id);
         return operationPolicyMapper.toRoomSummaries(rooms);
     }
 
@@ -114,13 +113,13 @@ public class OperationPolicyService {
     }
 
     private void assertNotUsedByRooms(Long policyId) {
-        if (roomRepository.existsByOperationPolicyId(policyId)) {
+        if (roomQueryService.existsByOperationPolicyId(policyId)) {
             throw new BusinessException(ErrorCode.OP_POLICY_IN_USE_BY_ROOM);
         }
     }
 
     private void assertNotUsedByReservations(Long policyId) {
-        if (reservationRepository.existsByAppliedOperationPolicyId(policyId)) {
+        if (reservationQueryService.existsByAppliedOperationPolicyId(policyId)) {
             throw new BusinessException(ErrorCode.OP_POLICY_IN_USE_BY_RESERVATION);
         }
     }

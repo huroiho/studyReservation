@@ -7,6 +7,8 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -129,5 +131,11 @@ public class Room extends BaseSoftDeletableEntity {
                 .findFirst()
                 .map(RoomImage::getImageUrl)
                 .orElse(null);
+    }
+
+    public int calculatePriceFor(LocalDateTime start, LocalDateTime end) {
+        long minutes = Duration.between(start, end).toMinutes();
+        double hours = minutes / 60.0;
+        return (int) Math.ceil(hours * this.price);
     }
 }

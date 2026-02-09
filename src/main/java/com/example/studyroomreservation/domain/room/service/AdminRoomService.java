@@ -1,13 +1,10 @@
 package com.example.studyroomreservation.domain.room.service;
 
-import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
 import com.example.studyroomreservation.domain.room.dto.TempImageFiles;
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
 import com.example.studyroomreservation.domain.room.dto.request.RoomUpdateRequest;
-import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
-import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
-import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomRule;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
 import com.example.studyroomreservation.domain.room.repository.OperationPolicyRepository;
@@ -17,20 +14,14 @@ import com.example.studyroomreservation.global.exception.BusinessException;
 import com.example.studyroomreservation.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * - 전체 흐름 조정 (정책 검증 → 파일 I/O → DB 트랜잭션 → 파일 이동)
- * - 파일 저장 실패: DB 변경 없음
- * - DB 실패: 임시 파일 cleanup
- * - 파일 이동 실패: Room soft delete 보상 트랜잭션 + 임시 파일 cleanup
+ * admin용 룸 등록, 수정, 상태변경, 삭제
  */
 @Slf4j
 @Service
@@ -44,7 +35,7 @@ public class AdminRoomService {
 
     private final AdminRoomTxService txService;
     private final RoomImageStorageService storageService;
-    private final RefundPolicyService refundPolicyService;
+    private final RefundPolicyQueryService refundPolicyQueryService;
 
     // ========== Room 생성 ==========
 
@@ -63,7 +54,7 @@ public class AdminRoomService {
         // 1. 정책 검증
         OperationPolicy operationPolicy = loadAndValidateOperationPolicy(request.operationPolicyId());
         RoomRule roomRule = loadAndValidateRoomRule(request.roomRuleId());
-        Long refundPolicyId = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
+        Long refundPolicyId = refundPolicyQueryService.validateRefundPolicy(request.refundPolicyId());
 
         // 2. 파일 임시 저장
         List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
@@ -127,7 +118,7 @@ public class AdminRoomService {
         // 1. 정책 검증
         OperationPolicy operationPolicy = findOperationPolicy(request.operationPolicyId());
         RoomRule roomRule = findRoomRule(request.roomRuleId());
-        Long refundPolicyId = refundPolicyService.validateRefundPolicy(request.refundPolicyId());
+        Long refundPolicyId = refundPolicyQueryService.validateRefundPolicy(request.refundPolicyId());
 
         boolean hasNewMainImage = mainImage != null && !mainImage.isEmpty();
         List<MultipartFile> validGeneralImages = filterNonEmptyImages(generalImages);
@@ -210,23 +201,6 @@ public class AdminRoomService {
             return List.of();
         }
     }
-
-    // ========== Room 조회 ==========
-
-    @Transactional(readOnly = true)
-    public RoomUpdateResponse getRoomForEdit(Long roomId) {
-        Room room = roomRepository.findDetailById(roomId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
-
-        String refundPolicyName = refundPolicyService.getRefundPolicyName(room.getRefundPolicyId());
-        return roomMapper.toRoomUpdateResponse(room, refundPolicyName);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
-        return roomRepository.findAdminRoomList(pageable);
-    }
-
     // ========== Room 상태 변경 ==========
 
     public void toggleRoomStatus(Long roomId) {

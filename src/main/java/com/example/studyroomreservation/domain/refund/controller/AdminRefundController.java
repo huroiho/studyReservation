@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.refund.controller;
 
 
 import com.example.studyroomreservation.domain.refund.dto.request.RefundPolicyRequest;
+import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyService;
 import com.example.studyroomreservation.domain.refund.validation.RefundPolicyValidator;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ import static com.example.studyroomreservation.domain.refund.controller.RefundCo
 public class AdminRefundController {
 
     private final RefundPolicyService refundPolicyService;
+    private final RefundPolicyQueryService refundPolicyQueryService;
     private final RefundPolicyValidator refundPolicyValidator;
 
 
@@ -70,13 +72,13 @@ public class AdminRefundController {
             Model model
     ) {
         model.addAttribute("active", active);
-        model.addAttribute("page", refundPolicyService.getRefundPolicyPage(active,pageable));
+        model.addAttribute("page", refundPolicyQueryService.getRefundPolicyPage(active,pageable));
         return TMPL_ADMIN_REFUND_LIST;
     }
 
     @GetMapping(VIEW_ADMIN_REFUND_POLICY_DETAIL)
     public String refundPolicyDetail(@PathVariable Long policyId, Model model) {
-        model.addAttribute("policy", refundPolicyService.getRefundPolicyDetail(policyId));
+        model.addAttribute("policy", refundPolicyQueryService.getRefundPolicyDetail(policyId));
         return TMPL_ADMIN_REFUND_DETAIL;
     }
 

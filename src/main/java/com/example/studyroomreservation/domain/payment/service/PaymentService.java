@@ -1,7 +1,7 @@
 package com.example.studyroomreservation.domain.payment.service;
 
 import com.example.studyroomreservation.domain.member.entity.Member;
-import com.example.studyroomreservation.domain.member.repository.MemberRepository;
+import com.example.studyroomreservation.domain.member.service.MemberQueryService;
 import com.example.studyroomreservation.domain.payment.client.TossPaymentsClient;
 import com.example.studyroomreservation.domain.payment.dto.request.PaymentApproveRequest;
 import com.example.studyroomreservation.domain.payment.dto.request.TossConfirmRequest;
@@ -14,10 +14,10 @@ import com.example.studyroomreservation.domain.payment.mapper.PaymentMapper;
 import com.example.studyroomreservation.domain.payment.mapper.TossConfirmMapper;
 import com.example.studyroomreservation.domain.payment.repository.PaymentAttemptRepository;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
-import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.repository.ReservationRepository;
+import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.room.entity.Room;
-import com.example.studyroomreservation.domain.room.repository.RoomRepository;
+import com.example.studyroomreservation.domain.room.service.RoomQueryService;
 import com.example.studyroomreservation.global.aop.DistributedLock;
 import com.example.studyroomreservation.global.config.TossPaymentConfig;
 import com.example.studyroomreservation.global.exception.BusinessException;
@@ -35,9 +35,11 @@ import java.time.LocalDateTime;
 public class PaymentService {
 
     private final PaymentAttemptRepository paymentAttemptRepository;
-    private final ReservationRepository reservationRepository;
-    private final RoomRepository roomRepository;
-    private final MemberRepository memberRepository;
+    private final ReservationRepository reservationRepository;  // Lock 메서드용 유지
+
+    private final RoomQueryService roomQueryService;
+    private final MemberQueryService memberQueryService;
+    private final ReservationQueryService reservationQueryService;
 
     private final PaymentTransactionHelper paymentTransactionHelper;
     private final PaymentAttemptFailService failService;
@@ -49,6 +51,7 @@ public class PaymentService {
 
     private static final int RESERVATION_EXPIRE_EXTENSION_MINUTES = 3;
     private static final long PAYMENT_APPROVE_TTL_MINUTES = 10L;
+    private final PaymentQueryService paymentQueryService;
 
     @Transactional
     public PaymentPrepareResponse createPaymentAttempt(Long reservationId) {
@@ -56,7 +59,7 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findByIdWithLock(reservationId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if (reservation.getStatus() != ReservationStatus.TEMP) {
+        if (!reservation.isPayable(LocalDateTime.now())) {
             throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
 
@@ -66,20 +69,13 @@ public class PaymentService {
             reservation.extendExpiresAt(RESERVATION_EXPIRE_EXTENSION_MINUTES);
         }
 
-        // 만료된 예약인지 확인
-        if(reservation.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
-        }
-
         int realAmount = reservation.getTotalAmount();
         PaymentAttempt paymentAttempt = PaymentAttempt.createPending(reservationId, realAmount, PaymentMethod.PG);
         paymentAttemptRepository.save(paymentAttempt);
 
-        Room room = roomRepository.findById(reservation.getRoomId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        Room room = roomQueryService.getById(reservation.getRoomId());
 
-        Member member = memberRepository.findById(reservation.getMemberId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberQueryService.getById(reservation.getMemberId());
 
         return paymentMapper.toPrepareResponse(
                 paymentAttempt,
@@ -121,8 +117,7 @@ public class PaymentService {
     }
 
     private PaymentAttempt validateAndGetAttempt(PaymentApproveRequest request) {
-        PaymentAttempt attempt = paymentAttemptRepository.findByOrderId(request.orderId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_ATTEMPT_NOT_FOUND));
+        PaymentAttempt attempt = paymentQueryService.getAttemptByOrderId(request.orderId());
 
         // 시간 검증 (TTL)
         if (attempt.getCreatedAt().plusMinutes(PAYMENT_APPROVE_TTL_MINUTES).isBefore(LocalDateTime.now())) {
@@ -130,19 +125,17 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.PAYMENT_INVALID_REQUEST);
         }
 
-        Reservation reservation = reservationRepository.findById(attempt.getReservationId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = reservationQueryService.getById(attempt.getReservationId());
 
-        // 예약 상태 = TEMP 검증
-        if (reservation.getStatus() != ReservationStatus.TEMP) {
-            failService.markFailed(request.orderId(), "INVALID_RESERVATION_STATUS", "Reservation is not TEMP");
-            throw new BusinessException(ErrorCode.INVALID_REQUEST);
-        }
-
-        // 예약이 만료되었는지 검증
-        if (reservation.getExpiresAt().isBefore(LocalDateTime.now())) {
-            failService.markFailed(request.orderId(), "RESERVATION_EXPIRED", "Reservation time has expired before PG call");
-            throw new BusinessException(ErrorCode.RES_ALREADY_EXPIRED);
+        try {
+            reservation.validatePayableForApprove(LocalDateTime.now());
+        } catch (BusinessException e) {
+            failService.markFailed(
+                    request.orderId(),
+                    e.getErrorCode().name(),
+                    "Reservation is not payable for approve"
+            );
+            throw e;
         }
 
         // 멱등성 및 상태 검증
