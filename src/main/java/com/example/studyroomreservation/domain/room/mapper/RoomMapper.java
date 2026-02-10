@@ -1,8 +1,8 @@
 package com.example.studyroomreservation.domain.room.mapper;
 
 import com.example.studyroomreservation.domain.room.dto.request.RoomCreateRequest;
+import com.example.studyroomreservation.domain.room.dto.response.RoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
-import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.entity.RoomImage;
@@ -22,8 +22,8 @@ public interface RoomMapper {
     int DEFAULT_MIN_DURATION_MINUTES = 60;
     int DEFAULT_BOOKING_OPEN_DAYS = 30;
 
-    // User: Room -> UserRoomDetailResponse
-    default UserRoomDetailResponse toUserDetailResponse(Room room) {
+    // User, Admin 공용 : Room -> RoomDetailResponse
+    default RoomDetailResponse toDetailResponse(Room room) {
         List<String> amenities = room.getAmenities() == null
                 ? List.of()
                 : room.getAmenities().stream()
@@ -32,7 +32,7 @@ public interface RoomMapper {
                         .toList();
 
         String heroImageUrl = selectHeroImageUrl(room.getImages());
-        List<UserRoomDetailResponse.GalleryImage> galleryImages = selectGalleryImages(room.getImages());
+        List<RoomDetailResponse.GalleryImage> galleryImages = selectGalleryImages(room.getImages());
 
         Integer slotMinutes = room.getOperationPolicy() != null
                 ? room.getOperationPolicy().getSlotUnit().getMinutes()
@@ -44,7 +44,7 @@ public interface RoomMapper {
                 ? room.getRoomRule().getBookingOpenDays()
                 : DEFAULT_BOOKING_OPEN_DAYS;
 
-        return new UserRoomDetailResponse(
+        return new RoomDetailResponse(
                 room.getId(),
                 room.getName(),
                 room.getMaxCapacity(),
@@ -72,14 +72,14 @@ public interface RoomMapper {
     }
 
     // 갤러리 이미지 선택 (GENERAL만)
-    default List<UserRoomDetailResponse.GalleryImage> selectGalleryImages(List<RoomImage> images) {
+    default List<RoomDetailResponse.GalleryImage> selectGalleryImages(List<RoomImage> images) {
         if (images == null || images.isEmpty()) {
             return List.of();
         }
         return images.stream()
                 .filter(img -> img.getType() == RoomImage.ImageType.GENERAL)
                 .sorted(Comparator.comparing(RoomImage::getSortOrder))
-                .map(img -> new UserRoomDetailResponse.GalleryImage(img.getId(), img.getImageUrl(), img.getSortOrder()))
+                .map(img -> new RoomDetailResponse.GalleryImage(img.getId(), img.getImageUrl(), img.getSortOrder()))
                 .toList();
     }
 

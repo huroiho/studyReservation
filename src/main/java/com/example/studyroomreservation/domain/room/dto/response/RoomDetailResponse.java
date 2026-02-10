@@ -2,7 +2,7 @@ package com.example.studyroomreservation.domain.room.dto.response;
 
 import java.util.List;
 
-public record UserRoomDetailResponse(
+public record RoomDetailResponse(
         Long id,
         String name,
         Integer maxCapacity,
