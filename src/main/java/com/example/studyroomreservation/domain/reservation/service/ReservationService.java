@@ -10,10 +10,7 @@ import com.example.studyroomreservation.domain.refund.service.RefundPolicyServic
 import com.example.studyroomreservation.domain.refund.service.RefundService;
 import com.example.studyroomreservation.domain.payment.service.PaymentQueryService;
 import com.example.studyroomreservation.domain.reservation.dto.request.ReservationCreateRequest;
-import com.example.studyroomreservation.domain.reservation.dto.response.AdminReservationResponse;
-import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
-import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
-import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.*;
 import com.example.studyroomreservation.domain.reservation.entity.Reservation;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.mapper.ReservationMapper;
@@ -274,11 +271,9 @@ public class ReservationService {
     }
 
     // 마이페이지 예약 히스토리 조회
-    public Page<ReservationResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
+    public Page<ReservationHistoryResponse> getMyReservationHistory(Long memberId, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
-        Page<Tuple> pageResults = reservationRepository.findMyReservationHistory(memberId, now, pageable);
-
-        return pageResults.map(t -> reservationMapper.toResponse(t.get(reservation), t.get(room)));
+        return reservationRepository.findMyReservationHistory(memberId, now, pageable);
     }
 
     // 예약 취소 예상 금액 조회
