@@ -32,7 +32,7 @@ src/main/java/com/example/studyroomreservation
 - **마이페이지**: 내 정보 조회 및 예약 내역 확인이 가능합니다.
 
 ### 2. 스터디룸 (Room)
-- **스터디룸 목록 조회**: 사용자는 다양한 조건(수용 인원, 편의시설 등)으로 스터디룸을 검색하고 정렬할 수 있습니다.
+- **스터디룸 목록 조회**: 사용자는 수용 인원으로 스터디룸을 검색하고 이름과 가격순으로 정렬할 수 있습니다.
 - **스터디룸 상세 조회**: 특정 스터디룸의 상세 정보를 확인할 수 있습니다.
 - **관리자 기능**: 관리자는 스터디룸을 등록, 수정, 삭제할 수 있으며 운영 정책을 설정할 수 있습니다.
 
@@ -202,5 +202,108 @@ sequenceDiagram
     - **Lock Lease Time**: 서버 장애 등으로 락이 해제되지 않는 경우를 대비해 일정 시간이 지나면 자동으로 락을 해제하여 다른 요청이 처리될 수 있도록 했습니다.
     - **Payment Attempt TTL**: 결제 시도(`PaymentAttempt`) 생성 후 너무 오랜 시간이 지난 요청은 보안상 유효하지 않은 것으로 간주하여 거절합니다.
 
+## 스터디룸 이미지 등록 및 관리 로직
 
+파일 I/O와 DB 트랜잭션을 분리하여 커넥션 점유 시간을 최소화하고,  
+파일 처리 실패 시에도 데이터 무결성을 유지하는 안정적인 이미지 등록 흐름을 구현했습니다.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Controller
+    participant Service as AdminRoomService
+    participant Storage as RoomImageStorageService
+    participant TX as AdminRoomTxService
+    participant DB
+    participant Disk
+
+    Client->>Controller: POST /api/admin/rooms (multipart/form-data)
+    Controller->>Service: createRoom()
+
+    Note over Service, Storage: 1. 파일 I/O (트랜잭션 외부)
+    Service->>Storage: saveImagesToTemp()
+    Storage->>Disk: 임시 디렉토리에 이미지 저장
+    Storage->>Disk: 썸네일 생성
+    Storage-->>Service: TempImageFiles 반환
+
+    Note over Service, TX: 2. DB 저장 (트랜잭션)
+    Service->>TX: createRoomWithImages()
+    TX->>DB: Room 저장
+    TX->>DB: RoomImage 메타데이터 저장
+    TX-->>Service: roomId 반환
+
+    Note over Service, Storage: 3. 파일 이동 (트랜잭션 외부)
+    Service->>Storage: moveToRoomDirectory(roomId)
+    Storage->>Disk: temp → /rooms/{roomId} 이동
+
+    Service-->>Controller: Room 생성 성공
+```
+
+---
+
+### 설계 배경
+
+스터디룸 등록 및 수정 과정에서는 다수의 이미지 업로드와 썸네일 생성이 함께 이루어집니다.  
+이미지 파일 처리(File I/O)는 네트워크 및 디스크 상태에 따라 지연되거나 실패할 수 있으므로,  
+이를 DB 트랜잭션 내부에 포함할 경우 커넥션 장시간 점유 및 장애 전파 위험이 존재했습니다.
+
+이에 따라 **파일 I/O와 DB 트랜잭션을 분리**하고,  
+실패 상황에서도 데이터 정합성을 유지할 수 있는 이미지 처리 구조를 설계했습니다.
+
+---
+
+### 핵심 설계 포인트
+
+#### 1. 파일 I/O와 DB 트랜잭션 분리
+- 이미지 업로드, 썸네일 생성, 파일 이동은 **트랜잭션 외부**에서 처리했습니다.
+- 트랜잭션은 **Room 및 RoomImage 데이터 저장 구간에만 적용**하여  
+  DB 커넥션 점유 시간을 최소화했습니다.
+- 결제 도메인에서 외부 API 호출을 트랜잭션 밖으로 분리한 설계와  
+  동일한 원칙을 적용했습니다.
+
+---
+
+#### 2. 임시 디렉토리 기반 2단계 처리
+- 최초 업로드 시 이미지는 **임시 디렉토리**에 저장됩니다.
+- DB 저장이 성공한 경우에만 `roomId` 기반의 최종 디렉토리  
+  (`/rooms/{roomId}`)로 이동합니다.
+- 이를 통해 DB 저장 실패 시 불필요한 파일이  
+  최종 경로에 남는 문제를 방지했습니다.
+
+---
+
+#### 3. 실패 상황에 대한 보상 처리
+- 파일 이동 또는 후속 처리 중 예외가 발생할 경우:
+    - 임시 디렉토리 및 Room 디렉토리 삭제
+    - 필요 시 Room soft delete 처리
+- 파일 시스템은 트랜잭션 롤백이 불가능하므로,  
+  **보상 처리 로직을 통해 데이터 정합성을 유지**했습니다.
+
+---
+
+#### 4. 파일 타입 검증을 통한 이미지 업로드 안정성 확보
+- 업로드된 파일의 확장자만을 신뢰하지 않고,  
+  Apache Tika를 사용해 실제 파일의 MIME 타입을 검증했습니다.
+- 이를 통해 이미지로 위장한 실행 파일이나  
+  비정상 파일 업로드를 사전에 차단하여 보안 위험을 줄였습니다.
+- 파일 검증 로직은 파일 I/O 계층에서 처리하여  
+  비즈니스 로직과의 결합을 최소화했습니다.
+
+---
+
+> ※ 참고  
+> 썸네일 이미지는 이미지 타입 확장성과 관리 일관성을 우선해  
+> 하나의 이미지 테이블에서 타입으로 구분하는 구조로 설계했으며,  
+> 설계 당시 목록 조회에서 반복적으로 함께 사용되는 패턴을  
+> 충분히 반영하지 못한 부분이 있었습니다.  
+> 이로 인해 Room과 Image 간 조인이 필요한 구조라는 점은 인지하고 있으며,  
+> 목록 조회가 병목이 되는 경우 `Room` 엔티티에 썸네일 URL을 직접 포함하도록  
+> 모델을 조정하는 방안을 검토할 수 있습니다.
+
+---
+
+> 요약  
+> 스터디룸 이미지 처리는 파일 I/O와 트랜잭션 경계를 명확히 분리하고,  
+> 실패 상황에 대비한 보상 처리와 파일 검증을 통해  
+> 운영 환경에서도 안정적으로 동작하도록 설계했습니다.

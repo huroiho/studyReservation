@@ -2,7 +2,6 @@ package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
-import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.service.UserRoomQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,14 +44,15 @@ public class RoomController {
         String safeSort = ALLOWED_SORT_FIELDS.contains(sort) ? sort : "name";
         Integer safeMinCapacity = (minCapacity != null && minCapacity >= 1) ? minCapacity : null;
 
-        Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, Sort.by(Sort.Direction.ASC, safeSort));
-        Page<UserRoomListResponse> roomPage = userRoomQueryService.getUserList(safeMinCapacity, safeSort, amenityStrings, safePageable);
+        Sort sortSpec = Sort.by(Sort.Direction.ASC, safeSort)
+                .and(Sort.by(Sort.Direction.ASC, "id"));
+
+        Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, sortSpec);
+        Page<UserRoomListResponse> roomPage = userRoomQueryService.getUserList(safeMinCapacity, safePageable);
 
         model.addAttribute("page", roomPage);
         model.addAttribute("minCapacity", safeMinCapacity);
         model.addAttribute("sort", safeSort);
-        model.addAttribute("amenityStrings", amenityStrings); //체크상태유지
-        model.addAttribute("amenityTypes", Room.AmenityType.values());
 
         return TMPL_ROOM_LIST;
     }

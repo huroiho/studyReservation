@@ -8,7 +8,7 @@
 </head>
 <body>
 <Header th:insert="~{fragment/header :: siteHeader(activeLink='reservations')}"></Header>
-<nav th:insert="~{fragment/admin-nav :: siteNav('')}"></nav>
+<nav th:insert="~{fragment/admin-nav :: siteNav('reservations')}"></nav>
 <div class="container">
     <h2>마이페이지</h2>
 
@@ -45,10 +45,11 @@
                         <span th:text="${#temporals.format(res.startTime, 'HH:mm')}">14:00</span> ~
                         <span th:text="${#temporals.format(res.endTime, 'HH:mm')}">16:00</span>
                     </td>
-                    <td th:text="${#numbers.formatInteger(res.totalAmount, 3, 'COMMA') + '원'}">10,000원</td>
+                    <td th:text="${#numbers.formatInteger(res.totalAmount, 0, 'COMMA') + '원'}">10,000원</td>
                     <td>
                             <span class="status-badge"
-                                  th:classappend="${res.status.toString() == 'CANCELED' ? 'cancel' : 'used'}"
+                                  th:classappend="${res.status.name() == 'CANCELED' ? 'cancel' :
+                                                  (res.status.name() == 'EXPIRED' ? 'expired' : 'used')}"
                                   th:text="${res.status}">USED</span>
                     </td>
                 </tr>
@@ -57,7 +58,8 @@
                 </tr>
                 </tbody>
             </table>
-            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'myPage/history')}"></div>
+            <!-- 페이지네이션 경로 수정 -->
+            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'members/mypage/history')}"></div>
         </div>
     </section>
 </div>

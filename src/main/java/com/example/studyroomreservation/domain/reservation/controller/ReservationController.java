@@ -1,6 +1,7 @@
 package com.example.studyroomreservation.domain.reservation.controller;
 
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationDetailResponse;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationHistoryResponse;
 import com.example.studyroomreservation.domain.reservation.dto.response.ReservationResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationService;
 import com.example.studyroomreservation.global.security.auth.CustomUserDetails;
@@ -71,7 +72,7 @@ public class ReservationController {
     ) {
         Long memberId = userDetails.getMember().getId();
 
-        Page<ReservationResponse> historyPage = reservationService.getMyReservationHistory(memberId, pageable);
+        Page<ReservationHistoryResponse> historyPage = reservationService.getMyReservationHistory(memberId, pageable);
 
         model.addAttribute("historyPage", historyPage);
         model.addAttribute("reservations", historyPage.getContent());

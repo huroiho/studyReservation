@@ -1,12 +1,15 @@
 package com.example.studyroomreservation.domain.reservation.repository;
 
 
-import com.example.studyroomreservation.domain.reservation.entity.Reservation;
+import com.example.studyroomreservation.domain.reservation.dto.response.ReservationHistoryResponse;
 import com.example.studyroomreservation.domain.reservation.entity.ReservationStatus;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
+import com.example.studyroomreservation.domain.room.entity.QRoomImage;
+import com.example.studyroomreservation.domain.room.entity.RoomImage;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import com.example.studyroomreservation.domain.reservation.dto.response
         .AdminReservationResponse;
-import com.example.studyroomreservation.domain.member.entity.QMember;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -27,6 +26,7 @@ import static com.example.studyroomreservation.domain.reservation.entity.QReserv
 import static com.example.studyroomreservation.domain.reservation.entity.ReservationStatus.*;
 import static com.example.studyroomreservation.domain.room.entity.QRoom.room;
 import static com.example.studyroomreservation.domain.member.entity.QMember.member;
+import static com.example.studyroomreservation.domain.room.entity.QRoomImage.roomImage;
 
 @RequiredArgsConstructor
 public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
@@ -85,17 +85,15 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
     }
 
     // 마이페이지 예약현황 조회
-    // Tuple : 두 종류 이상의 객체 묶을때 사용 (reservation, room), map과 유사한 동작
     @Override
     public List<Tuple> findMyActiveReservationsWithRoom(Long memberId, LocalDateTime now) {
         return queryFactory
                 .select(reservation, room)
                 .from(reservation)
                 .join(room).on(reservation.roomId.eq(room.id))
-                //.leftJoin(room.images).fetchJoin()
+                .leftJoin(room.images).fetchJoin()
                 .where(
-                        reservation.memberId.eq(memberId), // 내 예약
-//                        reservation.status.in(ReservationStatus.CONFIRMED, ReservationStatus.TEMP),
+                        reservation.memberId.eq(memberId),
                         isActiveStatus(now)
                 )
                 .orderBy(reservation.startTime.asc())
@@ -132,13 +130,12 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 ))
                 .from(reservation)
 
-                // ID 기반 조인
                 .leftJoin(member).on(reservation.memberId.eq(member.id))
                 .leftJoin(room).on(reservation.roomId.eq(room.id))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
 
-                // 최신 순으로 정렬 고정(검색이나 다른 정렬 필요 시 수정)
+
                 .orderBy(reservation.id.desc())
                 .fetch();
 
@@ -153,11 +150,24 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
 
     // 마이페이지 예약 히스토리
     @Override
-    public Page<Tuple> findMyReservationHistory(Long memberId, LocalDateTime now, Pageable pageable) {
-        List<Tuple> content = queryFactory
-                .select(reservation, room)
+    public Page<ReservationHistoryResponse> findMyReservationHistory(Long memberId, LocalDateTime now, Pageable pageable) {
+        
+        List<ReservationHistoryResponse> content = queryFactory
+                .select(Projections.constructor(ReservationHistoryResponse.class,
+                        reservation.id,
+                        room.name,
+                        roomImage.imageUrl,
+                        reservation.startTime,
+                        reservation.endTime,
+                        reservation.status,
+                        reservation.totalAmount
+                ))
                 .from(reservation)
                 .join(room).on(reservation.roomId.eq(room.id))
+                .leftJoin(roomImage).on(
+                        roomImage.room.id.eq(room.id)
+                        .and(roomImage.type.eq(RoomImage.ImageType.THUMBNAIL))
+                )
                 .where(
                         reservation.memberId.eq(memberId)
                 )
