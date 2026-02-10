@@ -177,3 +177,18 @@
     display: inline;
     margin: 0;
 }
+
+.room-name-link {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.room-name-link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.room-name-link:focus {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}

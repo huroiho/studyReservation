@@ -1,11 +1,11 @@
 package com.example.studyroomreservation.domain.room.controller;
 
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room.AmenityType;
 import com.example.studyroomreservation.domain.room.service.AdminRoomQueryService;
 import com.example.studyroomreservation.domain.room.service.AdminRoomService;
-import com.example.studyroomreservation.domain.room.service.RoomQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,6 +61,15 @@ public class AdminRoomController {
         model.addAttribute("page", page);
 
         return TMPL_ADMIN_ROOM_LIST;
+    }
+
+    @GetMapping(VIEW_ROOM_DETAIL)
+    public String adminRoomDetail(@PathVariable Long roomId, Model model){
+        RoomDetailResponse room = adminRoomQueryService.getAdminRoomDetail(roomId);
+        model.addAttribute("room", room);
+        model.addAttribute("backUrl", VIEW_ADMIN_ROOM_BASE);
+
+        return TMPL_ROOM_DETAIL;
     }
 
     @PostMapping(VIEW_ADMIN_ROOM_TOGGLE)
