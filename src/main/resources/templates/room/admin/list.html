@@ -26,7 +26,7 @@
 
     <div class="form-card">
         <table class="room-table">
-            <!-- ⭐ 컬럼 폭 고정의 핵심 -->
+            <!--  컬럼 폭 고정의 핵심 -->
             <colgroup>
                 <col class="col-thumb">
                 <col class="col-name">
@@ -59,8 +59,12 @@
                 </td>
 
                 <!-- Name -->
-                <td class="room-name" th:text="${room.name}">
-                    브레인스토름 T (8인)
+                <td class="room-name">
+                    <a th:href="@{/admin/rooms/{roomId}(roomId=${room.id})}"
+                       class="room-name-link"
+                       th:text="${room.name}">
+                        브레인스토름 T (8인)
+                    </a>
                 </td>
 
                 <!-- Capacity -->

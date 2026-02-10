@@ -18,7 +18,9 @@ public final class RoomConstants {
     public static final String VIEW_ROOM_DETAIL = "/{roomId}";
 
     public static final String TMPL_ROOM_LIST = "room/user/list";
-    public static final String TMPL_ROOM_DETAIL = "room/user/detail";
+
+    // --- 공용 View ---
+    public static final String TMPL_ROOM_DETAIL = "room/detail";
 
     // --- 관리자 API ---
     public static final String API_ADMIN_ROOM_BASE = "/api/admin/rooms";
