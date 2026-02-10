@@ -147,8 +147,8 @@
                 '<td class="text-primary">' + escapeHtml(room.name) + '</td>' +
                 '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
                 '<td>' +
-                    '<a href="/admin/rooms/' + escapeHtml(String(room.id)) + '" class="link-detail">' +
-                        '상세 보기' +
+                    '<a href="/admin/rooms/' + escapeHtml(String(room.id)) +'/edit' +'" class="link-detail">' +
+                        '수정 하기' +
                         '<svg class="icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                             '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>' +
                             '<polyline points="15 3 21 3 21 9"></polyline>' +
