@@ -68,7 +68,6 @@ public class PaymentTransactionHelper {
         // 예약 상태 및 만료 최종 확인 (방어 로직)
         Reservation reservation = reservationQueryService.getById(attempt.getReservationId());
 
-        //TODO : 돈은 나갔는데 예약 상태가 이상한 상황 or 예약이 만료된 상황 -> (추후 환불 로직 cancel 호출 필요)
         try {
             reservation.validatePayableForApprove(LocalDateTime.now());
         } catch (BusinessException e) {

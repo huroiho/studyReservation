@@ -36,7 +36,7 @@ public class DistributedLockAop {
                 signature.getParameterNames(),
                 joinPoint.getArgs(),
                 distributedLock.key()
-        ).toString();
+        ).toString(); // NPE 보호 로직 필요
 
         RLock rLock = redissonClient.getLock(key);
 
