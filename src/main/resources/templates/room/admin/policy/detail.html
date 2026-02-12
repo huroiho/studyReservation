@@ -107,6 +107,7 @@
                 <th class="th-padded">ID</th>
                 <th>룸 이름</th>
                 <th>상태</th>
+                <th>액션</th>
             </tr>
             </thead>
             <tbody>
@@ -116,6 +117,18 @@
                 <td>
                     <span th:class="${room.status == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
                           th:text="${room.status == 'ACTIVE' ? '활성' : '비활성'}">활성</span>
+                </td>
+                <td>
+                    <a th:href="@{/admin/rooms/{roomId}/edit(roomId=${room.id})}"
+                       class="link-detail">
+                        수정 하기
+                        <svg class="icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
                 </td>
             </tr>
             </tbody>

@@ -3,8 +3,8 @@ package com.example.studyroomreservation.domain.room.service;
 import com.example.studyroomreservation.domain.reservation.dto.response.RoomReservedTimeResponse;
 import com.example.studyroomreservation.domain.reservation.service.ReservationQueryService;
 import com.example.studyroomreservation.domain.room.dto.response.OperationPolicyResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomSlotResponse;
-import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.entity.OperationPolicy;
 import com.example.studyroomreservation.domain.room.entity.OperationSchedule;
@@ -63,13 +63,13 @@ public class UserRoomQueryService {
         return new PageImpl<>(items, pageable, idPage.getTotalElements());
     }
 
-    public UserRoomDetailResponse getUserDetail(Long roomId) {
+    public RoomDetailResponse getUserDetail(Long roomId) {
         Room room = roomRepository.findDetailById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
         validRoomStatus(room);
 
-        return roomMapper.toUserDetailResponse(room);
+        return roomMapper.toDetailResponse(room);
     }
 
     // TODO : LocalDate.now()/LocalTime.now() -> clock 주입으로 수정

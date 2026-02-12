@@ -2,6 +2,7 @@ package com.example.studyroomreservation.domain.room.service;
 
 import com.example.studyroomreservation.domain.refund.service.RefundPolicyQueryService;
 import com.example.studyroomreservation.domain.room.dto.response.AdminRoomListResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.RoomUpdateResponse;
 import com.example.studyroomreservation.domain.room.entity.Room;
 import com.example.studyroomreservation.domain.room.mapper.RoomMapper;
@@ -33,5 +34,12 @@ public class AdminRoomQueryService {
 
     public Page<AdminRoomListResponse> getAdminRoomList(Pageable pageable) {
         return roomRepository.findAdminRoomList(pageable);
+    }
+
+    public RoomDetailResponse getAdminRoomDetail(Long roomId) {
+        Room room = roomRepository.findDetailById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        return roomMapper.toDetailResponse(room);
     }
 }
