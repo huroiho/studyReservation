@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>예약 히스토리</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
+</head>
+<body>
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='reservations')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('reservations')}"></nav>
+<div class="container">
+    <h2>마이페이지</h2>
+
+    <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/mypage/reservations}" class="tab">예약 현황</a>
+            <a th:href="@{/members/mypage/history}" class="tab active">예약 히스토리</a>
+            <a th:href="@{/my}" class="tab">내 정보</a>
+        </div>
+        <div class="section-header">
+            <h2>예약 히스토리</h2>
+        </div>
+
+        <div class="history-section">
+            <table class="history-table">
+                <thead>
+                <tr>
+                    <th>날짜</th>
+                    <th>룸 이름</th>
+                    <th>이용 시간</th>
+                    <th>결제 금액</th>
+                    <th>상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="res : ${reservations}">
+                    <td th:text="${#temporals.format(res.startTime, 'yyyy-MM-dd')}">2026-02-02</td>
+                    <td class="room-name">
+                        <a th:href="@{/reservations/{id}(id=${res.reservationId})}"
+                           th:text="${res.roomName}"
+                           style="text-decoration: none; color: inherit;">미팅룸 A</a>
+                    </td>
+                    <td>
+                        <span th:text="${#temporals.format(res.startTime, 'HH:mm')}">14:00</span> ~
+                        <span th:text="${#temporals.format(res.endTime, 'HH:mm')}">16:00</span>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(res.totalAmount, 0, 'COMMA') + '원'}">10,000원</td>
+                    <td>
+                            <span class="status-badge"
+                                  th:classappend="${res.status.name() == 'CANCELED' ? 'cancel' :
+                                                  (res.status.name() == 'EXPIRED' ? 'expired' : 'used')}"
+                                  th:text="${res.status}">USED</span>
+                    </td>
+                </tr>
+                <tr th:if="${reservations.isEmpty()}">
+                    <td colspan="5" class="no-data">과거 예약 내역이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 페이지네이션 경로 수정 -->
+            <div th:replace="~{fragment/pagination :: sitePagination(${historyPage}, 'members/mypage/history')}"></div>
+        </div>
+    </section>
+</div>
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+</body>
+</html>

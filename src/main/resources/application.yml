@@ -1,57 +1,33 @@
 spring:
-  profiles:
-    # [??] 'local'
-    active: local
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
 
-  application:
-    name: Project3-StudyRoomReservation
-
-#  # ---  Servlet ---
-#  servlet:
-#    multipart:
-#      max-file-size:
-#      max-request-size:
-
-  # ---  JPA/DB  ---
   jpa:
-    open-in-view: false # [] OSIV
+    hibernate:
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        default_batch_fetch_size: 100 # [] N+1
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view:  false
 
+  profiles:
+    active: local
 
-  # --- View  ---
-  thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-  mvc:
-    hiddenmethod:
-      filter:
-        enabled: true
+  data:
+    redis:
+      port: 6380
+      host: localhost
 
-# --- Server  ---
-server:
-  port: 8080
   servlet:
-    context-path: /
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-
-logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr([%X{traceId:-NO_ID}]){yellow} [%thread] %logger{36} - %msg%n"
-
-
-#  # --- AWS  ---
-#  cloud:
-#    aws:
-#      credentials:
-#        access-key: ${AWS_ACCESS_KEY:default_key}
-#        secret-key: ${AWS_SECRET_KEY:default_secret}
-#      region:
-#        static: ap-northeast-2
-#      s3:
-#        endpoint: https://s3.ap-northeast-2.amazonaws.com
+    multipart:
+      max-file-size: 5MB # 단일 파일 최대
+      max-request-size: 50MB # 여러 파일 합계
+file:
+  upload:
+    base-path: ${UPLOAD_BASE_PATH:./uploads}
+    rooms-path: rooms

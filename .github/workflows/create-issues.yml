@@ -1,0 +1,47 @@
+name: Create Issues from CSV
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Issues via Python and GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 -c "
+          import csv, subprocess
+          
+          with open('.github/issues.csv', 'r', encoding='utf-8') as f:
+              reader = csv.DictReader(f)
+              for row in reader:
+                  labels = [l.strip() for l in row['Labels'].split(',')]
+          
+                  # 1. 라벨이 없으면 자동 생성 (이미 존재할 경우 발생하는 에러는 무시)
+                  for label in labels:
+                      subprocess.run(['gh', 'label', 'create', label], stderr=subprocess.DEVNULL)
+          
+                  # 2. 이슈 생성 명령어 조립
+                  label_args = []
+                  for label in labels:
+                      label_args.extend(['--label', label])
+          
+                  cmd = ['gh', 'issue', 'create',
+                         '--title', row['Title'],
+                         '--body', row['Body']] + label_args
+          
+                  # 3. 마일스톤 추가
+                  if row['Milestone']:
+                      cmd.extend(['--milestone', row['Milestone']])
+          
+                  # 4. 최종 이슈 생성 실행
+                  print(f\"Creating: {row['Title']}\")
+                  subprocess.run(cmd)
+          "

@@ -1,0 +1,158 @@
+.page-container { padding: 2rem; }
+.content-wrapper { max-width: 1200px; margin: 0 auto; }
+
+/* Header */
+.page-header { margin-bottom: 2rem; text-align: center; }
+.page-title { font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+.page-description { color: #6b7280; }
+
+/* Filter */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.2rem;
+    margin-bottom: 2rem;
+}
+.filter-row { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+.filter-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+}
+.filter-group label { font-weight: 500; }
+.filter-select {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    min-width: 120px;
+}
+.btn-filter {
+    padding: 0.55rem 1.5rem;
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-filter:hover { background: #1f2937; }
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+}
+.empty-icon { width: 4rem; height: 4rem; color: #9ca3af; margin-bottom: 1rem; }
+.empty-text { color: #6b7280; }
+
+/* Room Grid */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Room Card */
+.room-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.room-card:hover {
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.room-image-wrapper { aspect-ratio: 16/10; background: #f3f4f6; overflow: hidden; }
+.room-image { width: 100%; height: 100%; object-fit: cover; }
+.room-image-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: #9ca3af;
+}
+.room-image-placeholder svg { width: 3rem; height: 3rem; }
+
+.room-info { padding: 1rem; }
+.room-name { margin-bottom: 0.15rem;}
+.room-capacity { display: flex; font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; }
+.capacity-icon { margin-right: 0.25rem; line-height: 16px;}
+
+.room-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+    min-height: 78px;
+    align-content: flex-start;}
+.amenity-tag {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    border-radius: 9999px;
+}
+
+.price-value { font-weight: 700;}
+.price-unit { color: #6b7280; font-size: 0.875rem; }
+
+/* 컨테이너 레이아웃 */
+.filter-group {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-label {
+    font-weight: 500;
+}
+
+.amenity-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* 칩(Chip) 기본 스타일 */
+.amenity-chip {
+    cursor: pointer;
+}
+
+.amenity-checkbox {
+    display: none; /* 실제 체크박스는 숨김 */
+}
+
+.chip-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background-color: #f0f2f5;
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+/* 마우스 호버 효과 */
+.amenity-chip:hover .chip-text {
+    background-color: #e4e6eb;
+}
+
+/* 체크되었을 때 스타일 (핵심!) */
+.amenity-checkbox:checked + .chip-text {
+    background-color: #e7f3ff;
+    color: #1877f2;
+    border-color: #1877f2;
+    box-shadow: 0 2px 4px rgba(24, 119, 242, 0.2);
+}

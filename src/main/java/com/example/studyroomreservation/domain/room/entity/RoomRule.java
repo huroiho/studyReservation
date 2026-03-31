@@ -1,0 +1,58 @@
+package com.example.studyroomreservation.domain.room.entity;
+
+import com.example.studyroomreservation.global.common.BasePolicyEntity;
+import com.example.studyroomreservation.global.exception.BusinessException;
+import com.example.studyroomreservation.global.exception.ErrorCode;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Table(name="room_rules")
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용
+//@AllArgsConstructor // MapStruct 주입용 (Mapper에서 찾아서 매핑)
+public class RoomRule extends BasePolicyEntity {
+
+    @Column(name="min_duration_minutes", nullable = false)
+    private Integer minDurationMinutes;
+
+    @Column(name="booking_open_days", nullable = false)
+    private Integer bookingOpenDays;
+
+    // --- Private 생성자  ---
+    private RoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays){
+        this.name = name;
+        this.minDurationMinutes = minDurationMinutes != null ? minDurationMinutes : 60;
+        this.bookingOpenDays = bookingOpenDays != null ? bookingOpenDays : 30;
+    };
+
+    // --- 정적 팩토리 메서드 ----
+    public static RoomRule createRoomRule(String name, Integer minDurationMinutes, Integer bookingOpenDays, boolean active){
+        RoomRule rule = new RoomRule(name, minDurationMinutes, bookingOpenDays);
+        if (!active) rule.deactivate();
+        return rule;
+    }
+
+    // 상태변경 (객체 스스로 하는일이라 엔티티에)
+    public void toggleActiveStatus(boolean active) {
+        if (active) this.isActive = true;
+        else this.deactivate();
+    }
+
+    // ==========================================
+    public void validateReservable(LocalDateTime start, LocalDateTime end, LocalDate today) {
+        long duration = Duration.between(start, end).toMinutes();
+        if (duration < this.minDurationMinutes) {
+            throw new BusinessException(ErrorCode.RES_MIN_DURATION_NOT_MET);
+        }
+
+        LocalDate maxDate = today.plusDays(this.bookingOpenDays);
+        if (start.toLocalDate().isAfter(maxDate)) {
+            throw new BusinessException(ErrorCode.RES_BOOKING_PERIOD_EXCEEDED);
+        }
+    }
+}

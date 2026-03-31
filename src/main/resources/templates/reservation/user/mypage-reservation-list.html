@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>예약 관리</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-reservation.css}">
+</head>
+<body>
+
+<Header th:insert="~{fragment/header :: siteHeader(activeLink='reservations')}"></Header>
+<nav th:insert="~{fragment/admin-nav :: siteNav('reservations')}"></nav>
+
+<div class="container">
+    <h2>마이페이지</h2>
+    <section class="content">
+        <div class="tabs">
+            <a th:href="@{/members/mypage/reservations}" class="tab active">예약 현황</a>
+            <a th:href="@{/members/mypage/history}" class="tab">예약 히스토리</a>
+            <a th:href="@{/my}" class="tab">내 정보</a>
+        </div>
+        <div class="section-header">
+            <h2>현재 예약 <span class="count-badge" th:text="${reservations.size()}">0</span></h2>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reservations)}" class="empty-state">
+            <p>현재 예약된 내역이 없습니다.</p>
+        </div>
+
+        <div th:each="res : ${reservations}" class="reservation-card">
+            <div class="card-left">
+                <img th:src="${res.roomImageUrl != null ? res.roomImageUrl : '/api/placeholder/120/80'}"
+                     alt="room image" class="room-img">
+
+                <div class="info-group">
+                    <h3 class="room-name">
+                        <a th:href="@{/reservations/{id}(id=${res.reservationId})}"
+                           th:text="${res.roomName}"
+                           style="text-decoration: none; color: inherit;">스터디룸 A</a>
+                    </h3>
+                    <p class="datetime">
+                        <i class="icon-calendar"></i>
+                        <span th:text="${#temporals.format(res.startTime, 'yyyy년 M월 d일')}">2026년 2월 2일</span>
+                        <span th:text="${#temporals.format(res.startTime, 'HH:mm')}">14:00</span> -
+                        <span th:text="${#temporals.format(res.endTime, 'HH:mm')}">17:00</span>
+                    </p>
+                    <p class="price-info">
+                        <span th:text="${res.durationText}">3시간</span> |
+                        <span class="amount" th:text="'₩' + ${#numbers.formatInteger(res.totalAmount, 0, 'COMMA')}">₩30,000</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card-right">
+                <span th:if="${res.status == 'CONFIRMED'}" class="status-badge badge-green">승인 완료</span>
+                <span th:if="${res.status == 'TEMP'}" class="status-badge badge-yellow">결제 대기</span>
+
+                <form th:if="${(res.status == 'CONFIRMED' || res.status == 'TEMP')
+                                and res.startTime.isAfter(#temporals.createNow())}"
+                      th:id="'cancelForm-' + ${res.reservationId}"
+                      th:action="@{/reservations/{id}/cancel(id=${res.reservationId})}"
+                      method="post">
+
+                    <!-- CONFIRMED 상태일 때: 환불 모달 띄우기 -->
+                    <button th:if="${res.status == 'CONFIRMED'}"
+                            type="button" class="btn-cancel"
+                            th:onclick="'openRefundModal(' + ${res.reservationId} + ')'">
+                        예약 취소
+                    </button>
+
+                    <!-- TEMP 상태일 때: 바로 취소 (단순 확인) -->
+                    <button th:if="${res.status == 'TEMP'}"
+                            type="submit" class="btn-cancel"
+                            onclick="return confirm('결제 대기 중인 예약을 취소하시겠습니까?');">
+                        예약 취소
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- 환불 안내 모달 -->
+<div id="refundModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>예약 취소 및 환불 안내</h3>
+        </div>
+        <div class="refund-info">
+            <div class="info-row">
+                <span>적용 정책</span>
+                <span id="policyName">-</span>
+            </div>
+            <div class="info-row">
+                <span>총 결제 금액</span>
+                <span id="totalAmount">0원</span>
+            </div>
+            <div class="info-row highlight">
+                <span>환불율</span>
+                <span id="refundRate">0%</span>
+            </div>
+            <div class="info-row">
+                <span>환불 예정 금액</span>
+                <span id="refundAmount">0원</span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal btn-close" onclick="closeRefundModal()">닫기</button>
+            <button type="button" class="btn-modal btn-confirm" onclick="confirmCancel()">취소 확정</button>
+        </div>
+    </div>
+</div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+
+<script th:src="@{/js/mypage-reservation.js}"></script>
+
+</body>
+</html>

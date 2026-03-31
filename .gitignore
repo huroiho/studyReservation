@@ -37,3 +37,9 @@ out/
 .vscode/
 
 src/main/resources/application-local.yml
+
+.windsurf/
+.env
+CLAUDE.md
+
+uploads/**

@@ -1,0 +1,568 @@
+
+.page-container {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.back-link:hover {
+    color: #333;
+}
+
+/* Two Column Layout */
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left Column */
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Gallery Container */
+.gallery-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.main-image-wrapper {
+    aspect-ratio: 16/10;
+    overflow: hidden;
+}
+
+.main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+}
+
+.main-image-placeholder svg {
+    width: 64px;
+    height: 64px;
+    color: #adb5bd;
+}
+
+/* Thumbnails */
+.thumbnail-list {
+    margin-top:20px;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.thumbnail-btn {
+    flex-shrink: 0;
+    width: 72px;
+    height: 54px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.thumbnail-btn:hover {
+    border-color: #adb5bd;
+}
+
+.thumbnail-btn.active {
+    border-color: #4a6cf7;
+}
+
+.thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Room Info Card */
+.room-info-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.room-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: .5rem;
+}
+
+.room-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.room-capacity,
+.room-price {display: flex;}
+
+.meta-icon {
+    margin-right: 0.5rem;
+    line-height: 20px;
+}
+
+.room-amenities h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #444;
+}
+
+.amenities-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.amenities-list li {
+    padding: 0.25rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4a6cf7;
+    border: 1px solid #4a6cf7;
+}
+
+/* Right Column */
+.right-column {
+    position: sticky;
+    top: 2rem;
+}
+
+@media (max-width: 900px) {
+    .right-column {
+        position: static;
+    }
+}
+
+/* Reservation Section */
+.reservation-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.reservation-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.date-picker-container label {
+    font-weight: 500;
+    color: #444;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.date-input {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #919191;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.help-text {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-check {
+    background: #4a6cf7;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.btn-check:hover {
+    background: #3a5bd7;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-reserve {
+    background: #4a6cf7;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-reserve:hover:not(:disabled) {
+    background: #4a6cf7;
+}
+
+.btn-reserve:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Error and Success Messages */
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Slots Container */
+.slots-container {
+    margin-bottom: 1rem;
+}
+
+.slots-placeholder,
+.slots-loading,
+.slots-empty {
+    color: #888;
+    font-style: italic;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+}
+
+/* Slot Pill Grid */
+.slot-pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.slot-pill {
+    padding: 0.4rem 0.75rem;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 60px;
+    text-align: center;
+}
+
+.slot-pill.slot-available {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+}
+
+.slot-pill.slot-available:hover {
+    background: #c8e6c9;
+    border-color: #66bb6a;
+}
+
+.slot-pill.slot-available.selected {
+    background: #2e7d32;
+    color: #fff;
+    border-color: #1b5e20;
+}
+
+.slot-pill.slot-reserved {
+    background: #ffebee;
+    color: #c62828;
+    border-color: #ef9a9a;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.slot-pill.slot-unavailable {
+    background: #f5f5f5;
+    color: #9e9e9e;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.slot-pill:disabled {
+    cursor: not-allowed;
+}
+
+/* Summary Card */
+.summary-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0;
+}
+
+.summary-label {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.summary-value {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.summary-total {
+    margin-top: 0.375rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.summary-total .summary-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.summary-total .summary-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a6cf7;
+}
+
+/* Reserver Form */
+.reserver-form {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.reserver-form h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-group {
+    margin-bottom: 0.75rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 0.25rem;
+}
+
+.form-group .required {
+    color: #dc3545;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4a6cf7;
+    box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+}
+
+.form-input::placeholder {
+    color: #adb5bd;
+}
+
+/* Refund Policy */
+.refund-policy-group {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #4a6cf7;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    margin-left: 0.5rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-body {
+    margin: 20px 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.refund-rules-list {
+    list-style: none;
+    padding: 0;
+}
+
+.refund-rules-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.refund-rules-list li:last-child {
+    border-bottom: none;
+}
+
+.btn-primary {
+    background-color: #4a6cf7;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #3a5bd7;
+}

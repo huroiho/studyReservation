@@ -1,0 +1,46 @@
+<div th:fragment="siteHeader(activeLink)" class="header-inner"
+     xmlns:th="http://www.thymeleaf.org"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="prefix">
+        <a class="brand" th:href="@{/rooms}">
+            <span class="brand-mark">SR</span>
+            <span class="brand-text">StudyRoom</span>
+        </a>
+    </div>
+
+    <div class="nav">
+<!--        <a class="nav-link" th:href="@{/}"-->
+<!--           th:classappend="${activeLink == 'home'} ? 'is-active'">홈</a>-->
+
+        <a class="nav-link" th:href="@{/rooms}"
+           th:classappend="${activeLink == 'rooms'} ? 'is-active'">룸</a>
+
+        <a sec:authorize="hasRole('USER')"
+           class="nav-link" th:href="@{/members/mypage/reservations}"
+           th:classappend="${activeLink == 'reservations'} ? 'is-active'">내 예약</a>
+    </div>
+
+    <div class="suffix">
+        <ul>
+            <!--사용자는 내예약으로, 관리자는 룸관리로-->
+            <li sec:authorize="isAuthenticated()"
+                th:with="isAdmin=${#authorization.expression('hasRole(''ADMIN'')')},
+                 adminUrl=@{/admin/rooms},
+                 userUrl=@{/members/mypage/reservations}">
+
+                <a th:href="${isAdmin ? adminUrl : userUrl}"
+                   th:text="${#authentication.principal?.member?.name}">홍길동</a>
+            </li>
+
+            <!--로그인 여부에따라-->
+            <li sec:authorize="isAnonymous()">
+                <a th:href="@{/login}">로그인</a>
+            </li>
+            <li sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">로그아웃</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>환불 정책 목록</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/refund-admin-list.css}" />
+</head>
+<body>
+
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='refund/policy')}"></nav>
+
+<div class="container">
+    <h2>환불 정책</h2>
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/admin/refund/policy/new}" class="btn-register">
+            <span class="material-icons" style="font-size: 18px;">add</span> 환불 정책 등록
+        </a>
+    </div>
+
+    <section class="panel filter_box" style="margin-bottom: 20px;">
+        <div class="panel__tools">
+            <div class="filters">
+                <a class="pill"
+                   th:classappend="${active == null} ? ' pill--active' : ''"
+                   th:href="@{/admin/refund/policy/list(page=0, size=${page.size})}">전체</a>
+
+                <a class="pill"
+                   th:classappend="${active == true} ? ' pill--active' : ''"
+                   th:href="@{/admin/refund/policy/list(active=true, page=0, size=${page.size})}">활성</a>
+
+                <a class="pill"
+                   th:classappend="${active == false} ? ' pill--active' : ''"
+                   th:href="@{/admin/refund/policy/list(active=false, page=0, size=${page.size})}">비활성</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <!-- 정책 0개면 빈 상태 -->
+        <div class="empty" th:if="${page.totalElements == 0}">
+            <div class="empty__title">등록된 환불 정책이 없습니다.</div>
+            <div class="empty__desc">
+                우측 상단의 <b>“환불 정책 등록”</b> 버튼으로 새로운 정책을 추가할 수 있습니다.
+            </div>
+        </div>
+
+        <!-- 정책이 있을 때 테이블 -->
+        <div th:if="${page.totalElements > 0}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width: 90px;">정책 ID</th>
+                    <th>정책명</th>
+                    <th style="width: 120px;">사용 여부</th>
+                    <th style="width: 110px;">규칙 개수</th>
+                    <th style="width: 180px;">생성일</th>
+                    <th style="width: 180px;">활성 변경일</th>
+                    <th style="width: 110px;">액션</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="p : ${page.content}">
+                    <td th:text="${p.id}">1</td>
+                    <td th:text="${p.name}">일반 환불 정책</td>
+
+                    <!-- 토글은 UI 느낌만: 실제 토글 기능은 나중에 -->
+                    <td>
+                        <form th:action="@{/admin/refund/policy/{policyId}/active(policyId=${p.id})}"
+                              method="post" style="display:inline;">
+
+                            <!-- 현재 상태의 반대값을 서버로 보냄 -->
+                            <input type="hidden" name="active" th:value="${!p.active}" />
+
+                            <!-- CSRF -->
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                            <button type="submit"
+                                    class="toggle"
+                                    th:classappend="${p.active} ? ' toggle--on' : ' toggle--off'">
+                                <span class="toggle__dot"></span>
+                            </button>
+                        </form>
+                    </td>
+
+                    <td th:text="${p.ruleCount}">4</td>
+                    <td th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-15 10:30:00</td>
+                    <td th:text="${#temporals.format(p.activeUpdatedAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-15 10:30:00</td>
+
+                    <td>
+                        <!-- ✅ 컨트롤러에 맞춰 상세로 이동 -->
+                        <a class="link" th:href="@{/admin/refund/policy/{policyId}(policyId=${p.id})}">상세 보기</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+        <div th:replace="~{fragment/pagination :: sitePagination(${page}, 'list')}"></div>
+
+</div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+</body>
+</html>

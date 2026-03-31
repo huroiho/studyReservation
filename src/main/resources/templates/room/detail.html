@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title th:text="${room.name} + ' - 스터디룸 상세'">스터디룸 상세</title>
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/room-user-detail.css}">
+</head>
+<body>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='rooms')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='')}"></nav>
+    <div class="container"
+         th:data-room-id="${room.id}"
+         th:data-room-name="${room.name}"
+         th:data-room-price="${room.price}"
+         th:data-slot-minutes="${room.slotMinutes}"
+         th:data-min-duration-minutes="${room.minDurationMinutes}"
+         th:data-booking-open-days="${room.bookingOpenDays}"
+         th:data-refund-policy-id="${room.refundPolicyId}">
+        <div class="content-wrapper">
+
+            <!-- Back Link -->
+
+            <a th:href="${backUrl}" class="back-link">
+                <span class="material-icons">arrow_back</span> 목록으로
+            </a>
+
+            <!-- Two Column Layout -->
+            <div class="detail-layout">
+
+                <!-- LEFT COLUMN: Gallery + Room Info -->
+                <div class="left-column">
+
+                    <!-- Image Gallery -->
+                    <div class="gallery-container">
+                        <!-- Main Image -->
+                        <div class="main-image-wrapper">
+                            <img th:if="${room.heroImageUrl != null or (room.galleryImages != null and !room.galleryImages.isEmpty())}"
+                                 th:src="${room.heroImageUrl != null ? room.heroImageUrl : room.galleryImages[0].url}"
+                                 th:alt="${room.name}"
+                                 id="mainImage"
+                                 class="main-image">
+                            <div th:if="${room.heroImageUrl == null and (room.galleryImages == null or room.galleryImages.isEmpty())}"
+                                 class="main-image-placeholder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div th:if="${(room.heroImageUrl != null and room.galleryImages != null and !room.galleryImages.isEmpty()) or (room.galleryImages != null and room.galleryImages.size() > 1)}"
+                             class="thumbnail-list" id="thumbnailList">
+                            <!-- Hero image as first thumbnail if exists -->
+                            <button th:if="${room.heroImageUrl != null}"
+                                    type="button"
+                                    class="thumbnail-btn active"
+                                    th:data-url="${room.heroImageUrl}"
+                                    th:title="${room.name} + ' 메인 이미지'">
+                                <img th:src="${room.heroImageUrl}" th:alt="${room.name} + ' 메인 이미지'" class="thumbnail-img">
+                            </button>
+                            <!-- Gallery images as thumbnails -->
+                            <button th:each="img, stat : ${room.galleryImages}"
+                                    type="button"
+                                    th:class="${room.heroImageUrl == null and stat.first} ? 'thumbnail-btn active' : 'thumbnail-btn'"
+                                    th:data-url="${img.url}"
+                                    th:title="${room.name} + ' 이미지 ' + ${stat.count}">
+                                <img th:src="${img.url}" th:alt="${room.name} + ' 이미지 ' + ${stat.count}" class="thumbnail-img">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Room Info -->
+                    <div class="room-info-card">
+                        <h1 class="room-name" th:text="${room.name}">스터디룸 A</h1>
+                        <div class="room-meta">
+                            <p class="room-capacity">
+                                <span class="meta-icon">👥</span>
+                                최대 <span th:text="${room.maxCapacity}">4</span>명
+                            </p>
+                            <p class="room-price">
+                                <span class="meta-icon">💰</span>
+                                <span th:text="${#numbers.formatInteger(room.price, 0, 'COMMA')}">10,000</span>원/시간
+                            </p>
+                        </div>
+                        <div th:if="${room.amenities != null and !room.amenities.isEmpty()}" class="room-amenities">
+                            <h3>편의시설</h3>
+                            <ul class="amenities-list">
+                                <li th:each="amenity : ${room.amenities}" th:text="${amenity}">WiFi</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: Reservation Panel -->
+                <div class="right-column">
+                    <div class="reservation-section">
+                        <h2>예약하기</h2>
+
+                        <!-- Date Picker -->
+                        <div class="date-picker-container">
+                            <label for="slotDate">날짜 선택</label>
+                            <input type="date" id="slotDate" class="date-input">
+                            <button type="button" id="checkSlotsBtn" class="btn btn-check">조회</button>
+                        </div>
+
+                        <!-- Help Text -->
+                        <p class="help-text" id="helpText"></p>
+
+                        <!-- Error Message -->
+                        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+                        <!-- Slots Container -->
+                        <div id="slotsContainer" class="slots-container">
+                            <p class="slots-placeholder">날짜를 선택하고 조회 버튼을 클릭하세요.</p>
+                        </div>
+
+                        <!-- Clear Selection Button -->
+                        <div id="clearSelectionContainer" style="display: none; margin-bottom: 1rem;">
+                            <button type="button" id="clearSelectionBtn" class="btn btn-secondary">선택 초기화</button>
+                        </div>
+
+                        <!-- Reservation Summary Card -->
+                        <div id="summaryCard" class="summary-card" style="display: none;">
+                            <h3>예약 정보</h3>
+                            <div class="summary-row">
+                                <span class="summary-label">스터디룸</span>
+                                <span class="summary-value" id="summaryRoomName"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">날짜</span>
+                                <span class="summary-value" id="summaryDate"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">시간</span>
+                                <span class="summary-value" id="summaryTime"></span>
+                            </div>
+                            <div class="summary-row summary-total">
+                                <span class="summary-label">예상 금액</span>
+                                <span class="summary-value" id="summaryAmount"></span>
+                            </div>
+                        </div>
+
+                        <!-- Reserver Info Form -->
+                        <div id="reserverForm" class="reserver-form" style="display: none;">
+                            <h3>예약자 정보</h3>
+                            <div class="form-group">
+                                <label for="reserverName">이름 <span class="required">*</span></label>
+                                <input type="text" id="reserverName" class="form-input" placeholder="홍길동" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reserverPhone">연락처 <span class="required">*</span></label>
+                                <input type="tel" id="reserverPhone" class="form-input" placeholder="010-1234-5678" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reserverEmail">이메일 <span class="required">*</span></label>
+                                <input type="email" id="reserverEmail" class="form-input" placeholder="example@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reserverCompany">회사/소속 (선택)</label>
+                                <input type="text" id="reserverCompany" class="form-input" placeholder="회사명">
+                            </div>
+
+                            <!-- Refund Policy Link (Simple View) -->
+                            <div class="form-group" style="text-align: right; margin-top: 10px;">
+                                <button type="button" id="viewRefundPolicyBtn" class="btn-link">환불 정책 보기</button>
+                            </div>
+
+                            <button type="button" id="reserveBtn" class="btn btn-reserve" disabled
+                                    th:data-is-authenticated="${#authorization.expression('isAuthenticated()')}">예약하기</button>
+                        </div>
+
+                        <!-- Success Message -->
+                        <div id="successMessage" class="success-message" style="display: none;"></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Refund Policy Modal -->
+    <div id="refundPolicyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>환불 정책 확인</h2>
+            <div id="refundPolicyContent" class="modal-body">
+                <!-- Policy content will be loaded here -->
+                <p>로딩 중...</p>
+            </div>
+            <div class="modal-footer">
+                <!-- Buttons will be toggled by JS -->
+                <button type="button" id="modalCloseBtn" class="btn btn-secondary close-modal-btn">닫기</button>
+                <button type="button" id="modalCancelBtn" class="btn btn-secondary close-modal-btn" style="display:none;">취소</button>
+                <button type="button" id="modalAgreeBtn" class="btn btn-primary" style="display:none;">동의하고 예약하기</button>
+            </div>
+        </div>
+    </div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+<script th:src="@{/js/room-user-detail.js}"></script>
+</body>
+</html>

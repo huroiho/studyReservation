@@ -1,0 +1,513 @@
+/* ========== Base ========== */
+:root{
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e5e7eb;
+
+    --primary: #2563eb;     /* blue */
+    --primary-2: #1d4ed8;   /* darker */
+    --accent: #06b6d4;      /* cyan */
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    --shadow: 0 20px 60px rgba(2, 6, 23, 0.08);
+    --radius: 18px;
+}
+body.has_bg{
+    background:
+        radial-gradient(900px 400px at 18% 12%, rgba(37,99,235,0.12), transparent 60%),
+        radial-gradient(700px 350px at 80% 30%, rgba(6,182,212,0.12), transparent 55%),
+        var(--bg);
+}
+/* ========== Layout ========== */
+.page{
+    padding: 42px 0 56px;
+}
+.page.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-layout{
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 26px;
+    align-items: stretch;
+}
+
+/* ========== Hero ========== */
+.hero{
+    padding: 28px;
+    border-radius: var(--radius);
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(229,231,235,0.9);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+}
+
+.hero-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 12px;
+    color: #0b3b5a;
+    background: rgba(6,182,212,0.14);
+    border: 1px solid rgba(6,182,212,0.25);
+}
+
+.hero-title{
+    margin: 14px 0 10px;
+    font-size: 38px;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+}
+
+.hero-desc{
+    margin: 0 0 18px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.hero-points{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.hero-points li{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(229,231,235,0.85);
+}
+
+.dot{
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+}
+
+/* ========== Card ========== */
+.card{
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid rgba(229,231,235,0.9);
+    box-shadow: var(--shadow);
+    padding: 26px;
+}
+
+.card-head{
+    margin-bottom: 18px;
+}
+
+.card-title{
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+}
+
+.card-sub{
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Alerts */
+.alert{
+    border-radius: 14px;
+    padding: 12px 12px;
+    margin: 12px 0;
+    display: grid;
+    gap: 3px;
+    border: 1px solid transparent;
+    font-size: 13px;
+}
+
+.alert strong{ font-size: 13px; }
+
+.alert-error{
+    background: rgba(239,68,68,0.09);
+    border-color: rgba(239,68,68,0.18);
+    color: #7f1d1d;
+}
+
+.alert-info{
+    background: rgba(14,165,233,0.10);
+    border-color: rgba(14,165,233,0.18);
+    color: #0c4a6e;
+}
+
+/* Form */
+.form{
+    display: grid;
+    gap: 14px;
+}
+
+.field{
+    display: grid;
+    gap: 8px;
+}
+
+.label{
+    font-size: 13px;
+    color: #334155;
+    font-weight: 700;
+}
+
+.input-wrap{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(229,231,235,1);
+    background: #f8fafc;
+    transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.icon{
+    width: 26px;
+    height: 26px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: #0f172a;
+    background: rgba(37,99,235,0.10);
+}
+
+.input{
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.input::placeholder{
+    color: #94a3b8;
+}
+
+.input-wrap:focus-within{
+    border-color: rgba(37,99,235,0.55);
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+    background: #ffffff;
+}
+
+/* Button */
+.btn{
+    margin-top: 6px;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-weight: 800;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow: 0 14px 30px rgba(37,99,235,0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 90ms ease, filter 120ms ease;
+}
+
+.btn:hover{ filter: brightness(1.02); }
+.btn:active{ transform: translateY(1px); }
+
+.btn-arrow{
+    opacity: 0.9;
+    font-weight: 900;
+}
+
+/* Card foot */
+.card-foot{
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.hint{
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pill{
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(229,231,235,1);
+    background: rgba(248,250,252,1);
+    color: #0f172a;
+    font-weight: 700;
+    margin-left: 6px;
+}
+
+.muted{
+    margin: 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+
+/*회원정보수정*/
+/* 전체 컨테이너 */
+.edit-profile-container {
+    margin-bottom: 30px;
+    padding: 40px 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03);
+}
+.edit-form {
+    max-width: 700px;
+}
+
+/* 폼 그룹 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+/* 입력창 공통 */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.password-section input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.password-section input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* 읽기전용 (이메일) */
+.readonly-input {
+    background-color: #f1f5f9 !important;
+    color: #64748b;
+    cursor: default;
+}
+
+/* 인라인 요소 배치 (배지, 버튼) */
+.input-with-badge,
+.input-with-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.badge-status.success {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.btn-inline-auth {
+    position: absolute;
+    right: 8px;
+    padding: 8px 20px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-inline-auth:hover {
+    background-color: #1d4ed8;
+}
+
+/* 비밀번호 섹션 */
+.password-section {
+    margin-top: 30px;
+}
+
+.password-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.mb-sm {
+    margin-bottom: 10px;
+}
+
+.password-strength {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+}
+
+.bar-fill.weak {
+    width: 30%;
+    background: #ef4444;
+}
+
+.strength-text {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* 저장 버튼 */
+.btn-save-main {
+    width: 100%;
+    padding: 14px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 30px;
+    cursor: pointer;
+}
+
+.btn-save-main:hover {
+    background-color: #1d4ed8;
+}
+
+/* 계정 관리 */
+.section-subtitle {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.logout-box {
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn-logout-link {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.withdraw-link-wrapper {
+    text-align: center;
+}
+
+.link-withdraw {
+    color: #ef4444;
+    font-size: 14px;
+    text-decoration: none;
+    opacity: 0.8;
+}
+
+.link-withdraw:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 5px;
+}
+.footer-actions{
+    text-align: right;
+}
+.back-link{
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 6px;
+}
+
+.signup-link {
+    font-size: 1.05rem;   /* 살짝 크게 */
+    font-weight: 700;     /* bold */
+}
+
+.readonly-box{
+    flex: 1;
+    background: #f3f4f6;        /* 회색 */
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.readonly-value{
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.readonly-hint{
+    font-size: 12px;
+    color: #9ca3af;             /* 흐린 글씨 */
+    line-height: 1.2;
+}
+
+.field-error {
+    color: #ff3b30;      /* 지금 빨간색 느낌 유지 */
+    font-size: 12px;     /* 폰트 살짝 작게 */
+    margin-top: 6px;     /* input 바로 아래로 붙게 */
+    margin-bottom: 10px; /* 다음 input과 간격 */
+    line-height: 1.3;
+}

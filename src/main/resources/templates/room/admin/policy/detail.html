@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>운영 정책 상세</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/fragment-style.css}">
+    <link rel="stylesheet" th:href="@{/css/operation-policy.css}" />
+</head>
+
+<body>
+<header th:insert="~{fragment/header :: siteHeader(activeLink='')}"></header>
+<nav th:insert="~{fragment/admin-nav :: siteNav(activeLink='operation-policies')}"></nav>
+<div class="container">
+    <a th:href="@{/admin/operation-policies}" class="back-link">
+        <span class="material-icons">arrow_back</span> 목록으로
+    </a>
+    <h2>운영 정책 상세</h2>
+    <!-- 정책 기본 정보 -->
+    <div class="detail-card">
+        <h3>정책 기본 정보</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">정책 ID</span>
+                <span class="detail-value" th:text="${policy.id}">1</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">정책명</span>
+                <span class="detail-value" th:text="${policy.name}">표준 운영 정책</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">슬롯 단위</span>
+                <span class="detail-value" th:text="${policy.slotUnit.label}">60분</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">상태</span>
+                <span th:class="${policy.active ? 'status-active' : 'status-inactive'}"
+                      th:text="${policy.active ? '활성' : '비활성'}">활성</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">생성일</span>
+                <span class="detail-value"
+                      th:text="${policy.createdAt != null ? #temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                    2026-01-15 10:30
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">활성 변경일</span>
+                <span class="detail-value"
+                      th:text="${policy.activeUpdatedAt != null ? #temporals.format(policy.activeUpdatedAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                    2026-01-15 10:30
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 요일별 운영 스케줄 -->
+    <div class="table-container">
+        <h3 class="table-container-title">요일별 운영 스케줄</h3>
+        <table>
+            <thead>
+            <tr>
+                <th class="th-padded">요일</th>
+                <th>운영 여부</th>
+                <th>오픈 시간</th>
+                <th>마감 시간</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="s : ${policy.schedules}">
+                <td class="td-padded"
+                    th:text="${s.dayOfWeek.getDisplayName(T(java.time.format.TextStyle).FULL, T(java.util.Locale).KOREAN)}">
+                    월요일
+                </td>
+
+                <td>
+                    <span th:class="${s.closed ? 'status-inactive' : 'status-active'}"
+                          th:text="${s.closed ? '휴무' : '운영'}">운영</span>
+                </td>
+
+                <td th:if="${!s.closed}" th:text="${#temporals.format(s.openTime, 'HH:mm')}">09:00</td>
+                <td th:if="${s.closed}" class="text-muted">-</td>
+
+                <td th:if="${!s.closed}" th:text="${#temporals.format(s.closeTime, 'HH:mm')}">22:00</td>
+                <td th:if="${s.closed}" class="text-muted">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 연결된 룸 -->
+    <div class="table-container">
+        <h3 class="table-container-title">
+            연결된 룸
+            <span class="room-count" th:text="'(' + ${policy.deleteInfo.connectedRoomCount} + '개)'"></span>
+        </h3>
+
+        <div th:if="${policy.deleteInfo.connectedRoomCount == 0}" class="empty-state">
+            <span class="material-icons">meeting_room</span>
+            <p>이 정책을 사용 중인 룸이 없습니다.</p>
+        </div>
+
+        <table th:if="${policy.deleteInfo.connectedRoomCount > 0}">
+            <thead>
+            <tr>
+                <th class="th-padded">ID</th>
+                <th>룸 이름</th>
+                <th>상태</th>
+                <th>액션</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="room : ${policy.rooms}">
+                <td class="td-padded" th:text="${room.id}">1</td>
+                <td th:text="${room.name}">스터디룸 A</td>
+                <td>
+                    <span th:class="${room.status == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
+                          th:text="${room.status == 'ACTIVE' ? '활성' : '비활성'}">활성</span>
+                </td>
+                <td>
+                    <a th:href="@{/admin/rooms/{roomId}/edit(roomId=${room.id})}"
+                       class="link-detail">
+                        수정 하기
+                        <svg class="icon-xs" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 삭제 조건 안내 (View에서 메시지 조합) -->
+    <div th:if="${!policy.deleteInfo.deletable}" class="warning-box">
+        <span class="material-icons icon">warning</span>
+        <div>
+            <div>이 정책은 삭제할 수 없습니다.</div>
+            <div class="text-muted">
+                <span th:if="${policy.deleteInfo.connectedRoomCount > 0}"
+                      th:text="'연결된 룸 ' + ${policy.deleteInfo.connectedRoomCount} + '개 존재'">연결된 룸 N개 존재</span>
+                <span th:if="${policy.deleteInfo.connectedRoomCount > 0 && policy.deleteInfo.hasReservationReference}">, </span>
+                <span th:if="${policy.deleteInfo.hasReservationReference}">예약 이력 존재</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 액션 버튼 영역 -->
+    <div class="action-buttons">
+
+        <div class="right-buttons">
+            <!-- 비활성화 버튼 (활성 상태일 때만 표시) -->
+            <button th:if="${policy.active}" type="button" class="btn-deactivate">
+                <span class="material-icons icon-btn">pause_circle</span>
+                비활성화
+            </button>
+
+            <!-- 활성화 버튼 (비활성 상태일 때만 표시) -->
+            <form th:if="${!policy.active}" th:action="@{/admin/operation-policies/{id}/activate(id=${policy.id})}"
+                  method="post" class="inline-form">
+                <button type="submit" class="btn-activate">
+                    <span class="material-icons icon-btn">play_circle</span>
+                    활성화
+                </button>
+            </form>
+
+            <!-- 삭제 버튼 -->
+            <form th:if="${policy.deleteInfo.deletable}" th:action="@{/admin/operation-policies/{id}/delete(id=${policy.id})}"
+                  method="post" class="inline-form">
+                <button type="submit" class="btn-delete">
+                    <span class="material-icons icon-btn">delete</span>
+                    삭제
+                </button>
+            </form>
+
+            <button th:if="${!policy.deleteInfo.deletable}" class="btn-delete" disabled
+                    th:title="${(policy.deleteInfo.connectedRoomCount > 0 ? '연결된 룸 ' + policy.deleteInfo.connectedRoomCount + '개 존재' : '') + (policy.deleteInfo.connectedRoomCount > 0 && policy.deleteInfo.hasReservationReference ? ', ' : '') + (policy.deleteInfo.hasReservationReference ? '예약 이력 존재' : '')}">
+                <span class="material-icons icon-btn">delete</span>
+                삭제
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 비활성화 모달: 연결된 룸이 있을 때 (정보 안내용) -->
+<div th:if="${policy.active && policy.deleteInfo.connectedRoomCount > 0}" id="deactivateBlockedModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="material-icons modal-icon warning">warning</span>
+            <h3>비활성화 불가</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                현재 <strong th:text="${policy.deleteInfo.connectedRoomCount}">0</strong>개의 룸이 이 정책을 사용 중입니다.
+            </p>
+            <p>
+                비활성화하려면 먼저 해당 룸들의 운영 정책을 다른 정책으로 변경해야 합니다.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel">취소</button>
+            <button type="button" class="btn-modal-confirm">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 비활성화 모달: 연결된 룸이 없을 때 (확인 후 제출) -->
+<div th:if="${policy.active && policy.deleteInfo.connectedRoomCount == 0}" id="deactivateConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="material-icons modal-icon">pause_circle</span>
+            <h3>정책 비활성화</h3>
+        </div>
+        <div class="modal-body">
+            <p>이 운영 정책을 비활성화하시겠습니까?</p>
+            <p class="text-muted">
+                비활성화된 정책은 룸에 적용할 수 없습니다.
+            </p>
+            <p>기존 예약에는 영향을 주지 않습니다.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel">취소</button>
+            <form id="deactivateForm" th:action="@{/admin/operation-policies/{id}/deactivate(id=${policy.id})}"
+                  method="post" class="inline-form">
+                <button type="submit" class="btn-modal-confirm">확인</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<Footer th:insert="~{fragment/footer :: siteFooter}"></Footer>
+<script th:src="@{/js/operation-policy-detail.js}"></script>
+</body>
+</html>
