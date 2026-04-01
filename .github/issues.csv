@@ -1,0 +1,12 @@
+Title,Body,Labels,Milestone
+"Swagger(OpenAPI) 의존성 추가 및 전역 설정","springdoc-openapi를 build.gradle에 추가하고 전역 설정을 위한 Config 클래스를 작성하여 기존 API를 문서화합니다.","feat,docs","리팩토링 1주차"
+"SecurityConfig 세션 기반 인증 제거","formLogin, JSESSIONID 관련 코드를 삭제하고 CSRF를 비활성화하여 Stateless 환경의 기반을 마련합니다.","refactor,t/s: config","리팩토링 1주차"
+"JWT 토큰 기반 인증 필터 구현","Stateless 환경을 위한 JWT 발급, 검증(Authentication) 필터를 구현하고 SecurityFilterChain에 등록합니다.","feat,t/s: config","리팩토링 1주차"
+"CORS 전역 WebMvcConfigurer 설정","React(CSR) 애플리케이션과의 통신 시 교차 출처 리소스 공유 오류를 방지하기 위해 CORS 정책을 설정합니다.","feat,t/s: config","리팩토링 1주차"
+"PaymentService 전략 패턴(Strategy) 인터페이스 추상화","결제 로직을 추상화한 PaymentService 인터페이스를 만들고 기존 결제 로직을 TossPaymentImpl 구현체로 분리합니다.","refactor,t/s: domain","리팩토링 1주차"
+"도메인 간 강결합(Repository 직접 참조) 해제","A 도메인 Service에서 B 도메인 Repository를 직접 호출하는 부분을 찾아 B 도메인 Service 메서드 호출로 변경합니다.","refactor,t/s: domain","리팩토링 1주차"
+"MemberController를 RestController로 전환","회원 관련 컨트롤러의 타임리프 뷰 반환 로직을 제거하고 상태 코드와 JSON DTO를 반환하도록 수정합니다.","refactor","리팩토링 2주차"
+"RoomController를 RestController로 전환","스터디룸 조회 및 예약 API를 RESTful 규격에 맞게 전환하고 HTTP Method(GET/POST/PUT/DELETE)를 명확히 분리합니다.","refactor","리팩토링 2주차"
+"공통 예외 처리(GlobalExceptionHandler) JSON 규격화","@RestControllerAdvice를 활용하여 ErrorCode 기반의 공통 JSON 에러 응답 객체(ErrorResponse) 구조를 확립합니다.","feat,refactor","리팩토링 2주차"
+"React + TypeScript 프로젝트 초기 세팅 및 타입 정의","Vite 등을 이용해 프론트 환경을 구축하고, Swagger API 명세를 바탕으로 응답 DTO의 TypeScript Interface를 정의합니다.","feat,t/s: config","리팩토링 2주차"
+"예약 완료 비동기 이벤트(@EventListener) 적용","예약 트랜잭션 내부에 묶여있던 알림 로직을 분리하기 위해 Spring Event를 도입하고 메세지 발송 리스너를 별도로 구현합니다.","feat,t/s: domain","리팩토링 2주차"
