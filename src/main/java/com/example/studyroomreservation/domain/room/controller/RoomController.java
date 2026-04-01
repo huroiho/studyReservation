@@ -1,6 +1,6 @@
 package com.example.studyroomreservation.domain.room.controller;
 
-import com.example.studyroomreservation.domain.room.dto.response.UserRoomDetailResponse;
+import com.example.studyroomreservation.domain.room.dto.response.RoomDetailResponse;
 import com.example.studyroomreservation.domain.room.dto.response.UserRoomListResponse;
 import com.example.studyroomreservation.domain.room.service.UserRoomQueryService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Set;
 
 import static com.example.studyroomreservation.domain.room.controller.RoomConstants.*;
@@ -34,7 +33,6 @@ public class RoomController {
     @GetMapping
     public String list(
             @RequestParam(required = false) Integer minCapacity,
-            @RequestParam(required = false) List<String> amenityStrings,
             @RequestParam(defaultValue = "name") String sort,
             @PageableDefault(size = 12) Pageable pageable,
             Model model
@@ -59,8 +57,9 @@ public class RoomController {
 
     @GetMapping(VIEW_ROOM_DETAIL)
     public String detail(@PathVariable Long roomId, Model model) {
-        UserRoomDetailResponse room = userRoomQueryService.getUserDetail(roomId);
+        RoomDetailResponse room = userRoomQueryService.getUserDetail(roomId);
         model.addAttribute("room", room);
+        model.addAttribute("backUrl", VIEW_ROOM_BASE);
 
         return TMPL_ROOM_DETAIL;
     }
